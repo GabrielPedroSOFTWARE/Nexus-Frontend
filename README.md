@@ -11,7 +11,7 @@ npm run dev
 
 ## GitHub Pages
 
-O workflow em `.github/workflows/pages.yml` compila o frontend e publica `dist` quando há push para `main`. Para ativar, selecione **Settings → Pages → GitHub Actions** no repositório.
+O workflow em `.github/workflows/pages.yml` compila o frontend e publica `dist` quando há push para `main`. Na primeira execução, ele habilita o GitHub Pages automaticamente.
 
 O build ajusta automaticamente o caminho base para sites de projeto (`/<repositório>/`). A navegação usa hash routes para funcionar em hospedagem estática.
 
