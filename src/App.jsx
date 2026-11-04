@@ -3,9 +3,9 @@ import { HashRouter, useLocation, useNavigate } from 'react-router-dom'
 import {
   Activity, ArrowLeft, ArrowRight, BarChart3, Bell, Barcode, CalendarDays,
   Check, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, CircleUserRound,
-  ClipboardList, Clock3, Cpu, FileText, HardDrive, Headphones, Laptop,
+  ClipboardList, Clock3, Cpu, FileText, HardDrive, Headphones, Laptop, CircleAlert, TriangleAlert,
   ListFilter, Monitor, Paperclip, Plus, RefreshCw, Search, Settings, ShieldCheck,
-  Trash2, Upload, UserRound, Wrench, X, Circle, LoaderCircle, Eye, EyeOff,
+  Trash2, Upload, UserRound, Wrench, X, Circle, Loader, LoaderCircle, Eye, EyeOff,
 } from 'lucide-react'
 import {
   CartesianGrid, Line, LineChart, ResponsiveContainer,
@@ -14,11 +14,16 @@ import {
 
 const NAVY = '#33435f'
 const BRAND_ASSET = `${import.meta.env.BASE_URL}nexus-logo.png`
+const USER_AVATAR_ASSET = `${import.meta.env.BASE_URL}nexus-avatar-user.png`
+const ADMIN_AVATAR_ASSET = `${import.meta.env.BASE_URL}nexus-avatar-admin.png`
+const DESKTOP_ASSET = `${import.meta.env.BASE_URL}nexus-pc-desktop.png`
+const MACBOOK_ASSET = `${import.meta.env.BASE_URL}nexus-pc-macbook.png`
 const STATUS = {
   diagnosis: { text: 'Em diagnóstico', color: '#c9d8ff', ink: '#30466e' },
   waiting: { text: 'Aguardando peças', color: '#ffe4c7', ink: '#825a35' },
   late: { text: 'Atrasada', color: '#ff888b', ink: '#7e282b' },
   done: { text: 'Concluída', color: '#71f166', ink: '#174b1b' },
+  inUse: { text: 'Em uso', color: '#58ba58', ink: '#174b1b' },
   maintenance: { text: 'Em Manutenção', color: '#ffe0bf', ink: '#825b35' },
   active: { text: 'Em andamento', color: '#d7e2ff', ink: '#334a78' },
 }
@@ -40,43 +45,15 @@ function BrandMark({ size = 96, className = '' }) {
 function Avatar({ admin = false, size = 'md' }) {
   return (
     <span className={`avatar avatar-${size} ${admin ? 'avatar-admin' : ''}`} aria-hidden="true">
-      <svg viewBox="0 0 54 54">
-        <circle cx="27" cy="27" r="27" fill="#eee9ff" />
-        <path d="M7 54c2-11 9-16 20-16s18 5 20 16" fill="#683cc8" />
-        <path d="M18 24c0-11 4-16 10-16 7 0 11 6 10 17l-4 7H21z" fill={admin ? '#4d2b1c' : '#583722'} />
-        <ellipse cx="28" cy="26" rx="9" ry="12" fill="#f2b27e" />
-        <path d="M18 23c1-10 6-15 12-14 4 1 7 4 8 9-7 1-13-1-18 5" fill={admin ? '#51321f' : '#593b25'} />
-        <circle cx="25" cy="27" r="1" fill="#30281f" />
-        <circle cx="32" cy="27" r="1" fill="#30281f" />
-        <path d="M26 32q3 2 6-1" fill="none" stroke="#a64e4f" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
+      <img src={admin ? ADMIN_AVATAR_ASSET : USER_AVATAR_ASSET} alt="" />
     </span>
   )
 }
 
 function ComputerGraphic({ laptopMode = false }) {
-  return laptopMode ? (
-    <svg viewBox="0 0 150 150" className="computer-graphic laptop-graphic" aria-label="MacBook Air">
-      <defs><linearGradient id="metal" x1="0" x2="1"><stop stopColor="#303742"/><stop offset=".52" stopColor="#9299a2"/><stop offset="1" stopColor="#252a31"/></linearGradient></defs>
-      <rect x="37" y="19" width="76" height="103" rx="7" fill="url(#metal)" />
-      <rect x="42" y="24" width="66" height="92" rx="4" fill="#151a20" />
-      <path d="M22 124h106l-9 8H31z" fill="#a9afb7" stroke="#757c84" />
-      <circle cx="75" cy="71" r="12" fill="#272d35" />
-      <path d="M70 71q5-10 10 0-5 10-10 0" fill="#7e858d" />
-    </svg>
-  ) : (
-    <svg viewBox="0 0 120 180" className="computer-graphic" aria-label="Computador desktop">
-      <defs><linearGradient id="tower" x1="0" x2="1"><stop stopColor="#202329"/><stop offset=".65" stopColor="#555a60"/><stop offset="1" stopColor="#1e2228"/></linearGradient></defs>
-      <path d="M18 12h77l7 10v139H18z" fill="url(#tower)" stroke="#161a20" strokeWidth="2" />
-      <path d="M27 23h58v85H27z" fill="#2c3035" />
-      <path d="M31 28h48v74H31z" fill="#454a50" />
-      <rect x="36" y="117" width="38" height="29" rx="2" fill="#171b20" />
-      <circle cx="82" cy="129" r="3" fill="#68c7b6" />
-      <circle cx="82" cy="139" r="3" fill="#8ea2c2" />
-      <path d="M22 154h84" stroke="#8b9097" strokeWidth="2" />
-      <path d="M94 31v64" stroke="#81868b" strokeWidth="1" />
-    </svg>
-  )
+  return <span className={`computer-graphic ${laptopMode ? 'laptop-graphic' : ''}`} aria-hidden="true">
+    <img className="computer-graphic-image" src={laptopMode ? MACBOOK_ASSET : DESKTOP_ASSET} alt="" />
+  </span>
 }
 
 function Toast({ message, onClose }) {
@@ -199,7 +176,7 @@ function ProgressSteps({ current = 2 }) {
   const steps = ['Recebido', 'Em diagnóstico', 'Em preparo', 'Aguardando retirada']
   return <div className="progress-steps">
     {steps.map((step, index) => <div className={`progress-step ${index < current ? 'complete' : ''} ${index === current ? 'current' : ''}`} key={step}>
-      <span className="step-icon">{index < current ? <Check size={29} /> : index === current ? <LoaderCircle size={34} /> : <Circle size={34} />}</span>
+      <span className="step-icon">{index < current ? <CheckCircle2 size={29} /> : index === current ? <Loader size={34} /> : <Circle size={34} />}</span>
       {index < steps.length - 1 && <span className={`step-line ${index < current ? 'complete' : ''}`} />}
       <b>{step}</b>
     </div>)}
@@ -257,22 +234,54 @@ function RequestModal({ onClose, onSubmit }) {
   </div>
 }
 
-function DeviceCard({ onHistory }) {
+const computerInventory = {
+  desktop: {
+    id: '001', nickname: 'Desktop de usuário', status: 'Em Manutenção', statusType: 'maintenance',
+    lastMaintenance: 'Em andamento', warranty: '-------------', model: 'Desktop Lenovo ThinkCenter',
+    kind: 'desktop', cpu: 'Intel core i5 10500F', ram: '8GB', gpu: 'Intel graphics', operatingSystem: 'Window 11 PRO',
+    details: [['Armazenamento', 'SSD 1TB'], ['Memória', '8GB, DDR4, 2666 MHZ']],
+  },
+  macbook: {
+    id: '002', nickname: 'MacBook de usuário', status: 'Em uso', statusType: 'inUse',
+    lastMaintenance: '28/06/2026', warranty: '12/2026', model: 'MacBook air',
+    kind: 'laptop', cpu: 'Apple M3', ram: '16GB', gpu: 'Apple Silicon', operatingSystem: 'MacOS',
+    details: [['S.O', 'MacOS'], ['CPU', 'Apple M3'], ['Tela', 'Liquid Retina 13,6 Polegadas'], ['GPU', 'Apple Silicon']],
+  },
+}
+
+function DeviceCard({ device, onHistory }) {
   return <article className="device-card">
-    <h3>Desktop Lenovo ThinkCenter</h3>
-    <div className="device-card-main"><ComputerGraphic /><div><p><b>CPU:</b> Intel core i5 10500F</p><p><b>RAM:</b> 8GB</p><p><b>GPU:</b> Intel graphics</p><p><b>S.O:</b> Window 11 PRO</p></div></div>
-    <div className="device-details"><b>MAIS DETALHES</b><p><b>Memória:</b> 8GB, DDR4, 2666 MHZ</p><p><b>Armazenamento:</b> SSD 1TB</p></div>
+    <h3>{device.model}</h3>
+    <div className="device-card-main"><ComputerGraphic laptopMode={device.kind === 'laptop'} /><div><p><b>CPU:</b> {device.cpu}</p><p><b>RAM:</b> {device.ram}</p><p><b>GPU:</b> {device.gpu}</p><p><b>S.O:</b> {device.operatingSystem}</p></div></div>
+    <div className="device-details"><b>MAIS DETALHES</b>{device.details.map(([label, value]) => <p key={label}><b>{label}:</b> {value}</p>)}</div>
     <button onClick={onHistory}>HISTÓRICO DE MANUTENÇÕES <ChevronRight size={17} /></button>
   </article>
 }
 
-function MyComputers({ onToast, onScan }) {
+function MyComputers({ onToast, onScan, macbookAdded }) {
   const navigate = useNavigate()
+  const devices = [computerInventory.desktop, ...(macbookAdded ? [computerInventory.macbook] : [])]
   return <PageFrame mode="user" active="computers" onToast={onToast}>
     <main className="page-content computers-content">
       <div className="page-title-row"><h1 className="page-title">Olá, usuário! Seus Computadores.</h1><button className="outline-button scan-button" onClick={onScan}><Barcode size={22} />Leitura automática</button></div>
-      <div className="table-scroll"><table className="data-table computers-table"><thead><tr><th>PC ID</th><th>APELIDO</th><th>STATUS</th><th>ULTIMA MANUTENÇÃO</th><th>GARANTIA</th><th>AÇÕES</th></tr></thead><tbody><tr><td>001</td><td>Desktop de usuário</td><td><StatusPill type="maintenance" /></td><td>Em andamento</td><td>-------------</td><td className="action-cell"><button aria-label="Atualizar" onClick={() => onToast('Dados atualizados')}><RefreshCw size={20} /></button><button aria-label="Excluir" onClick={() => onToast('Equipamento removido da lista')}><Trash2 size={20} /></button></td></tr></tbody></table></div>
-      <DeviceCard onHistory={() => navigate('/historico')} />
+      <div className="table-scroll computers-table-scroll">
+        <div className="computers-table" role="table" aria-label="Computadores cadastrados">
+          <div className="computers-table-head" role="row">
+            {['PC ID', 'APELIDO', 'STATUS', 'ULTIMA MANUTENÇÃO', 'GARANTIA', 'AÇÕES'].map(label => <span role="columnheader" key={label}>{label}</span>)}
+          </div>
+          <div className="computers-table-body" role="rowgroup">
+            {devices.map(device => <div className="computers-table-row" role="row" key={device.id}>
+              <span role="cell">{device.id}</span>
+              <span role="cell">{device.nickname}</span>
+              <span role="cell"><StatusPill type={device.statusType}>{device.status}</StatusPill></span>
+              <span role="cell">{device.lastMaintenance}</span>
+              <span role="cell">{device.warranty}</span>
+              <span role="cell" className="action-cell"><button aria-label={`Atualizar ${device.nickname}`} onClick={() => onToast('Dados atualizados')}><RefreshCw size={20} /></button><button aria-label={`Excluir ${device.nickname}`} onClick={() => onToast('Equipamento removido da lista')}><Trash2 size={20} /></button></span>
+            </div>)}
+          </div>
+        </div>
+      </div>
+      <div className="device-card-list">{devices.map(device => <DeviceCard key={device.id} device={device} onHistory={() => navigate('/historico')} />)}</div>
     </main>
   </PageFrame>
 }
@@ -294,7 +303,7 @@ function HistoryPage({ onToast }) {
   </PageFrame>
 }
 
-function ScanModal({ status, onClose, onComplete }) {
+function ScanModal({ status, onClose, onComplete, onConfirm }) {
   useEffect(() => {
     if (status !== 'reading') return undefined
     const timer = window.setTimeout(onComplete, 1800)
@@ -309,13 +318,14 @@ function ScanModal({ status, onClose, onComplete }) {
     </section> : <section className="scan-modal scan-complete">
       <div className="scan-title"><CheckCircle2 size={42} /><h2>LEITURA CONCLUÍDA</h2></div>
       <article className="scan-device"><h3>MacBook Air</h3><div><ComputerGraphic laptopMode /><ul><li><b>CPU:</b> Apple M3</li><li><b>RAM:</b> 16GB</li><li><b>Armazenamento:</b> 512 GB</li><li><b>GPU:</b> Apple Silicon</li></ul></div><hr /><h3>MAIS DETALHES</h3><p>• <b>CPU:</b> Apple M3</p><p>• <b>Tela:</b> Liquid Retina 13,6 Polegadas</p><p>• <b>GPU:</b> Apple Silicon</p></article>
-      <div className="scan-complete-actions"><button className="accept-button" onClick={() => { onClose(); onComplete('added') }}><Check size={19} /> Confirmar</button><button className="cancel-button" onClick={onClose}><X size={19} /> Cancelar</button></div>
+      <div className="scan-complete-actions"><button className="accept-button" onClick={onConfirm}><Check size={19} /> Concluir</button><button className="cancel-button" onClick={onClose}><X size={19} /> Cancelar</button></div>
     </section>}
   </div>
 }
 
 function MetricCard({ icon: Icon, value, title, percentage, tone = 'blue' }) {
-  return <article className={`metric-card metric-${tone}`}><div className="metric-icon"><Icon size={35} /></div><div className="metric-value">{value}</div><p>{title}</p><div className="metric-track"><i style={{ width: `${percentage}%` }} /></div><button>Ver todas</button></article>
+  const showPercentage = tone === 'orange' || tone === 'red'
+  return <article className={`metric-card metric-${tone}`}><div className="metric-icon"><Icon size={35} /></div><div className="metric-value">{value}</div><p>{title}</p><div className="metric-progress-row"><div className="metric-track"><i style={{ width: `${percentage}%` }} /></div>{showPercentage && <span className="metric-percent">{percentage}%</span>}</div><button>Ver todas</button></article>
 }
 
 function AdminHome({ onToast, openService }) {
@@ -330,7 +340,7 @@ function AdminHome({ onToast, openService }) {
             <div className="metric-grid">
               <MetricCard icon={FileText} value="10" title="Ordens de serviço no total" percentage={80} tone="blue" />
               <MetricCard icon={Settings} value="3" title="Manutenções ativas" percentage={35} tone="cyan" />
-              <MetricCard icon={Clock3} value="2" title="Aguardando peças" percentage={25} tone="orange" />
+              <MetricCard icon={Clock3} value="2" title="Aguardando peças" percentage={75} tone="orange" />
               <MetricCard icon={Activity} value="1" title="Atrasada" percentage={25} tone="red" />
             </div>
           </article>
@@ -338,15 +348,15 @@ function AdminHome({ onToast, openService }) {
             <h2>MANUTENÇÕES ATIVAS</h2>
             <SimpleServiceTable rows={serviceOrders.slice(0, 3)} onSelect={openService} compact />
           </article>
-          <article className="panel alerts-card"><h2>ALERTAS E PENDÊNCIAS</h2><p className="alert-line alert-red"><Activity size={19} />Você tem 01 manutenção atrasada</p><p className="alert-line alert-orange"><Clock3 size={19} />Você tem 01 manutenção aguardando peças</p></article>
+          <article className="panel alerts-card"><h2>ALERTAS E PENDÊNCIAS</h2><p className="alert-line alert-red"><span className="alert-icon"><CircleAlert size={19} /></span>Você tem 01 manutenção atrasada</p><p className="alert-line alert-orange"><span className="alert-icon"><TriangleAlert size={19} /></span>Você tem 01 manutenção aguardando peças</p></article>
         </section>
         <aside className="admin-side-column">
-          <article className="panel stats-panel"><div className="section-title-row"><h2>ESTATÍSTICAS</h2><span className="date-chip">JUL/2026</span></div>
+          <article className="panel stats-panel"><div className="section-title-row"><h2>ESTATÍSTICAS</h2><span className="date-chip">JUN/2026</span></div>
             <div className="stat-row"><UserRound /><span>Total de usuários</span><b>20</b></div>
             <div className="stat-row"><Monitor /><span>Total de máquinas</span><b>32</b></div>
             <div className="stat-row"><Cpu /><span>Peças em estoque</span><b>64</b></div>
             <div className="status-chart-wrap"><StatusDonut compact /><div className="chart-legend"><span><i className="blue-dot" />O.S dentro do prazo</span><span><i className="pink-dot" />O.S atrasadas</span></div></div>
-            <div className="bar-chart-wrap"><ResponsiveContainer width="100%" height={180}><BarChart data={[{ name: 'O.S TOTAIS', value: 10 }, { name: 'FINALIZADAS', value: 7 }, { name: 'O.S ATIVAS', value: 3 }]} layout="vertical" margin={{ left: 4, right: 18, top: 4, bottom: 4 }}><CartesianGrid vertical horizontal={false} stroke="#e1e5eb" /><XAxis type="number" tick={{ fontSize: 12, fill: '#67758b' }} /><YAxis type="category" dataKey="name" width={112} tick={{ fontSize: 11, fill: '#536177' }} axisLine={false} tickLine={false} /><Bar dataKey="value" fill="#8b75f5" radius={[0, 5, 5, 0]} barSize={25} /></BarChart></ResponsiveContainer></div>
+            <div className="bar-chart-wrap"><ResponsiveContainer width="100%" height={150}><BarChart data={[{ name: 'O.S TOTAIS', value: 10 }, { name: 'FINALIZADAS', value: 7 }, { name: 'O.S ATIVAS', value: 3 }]} layout="vertical" margin={{ left: 4, right: 18, top: 4, bottom: 4 }}><CartesianGrid vertical horizontal={false} stroke="#e1e5eb" /><XAxis type="number" tick={{ fontSize: 12, fill: '#67758b' }} /><YAxis type="category" dataKey="name" width={112} tick={{ fontSize: 11, fill: '#536177' }} axisLine={false} tickLine={false} /><Bar dataKey="value" fill="#8b75f5" radius={[0, 5, 5, 0]} barSize={25} /></BarChart></ResponsiveContainer></div>
           </article>
         </aside>
       </div>
@@ -359,16 +369,16 @@ function SimpleServiceTable({ rows, onSelect, compact = false }) {
 }
 
 const mtbfData = [
-  { month: 'JAN', value: 2 }, { month: 'FEV', value: 3.2 }, { month: 'MAR', value: 4 },
-  { month: 'ABR', value: 2.6 }, { month: 'MAI', value: 2.3 }, { month: 'JUN', value: 3.8 }, { month: 'JUL', value: 2.8 },
+  { month: 'JAN', value: 2.6 }, { month: 'FEV', value: 4.1 }, { month: 'MAR', value: 5 },
+  { month: 'ABR', value: 3.4 }, { month: 'MAI', value: 3.2 }, { month: 'JUN', value: 4.5 }, { month: 'JUL', value: 3.6 },
 ]
 const mttrData = [
-  { month: 'JAN', value: 1.1 }, { month: 'FEV', value: 1.8 }, { month: 'MAR', value: 2.9 },
-  { month: 'ABR', value: 4.4 }, { month: 'MAI', value: 3.2 }, { month: 'JUN', value: 5.3 }, { month: 'JUL', value: 7.2 },
+  { month: 'JAN', value: 0.4 }, { month: 'FEV', value: 1.2 }, { month: 'MAR', value: 2.1 },
+  { month: 'ABR', value: 5.4 }, { month: 'MAI', value: 7.4 }, { month: 'JUN', value: 4.5 }, { month: 'JUL', value: 8.8 },
 ]
 
 function TrendCard({ title, value, caption, color, data, icon: Icon }) {
-  return <article className="trend-card"><h3>{title}</h3><div className="trend-value"><Icon size={27} style={{ color }} /><b>{value}</b></div><p>{caption}</p><ResponsiveContainer width="100%" height={118}><LineChart data={data} margin={{ top: 9, right: 2, bottom: 1, left: -23 }}><CartesianGrid stroke="#e5e8ee" vertical horizontal /><XAxis dataKey="month" tick={{ fontSize: 10, fill: '#68758a' }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 9, fill: '#68758a' }} axisLine={false} tickLine={false} /><Tooltip /><Line dataKey="value" type="linear" stroke={color} strokeWidth={2.5} dot={{ r: 3, fill: color, strokeWidth: 0 }} /></LineChart></ResponsiveContainer></article>
+  return <article className="trend-card"><h3>{title}</h3><div className="trend-value"><Icon size={27} style={{ color }} /><b>{value}</b></div><p>{caption}</p><ResponsiveContainer width="100%" height={138}><LineChart data={data} margin={{ top: 9, right: 2, bottom: 1, left: -23 }}><CartesianGrid stroke="#e5e8ee" vertical horizontal /><XAxis dataKey="month" tick={{ fontSize: 10, fill: '#68758a' }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 9, fill: '#68758a' }} axisLine={false} tickLine={false} /><Tooltip /><Line dataKey="value" type="linear" stroke={color} strokeWidth={2.5} dot={{ r: 3, fill: color, strokeWidth: 0 }} /></LineChart></ResponsiveContainer></article>
 }
 
 function StatusDonut({ compact = false }) {
@@ -416,7 +426,7 @@ function AdminMaintenance({ onToast, openService }) {
   const visibleRows = serviceOrders.slice(0, 3).filter(row => filter === 'Todas' || (filter === 'Atrasadas' && row.status === 'late') || (filter === 'Em diagnóstico' && row.status === 'diagnosis') || (filter === 'Aguardando' && row.status === 'waiting'))
   return <PageFrame mode="admin" active="maintenance" onToast={onToast} onOpenService={openService}>
     <main className="page-content maintenance-content">
-      <h1 className="page-title page-title-icon"><Settings />Manutenções Ativas</h1>
+      <h1 className="page-title page-title-icon"><span className="maintenance-title-glyph" aria-hidden="true"><ClipboardList /><Settings /></span>Manutenções Ativas</h1>
       <section className="maintenance-summary">
         <div className="maintenance-summary-title"><Settings size={28} /><b>MANUTENÇÕES EM ANDAMENTO</b></div>
         <button onClick={() => setFilter('Todas')}><ListFilter /><b>3</b><span>Totais</span></button>
@@ -494,14 +504,16 @@ function NexusApp() {
   const [toast, setToast] = useState('')
   const [requestOpen, setRequestOpen] = useState(false)
   const [scannerState, setScannerState] = useState('')
+  const [macbookAdded, setMacbookAdded] = useState(false)
   const [service, setService] = useState(null)
   const showToast = message => setToast(message)
   const closeToast = () => setToast('')
   const openService = item => setService(item || serviceOrders[0])
   const closeService = () => setService(null)
-  const completeScan = result => {
-    if (result === 'added') showToast('MacBook Air adicionado aos seus computadores')
-    setScannerState('complete')
+  const completeScan = () => setScannerState('complete')
+  const confirmScan = () => {
+    setMacbookAdded(true)
+    setScannerState('')
   }
 
   useEffect(() => {
@@ -511,7 +523,7 @@ function NexusApp() {
   const page = useMemo(() => {
     switch (location.pathname) {
       case '/home': return <UserHome onToast={showToast} openRequest={() => setRequestOpen(true)} />
-      case '/meus-pcs': return <MyComputers onToast={showToast} onScan={() => setScannerState('reading')} />
+      case '/meus-pcs': return <MyComputers onToast={showToast} onScan={() => setScannerState('reading')} macbookAdded={macbookAdded} />
       case '/historico': return <HistoryPage onToast={showToast} />
       case '/admin': return <AdminHome onToast={showToast} openService={openService} />
       case '/admin/ordens': return <AdminOrders onToast={showToast} openService={openService} />
@@ -519,12 +531,12 @@ function NexusApp() {
       case '/admin/cadastro-usuario': return <UserRegistration onToast={showToast} />
       default: return <LoginPage onToast={showToast} />
     }
-  }, [location.pathname])
+  }, [location.pathname, macbookAdded])
 
   return <>
     {page}
     {requestOpen && <RequestModal onClose={() => setRequestOpen(false)} onSubmit={() => { setRequestOpen(false); showToast('Solicitação enviada com sucesso') }} />}
-    {scannerState && <ScanModal status={scannerState} onClose={() => setScannerState('')} onComplete={completeScan} />}
+    {scannerState && <ScanModal status={scannerState} onClose={() => setScannerState('')} onComplete={completeScan} onConfirm={confirmScan} />}
     {service && <ServiceModal service={service} onClose={closeService} onToast={showToast} />}
     <ToastViewport toast={toast} onClose={closeToast} />
   </>
