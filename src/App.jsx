@@ -6,6 +6,7 @@ import {
   ClipboardList, Clock3, Cpu, FileText, HardDrive, Headphones, Laptop, CircleAlert, TriangleAlert,
   ListFilter, Monitor, Paperclip, Plus, RefreshCw, Search, Settings, ShieldCheck,
   Trash2, Upload, UserRound, Wrench, X, Circle, Loader, LoaderCircle, Eye, EyeOff,
+  UserCog, UserRoundPlus, SlidersHorizontal, Mail, LockKeyhole,
 } from 'lucide-react'
 import {
   CartesianGrid, Line, LineChart, ResponsiveContainer,
@@ -66,10 +67,11 @@ function StatusPill({ type, children }) {
   return <span className="status-pill" style={{ '--pill-bg': status.color, '--pill-ink': status.ink }}>{children || status.text}</span>
 }
 
-function AppHeader({ mode, active, onNotifications, onProfile, onToast }) {
+function AppHeader({ mode, active, onNotifications, onToast, profileName }) {
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
   const isAdmin = mode === 'admin'
+  const greetingName = profileName || (isAdmin ? 'Admin' : 'Usuário')
   const nav = isAdmin
     ? [
         ['Início', '/admin', 'home'],
@@ -83,7 +85,7 @@ function AppHeader({ mode, active, onNotifications, onProfile, onToast }) {
       ]
 
   return (
-    <header className="topbar">
+    <header className={`topbar ${isAdmin ? 'topbar-admin' : ''}`}>
       <button className="brand-home" onClick={() => navigate(isAdmin ? '/admin' : '/home')} aria-label="NEXUS início"><BrandMark size={110} /></button>
       <nav className="main-nav" aria-label="Navegação principal">
         {nav.map(([label, path, key]) => (
@@ -94,14 +96,18 @@ function AppHeader({ mode, active, onNotifications, onProfile, onToast }) {
         <button className="bell-button" onClick={onNotifications} aria-label="Notificações"><Bell size={27} />{isAdmin && <i>3</i>}</button>
         <button className="profile-trigger" onClick={() => setProfileOpen(v => !v)} aria-expanded={profileOpen}>
           <Avatar admin={isAdmin} />
-          <span>Olá, {isAdmin ? 'Admin' : 'Usuário'}!</span>
+          <span>Olá, {greetingName}!</span>
           <ChevronDown size={22} />
         </button>
       </div>
       {profileOpen && <div className="profile-menu">
-        <strong>{isAdmin ? 'Administrador' : 'Solicitante'}</strong>
+        <strong>{greetingName === 'Admin' ? 'Administrador' : greetingName === 'Técnico' ? 'Técnico' : 'Solicitante'}</strong>
         <button onClick={() => { navigate(isAdmin ? '/home' : '/admin'); setProfileOpen(false) }}>{isAdmin ? 'Área do usuário' : 'Área administrativa'}</button>
-        {isAdmin && <button onClick={() => { navigate('/admin/cadastro-usuario'); setProfileOpen(false) }}>Cadastrar usuário</button>}
+        {isAdmin && <>
+          <button onClick={() => { navigate('/admin/usuarios'); setProfileOpen(false) }}>Gestão de usuários</button>
+          <button onClick={() => { navigate('/admin/solicitacoes'); setProfileOpen(false) }}>Solicitações de acesso</button>
+          <button onClick={() => { navigate('/admin/cadastro-usuario'); setProfileOpen(false) }}>Cadastrar usuário</button>
+        </>}
         <button onClick={() => { navigate('/'); onToast('Sessão encerrada') }}>Sair do sistema</button>
       </div>}
     </header>
@@ -125,26 +131,27 @@ function NotificationsPanel({ open, onClose, onSelect }) {
   </div>
 }
 
-function PageFrame({ mode, active, children, onToast, onOpenService }) {
+function PageFrame({ mode, active, children, onToast, onOpenService, onOpenAccess, profileName }) {
   const [notices, setNotices] = useState(false)
   const navigate = useNavigate()
   const toast = onToast
   const openNotification = () => setNotices(value => !value)
   return <div className="app-page">
-    <AppHeader mode={mode} active={active} onNotifications={openNotification} onToast={toast} />
-    <NotificationsPanel open={notices} onClose={() => setNotices(false)} onSelect={() => { setNotices(false); onOpenService?.() }} />
+    <AppHeader mode={mode} active={active} onNotifications={openNotification} onToast={toast} profileName={profileName} />
+    <NotificationsPanel open={notices} onClose={() => setNotices(false)} onSelect={() => { setNotices(false); (onOpenAccess || onOpenService)?.() }} />
     {children}
   </div>
 }
 
-function LoginPage({ onToast }) {
+function LoginPage({ onToast, onAccessRequest }) {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  const [networkLogin, setNetworkLogin] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [remember, setRemember] = useState(false)
   const login = event => {
     event.preventDefault()
-    navigate(email.toLowerCase().includes('admin') ? '/admin' : '/home')
+    navigate(networkLogin.toLowerCase().includes('admin') || networkLogin.toLowerCase().includes('tec') ? '/admin' : '/home')
   }
 
   return <main className="auth-screen">
@@ -159,17 +166,32 @@ function LoginPage({ onToast }) {
       <form className="auth-card" onSubmit={login}>
         <h1>Acessar Sistema</h1>
         <p className="auth-subtitle">Faça login para continuar</p>
-        <label>Email</label>
-        <div className="input-with-icon"><UserRound size={21} /><input type="email" autoComplete="username" placeholder="ex: usuario@gmail.com" value={email} onChange={e => setEmail(e.target.value)} required /></div>
-        <label>Senha</label>
-        <div className="input-with-icon"><ShieldCheck size={21} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
-        <div className="login-options"><label className="remember"><input type="checkbox" /> Lembrar-me</label><button type="button" onClick={() => onToast('Entre em contato com o administrador do sistema')}>Esqueci a senha?</button></div>
+        <label>Login de rede <em>*</em></label>
+        <div className="input-with-icon"><Mail size={19} /><input type="text" autoComplete="username" placeholder="Digite seu login de rede" value={networkLogin} onChange={e => setNetworkLogin(e.target.value)} required /></div>
+        <label>Senha <em>*</em></label>
+        <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
+        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label></div>
         <button className="primary-button login-button" type="submit">Fazer Login</button>
         <div className="or-divider"><span />OU<span /></div>
-        <p className="access-instructions">Solicite o acesso à plataforma enviando para este email:<br /><a href="mailto:admin@gmail.com">admin@gmail.com</a> as seguintes informações: nome<br />completo, cpf e login de rede institucional.</p>
+        <button className="access-request-button" type="button" onClick={onAccessRequest}>Solicitar acesso</button>
       </form>
     </section>
   </main>
+}
+
+function AccessRequestForm({ onClose, onToast }) {
+  return <div className="modal-backdrop access-form-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
+    <form className="access-form-card" onSubmit={e => { e.preventDefault(); onClose(); onToast('Solicitação de acesso enviada para análise') }}>
+      <div className="modal-title"><span className="modal-icon"><UserRoundPlus size={22} /></span><h2>Solicitar acesso</h2><button type="button" onClick={onClose} aria-label="Fechar"><X size={22} /></button></div>
+      <p>Preencha seus dados para enviar uma solicitação de acesso ao NEXUS.</p>
+      <label>Nome completo<input required placeholder="Digite seu nome completo" /></label>
+      <label>Login de rede<input required placeholder="Ex.: fcosta" /></label>
+      <label>Setor<input required placeholder="Ex.: Financeiro" /></label>
+      <label>E-mail institucional<input type="email" required placeholder="nome@instituicao.edu.br" /></label>
+      <label>Justificativa<textarea required placeholder="Conte por que precisa acessar o sistema" /></label>
+      <div className="access-form-actions"><button type="button" className="outline-button" onClick={onClose}>Cancelar</button><button className="primary-button" type="submit">Enviar solicitação</button></div>
+    </form>
+  </div>
 }
 
 function ProgressSteps({ current = 2 }) {
@@ -330,9 +352,9 @@ function MetricCard({ icon: Icon, value, title, percentage, tone = 'blue' }) {
 
 function AdminHome({ onToast, openService }) {
   const navigate = useNavigate()
-  return <PageFrame mode="admin" active="home" onToast={onToast} onOpenService={openService}>
+  return <PageFrame mode="admin" active="home" profileName="Técnico" onToast={onToast} onOpenService={openService} onOpenAccess={() => navigate('/admin/solicitacoes')}>
     <main className="page-content admin-home-content">
-      <h1 className="page-title">Olá, Admin! Bem-vindo ao NEXUS.</h1>
+      <h1 className="page-title">Olá, Técnico! Bem-vindo ao NEXUS.</h1>
       <div className="admin-dashboard-grid">
         <section className="admin-main-column">
           <article className="panel general-summary">
@@ -345,7 +367,7 @@ function AdminHome({ onToast, openService }) {
             </div>
           </article>
           <article className="panel admin-active-list">
-            <h2>MANUTENÇÕES ATIVAS</h2>
+            <div className="section-title-row"><h2>MANUTENÇÕES ATIVAS</h2><button className="admin-assigned-orders" onClick={() => navigate('/admin/manutencoes')}>Ver O.S. atribuídas a mim</button></div>
             <SimpleServiceTable rows={serviceOrders.slice(0, 3)} onSelect={openService} compact />
           </article>
           <article className="panel alerts-card"><h2>ALERTAS E PENDÊNCIAS</h2><p className="alert-line alert-red"><span className="alert-icon"><CircleAlert size={19} /></span>Você tem 01 manutenção atrasada</p><p className="alert-line alert-orange"><span className="alert-icon"><TriangleAlert size={19} /></span>Você tem 01 manutenção aguardando peças</p></article>
@@ -405,8 +427,17 @@ function StatusDonut({ compact = false }) {
 }
 
 function AdminOrders({ onToast, openService }) {
+  const navigate = useNavigate()
   const [month, setMonth] = useState('JUL/2026')
-  return <PageFrame mode="admin" active="orders" onToast={onToast} onOpenService={openService}>
+  const [query, setQuery] = useState('')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState('Todos')
+  const filteredOrders = serviceOrders.filter(order => {
+    const matchesQuery = order.id.toLowerCase().includes(query.trim().toLowerCase())
+    const matchesStatus = statusFilter === 'Todos' || STATUS[order.status]?.text === statusFilter
+    return matchesQuery && matchesStatus
+  })
+  return <PageFrame mode="admin" active="orders" onToast={onToast} onOpenService={openService} onOpenAccess={() => navigate('/admin/solicitacoes')}>
     <main className="page-content orders-content">
       <h1 className="page-title page-title-icon"><ClipboardList />Ordens de Serviço</h1>
       <div className="orders-overview">
@@ -416,15 +447,25 @@ function AdminOrders({ onToast, openService }) {
         </section>
         <section className="panel orders-status-panel"><h2>Ordens de serviço por status</h2><div className="orders-donut-row"><div className="donut-container"><StatusDonut /><div className="donut-center"><b>10</b><span>Total de OS</span></div></div><div className="chart-legend vertical-legend"><span><i className="green-dot" />Concluídas <small>7(70%)</small></span><span><i className="blue-dot" />Em andamento <small>3(30%)</small></span><span><i className="orange-dot" />Aguardando peças <small>1(10%)</small></span><span><i className="pink-dot" />Atrasadas <small>1(10%)</small></span></div></div></section>
       </div>
-      <section className="panel orders-table-panel"><h2>Ordens de serviço</h2><SimpleServiceTable rows={serviceOrders} onSelect={openService} /></section>
+      <section className="panel orders-table-panel">
+      <div className="orders-table-heading"><h2>Ordens de serviço</h2><div className="orders-controls">
+          <label className="orders-search"><Search size={19} /><input aria-label="Buscar por número da ordem de serviço" placeholder="Buscar por nº da O.S. (ex: OS-2026-0010)" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label>
+          <div className="orders-filter-wrap"><button className={`orders-filter-button ${filterOpen ? 'is-open' : ''}`} type="button" onClick={() => setFilterOpen(value => !value)} aria-expanded={filterOpen}><SlidersHorizontal size={18} />Filtros</button>
+            {filterOpen && <div className="orders-filter-menu"><label>Status da ordem<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option>Todos</option>{Object.values(STATUS).map(status => status.text).filter((value, index, all) => all.indexOf(value) === index).map(value => <option key={value}>{value}</option>)}</select></label><button type="button" onClick={() => { setStatusFilter('Todos'); setQuery('') }}>Limpar filtros</button></div>}
+          </div>
+        </div></div>
+        <SimpleServiceTable rows={filteredOrders} onSelect={openService} />
+        {!filteredOrders.length && <p className="empty-orders">Nenhuma ordem encontrada com esses filtros.</p>}
+      </section>
     </main>
   </PageFrame>
 }
 
 function AdminMaintenance({ onToast, openService }) {
+  const navigate = useNavigate()
   const [filter, setFilter] = useState('Todas')
   const visibleRows = serviceOrders.slice(0, 3).filter(row => filter === 'Todas' || (filter === 'Atrasadas' && row.status === 'late') || (filter === 'Em diagnóstico' && row.status === 'diagnosis') || (filter === 'Aguardando' && row.status === 'waiting'))
-  return <PageFrame mode="admin" active="maintenance" onToast={onToast} onOpenService={openService}>
+  return <PageFrame mode="admin" active="maintenance" onToast={onToast} onOpenService={openService} onOpenAccess={() => navigate('/admin/solicitacoes')}>
     <main className="page-content maintenance-content">
       <h1 className="page-title page-title-icon"><span className="maintenance-title-glyph" aria-hidden="true"><ClipboardList /><Settings /></span>Manutenções Ativas</h1>
       <section className="maintenance-summary">
@@ -439,10 +480,83 @@ function AdminMaintenance({ onToast, openService }) {
   </PageFrame>
 }
 
+function AccessRequestReview({ onToast }) {
+  const navigate = useNavigate()
+  const [accessType, setAccessType] = useState('Usuário solicitante')
+  const [decision, setDecision] = useState('')
+  const decide = nextDecision => {
+    setDecision(nextDecision)
+    onToast(nextDecision === 'approved' ? `Acesso liberado como ${accessType}` : 'Solicitação de acesso negada')
+  }
+  return <PageFrame mode="admin" active="home" profileName="Admin" onToast={onToast} onOpenAccess={() => navigate('/admin/solicitacoes')}>
+    <main className="page-content access-review-content">
+      <h1 className="page-title">Solicitação de Acesso</h1>
+      <div className="access-review-grid">
+        <section className="panel request-details-panel">
+          <h2 className="figma-panel-title">DADOS DA SOLICITAÇÃO</h2>
+          <div className="request-data-grid">
+            <div><small>NOME</small><b>Fernanda Costa</b></div>
+            <div><small>LOGIN DE REDE</small><b>fcosta</b></div>
+            <div><small>SETOR</small><b>Financeiro</b></div>
+            <div><small>E-MAIL</small><b>fernanda.costa@empresa.com</b></div>
+            <div><small>DATA DA SOLICITAÇÃO</small><b>06/11/2026 às 08:47</b></div>
+            <div><small>STATUS</small><span className={`request-status ${decision || 'pending'}`}>{decision === 'approved' ? 'Acesso liberado' : decision === 'denied' ? 'Negada' : 'Aguardando análise'}</span></div>
+            <div className="request-justification"><small>JUSTIFICATIVA DA SOLICITAÇÃO</small><b>Preciso de acesso ao sistema para abrir chamados de manutenção dos equipamentos do setor Financeiro.</b></div>
+          </div>
+        </section>
+        <section className="panel access-decision-panel">
+          <h2 className="figma-panel-title">DEFINIR ACESSO</h2><span className="access-type-label">TIPO DE ACESSO</span>
+          <div className="access-choice-list">
+            {[
+              ['Usuário solicitante'],
+              ['Técnico / Gestor'],
+            ].map(([value]) => <label key={value} className={`access-choice ${accessType === value ? 'selected' : ''}`}><input type="radio" name="accessType" value={value} checked={accessType === value} onChange={() => setAccessType(value)} /><span>{value}</span></label>)}
+          </div>
+          <small className="access-hint">Defina o tipo de acesso antes de liberar.</small>
+          <div className="access-decision-actions"><button className="approve-access-button" onClick={() => decide('approved')} disabled={!!decision}>Liberar acesso</button><button className="deny-access-button" onClick={() => decide('denied')} disabled={!!decision}>Negar acesso</button></div>
+          {decision && <button className="review-another-button" onClick={() => { setDecision(''); navigate('/admin/usuarios') }}>Ir para gestão de usuários <ChevronRight size={17} /></button>}
+        </section>
+      </div>
+    </main>
+  </PageFrame>
+}
+
+const initialUsers = [
+  { name: 'João Pedro Arantes', login: 'jpedro.arantes', cpf: '***.123.123-**', role: 'Usuário solicitante', admin: false, active: true },
+  { name: 'Gabriel Lima', login: 'glima', cpf: '***.456.456-**', role: 'Técnico', admin: false, active: true },
+  { name: 'Claudio Reis', login: 'creis', cpf: '***.789.789-**', role: 'Gestor', admin: false, active: true },
+  { name: 'Ana Souza', login: 'asouza', cpf: '***.321.321-**', role: 'Técnico', admin: true, active: true },
+  { name: 'Pedro Alves', login: 'palves', cpf: '***.654.654-**', role: 'Usuário solicitante', admin: false, active: false },
+]
+
+function UserManagement({ onToast }) {
+  const navigate = useNavigate()
+  const [users, setUsers] = useState(initialUsers)
+  const [query, setQuery] = useState('')
+  const filteredUsers = users.filter(user => `${user.name} ${user.login} ${user.cpf}`.toLowerCase().includes(query.trim().toLowerCase()))
+  const updateUser = (login, changes) => setUsers(current => current.map(user => user.login === login ? { ...user, ...changes } : user))
+  return <PageFrame mode="admin" active="home" profileName="Técnico" onToast={onToast} onOpenAccess={() => navigate('/admin/solicitacoes')}>
+    <main className="page-content user-management-content">
+      <h1 className="page-title user-management-title">Gestão de Usuários</h1>
+      <section className="panel users-panel">
+        <div className="users-toolbar"><label className="users-search"><Search size={19} /><input aria-label="Pesquisar usuário por nome, login ou CPF" placeholder="Pesquisar usuário por nome, login ou CPF" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label></div>
+        <div className="table-scroll users-table-scroll"><table className="users-table"><thead><tr><th>NOME</th><th>LOGIN DE REDE</th><th>TIPO DE ACESSO</th><th>PERMISSÃO ADM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>
+          {filteredUsers.map(user => <tr key={user.login}><td><b className="user-name-cell">{user.name}</b></td><td>{user.login}</td><td><select aria-label={`Tipo de acesso de ${user.name}`} value={user.role} onChange={e => updateUser(user.login, { role: e.target.value })}><option>Usuário solicitante</option><option>Técnico</option><option>Gestor</option></select></td><td><button className={`permission-toggle ${user.admin ? 'is-enabled' : ''}`} role="switch" aria-checked={user.admin} aria-label={`Permissão administrativa de ${user.name}`} onClick={() => updateUser(user.login, { admin: !user.admin })}><span /></button><span className="permission-label">{user.admin ? 'Sim' : 'Não'}</span></td><td><span className={`user-status ${user.active ? 'active' : 'inactive'}`}><i />{user.active ? 'Ativo' : 'Inativo'}</span></td><td><button className={`user-action-button ${user.active ? 'deactivate' : 'activate'}`} onClick={() => { updateUser(user.login, { active: !user.active }); onToast(`${user.name} ${user.active ? 'desativado' : 'ativado'}`) }}>{user.active ? 'Desativar' : 'Ativar'}</button></td></tr>)}
+          {!filteredUsers.length && <tr><td className="users-empty" colSpan="6">Nenhum usuário encontrado.</td></tr>}
+        </tbody></table></div>
+      </section>
+    </main>
+  </PageFrame>
+}
+
 function ServiceModal({ service, onClose, onToast }) {
   const [status, setStatus] = useState(service?.status || 'diagnosis')
   const [menu, setMenu] = useState(false)
   const [notes, setNotes] = useState('')
+  const [assignOpen, setAssignOpen] = useState(false)
+  const [assignedTech, setAssignedTech] = useState('')
+  const [techOptionsOpen, setTechOptionsOpen] = useState(true)
+  const technicians = ['Carlos Mendes', 'Rafael Souza', 'Marina Lopes']
   const steps = [
     ['Recebida', '24/06/2026 · 08:40'], ['Em diagnóstico', 'Em andamento desde 10:05'],
     ['Em manutenção', 'Formatação e peça técnica'], ['Aguardando peças', 'Opcional: se faltar peça'],
@@ -450,7 +564,7 @@ function ServiceModal({ service, onClose, onToast }) {
   ]
   return <div className="modal-backdrop service-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
     <section className="service-modal">
-      <div className="service-modal-heading"><span className="modal-icon"><ClipboardList size={26} /></span><div className="service-title-group"><small>ORDEM DE SERVIÇO</small><h2>{service?.id || 'OS-2026-0010'}</h2></div><StatusPill type="done">● Prioridade · {service?.priority || 'Baixa'}</StatusPill><span className="date-chip">Início &nbsp; 24/06/2026</span><span className="date-chip">Prazo &nbsp; 29/06/2026</span><button onClick={onClose} aria-label="Fechar"><X /></button></div>
+      <div className="service-modal-heading"><span className="modal-icon"><ClipboardList size={26} /></span><div className="service-title-group"><small>ORDEM DE SERVIÇO</small><h2>{service?.id || 'OS-2026-0010'}</h2></div><StatusPill type="done">● Prioridade · {service?.priority || 'Baixa'}</StatusPill><span className="date-chip">Início &nbsp; 24/06/2026</span><span className="date-chip">Prazo &nbsp; 29/06/2026</span><button className="assign-technician-button" onClick={() => { setTechOptionsOpen(true); setAssignOpen(true) }}>{assignedTech ? `Técnico: ${assignedTech}` : 'Atribuir técnico'}</button><button onClick={onClose} aria-label="Fechar"><X /></button></div>
       <div className="service-modal-body">
         <div className="service-detail-column">
           <article className="detail-card client-card"><h3>CLIENTE</h3><div className="detail-grid"><p><small>NOME</small><b>João Pedro Arantes</b></p><p><small>SETOR</small><b>Recursos Humanos</b></p><p><small>TELEFONE</small><b>(61) 91234-4321</b></p><p><small>CPF</small><b>***.123.123-**</b></p></div></article>
@@ -466,6 +580,15 @@ function ServiceModal({ service, onClose, onToast }) {
         </aside>
       </div>
     </section>
+    {assignOpen && <div className="assign-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setAssignOpen(false) }}><section className="assign-dialog">
+      <h2>Atribuir técnico</h2>
+      <p className="assign-order-info">{service?.id || 'OS-2026-0010'} · {service?.equipment || 'PC-0010'} · João Pedro Arantes</p>
+      <label className="assign-technician-select">Técnico</label>
+      <div className="assign-dropdown"><button type="button" className="assign-select-trigger" aria-expanded={techOptionsOpen} onClick={() => setTechOptionsOpen(value => !value)}>{assignedTech || 'Selecione um técnico'}<ChevronDown size={17} className={techOptionsOpen ? 'is-expanded' : ''} /></button>
+        {techOptionsOpen && <div className="assign-tech-options">{technicians.map((technician, index) => <button type="button" className={index === 0 && !assignedTech ? 'is-highlighted' : ''} key={technician} onClick={() => { setAssignedTech(technician); setTechOptionsOpen(false) }}>{technician}</button>)}</div>}
+      </div>
+      <div className="assign-dialog-actions"><button type="button" className="outline-button" onClick={() => setAssignOpen(false)}>Cancelar</button><button type="button" className="primary-button" onClick={() => { if (!assignedTech) { onToast('Selecione um técnico para continuar'); setTechOptionsOpen(true); return } setAssignOpen(false); onToast(`Ordem atribuída a ${assignedTech}`) }}>Confirmar</button></div>
+    </section></div>}
   </div>
 }
 
@@ -503,6 +626,7 @@ function NexusApp() {
   const navigate = useNavigate()
   const [toast, setToast] = useState('')
   const [requestOpen, setRequestOpen] = useState(false)
+  const [accessRequestOpen, setAccessRequestOpen] = useState(false)
   const [scannerState, setScannerState] = useState('')
   const [macbookAdded, setMacbookAdded] = useState(false)
   const [service, setService] = useState(null)
@@ -528,14 +652,17 @@ function NexusApp() {
       case '/admin': return <AdminHome onToast={showToast} openService={openService} />
       case '/admin/ordens': return <AdminOrders onToast={showToast} openService={openService} />
       case '/admin/manutencoes': return <AdminMaintenance onToast={showToast} openService={openService} />
+      case '/admin/usuarios': return <UserManagement onToast={showToast} />
+      case '/admin/solicitacoes': return <AccessRequestReview onToast={showToast} />
       case '/admin/cadastro-usuario': return <UserRegistration onToast={showToast} />
-      default: return <LoginPage onToast={showToast} />
+      default: return <LoginPage onToast={showToast} onAccessRequest={() => setAccessRequestOpen(true)} />
     }
   }, [location.pathname, macbookAdded])
 
   return <>
     {page}
     {requestOpen && <RequestModal onClose={() => setRequestOpen(false)} onSubmit={() => { setRequestOpen(false); showToast('Solicitação enviada com sucesso') }} />}
+    {accessRequestOpen && <AccessRequestForm onClose={() => setAccessRequestOpen(false)} onToast={showToast} />}
     {scannerState && <ScanModal status={scannerState} onClose={() => setScannerState('')} onComplete={completeScan} onConfirm={confirmScan} />}
     {service && <ServiceModal service={service} onClose={closeService} onToast={showToast} />}
     <ToastViewport toast={toast} onClose={closeToast} />
