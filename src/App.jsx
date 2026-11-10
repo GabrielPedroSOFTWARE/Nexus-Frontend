@@ -640,7 +640,6 @@ function NexusApp() {
   const openService = item => setService(item || serviceOrders[0])
   const closeService = () => setService(null)
   const completeScan = () => setScannerState('complete')
-  // Confirma somente o equipamento fictício da demonstração, sem gravar no banco.
   const confirmScan = () => {
     setMacbookAdded(true)
     setScannerState('')
@@ -650,7 +649,6 @@ function NexusApp() {
     if (location.pathname === '/sair') navigate('/')
   }, [location.pathname, navigate])
 
-  // Seleciona a página pela URL e passa as ações compartilhadas por props.
   const page = useMemo(() => {
     switch (location.pathname) {
       case '/home': return <UserHome onToast={showToast} openRequest={() => setRequestOpen(true)} />
