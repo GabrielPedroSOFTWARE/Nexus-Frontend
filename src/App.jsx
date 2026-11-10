@@ -13,14 +13,12 @@ import {
   Tooltip, XAxis, YAxis, BarChart, Bar,
 } from 'recharts'
 
-// Cores e caminhos das imagens usados pela interface; BASE_URL respeita o GitHub Pages.
 const NAVY = '#33435f'
 const BRAND_ASSET = `${import.meta.env.BASE_URL}nexus-logo.png`
 const USER_AVATAR_ASSET = `${import.meta.env.BASE_URL}nexus-avatar-user.png`
 const ADMIN_AVATAR_ASSET = `${import.meta.env.BASE_URL}nexus-avatar-admin.png`
 const DESKTOP_ASSET = `${import.meta.env.BASE_URL}nexus-pc-desktop.png`
 const MACBOOK_ASSET = `${import.meta.env.BASE_URL}nexus-pc-macbook.png`
-// Associa cada situação ao texto e às cores exibidos nas etiquetas.
 const STATUS = {
   diagnosis: { text: 'Em diagnóstico', color: '#c9d8ff', ink: '#30466e' },
   waiting: { text: 'Aguardando peças', color: '#ffe4c7', ink: '#825a35' },
@@ -31,7 +29,6 @@ const STATUS = {
   active: { text: 'Em andamento', color: '#d7e2ff', ink: '#334a78' },
 }
 
-// Ordens fictícias para demonstrar tabelas, filtros e detalhes sem consultar uma API.
 const serviceOrders = [
   { id: 'OS-2026-0010', equipment: 'PC-0010', user: 'João', status: 'diagnosis', priority: 'Baixa', mttr: '2h30min' },
   { id: 'OS-2026-0009', equipment: 'PC-0009', user: 'Gabriel', status: 'waiting', priority: 'Média', mttr: '-----' },
@@ -42,7 +39,6 @@ const serviceOrders = [
   { id: 'OS-2026-0004', equipment: 'PC-0004', user: 'Guilherme', status: 'done', priority: 'Concluída', mttr: '2h30min' },
 ]
 
-// Componentes visuais reutilizados nas páginas.
 function BrandMark({ size = 96, className = '' }) {
   return <img className={`brand-mark ${className}`} width={size} height={size} src={BRAND_ASSET} alt="NEXUS" />
 }
@@ -66,13 +62,11 @@ function Toast({ message, onClose }) {
   return <div className="toast" role="status"><CheckCircle2 size={20} />{message}<button onClick={onClose} aria-label="Fechar aviso"><X size={16} /></button></div>
 }
 
-// Exibe uma etiqueta com o estilo correspondente ao status recebido por props.
 function StatusPill({ type, children }) {
   const status = STATUS[type] || STATUS.active
   return <span className="status-pill" style={{ '--pill-bg': status.color, '--pill-ink': status.ink }}>{children || status.text}</span>
 }
 
-// Alterna a navegação por perfil e controla a abertura do menu do usuário.
 function AppHeader({ mode, active, onNotifications, onToast, profileName }) {
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
@@ -120,7 +114,6 @@ function AppHeader({ mode, active, onNotifications, onToast, profileName }) {
   )
 }
 
-// Lista notificações demonstrativas e avisa o componente pai quando uma é selecionada.
 function NotificationsPanel({ open, onClose, onSelect }) {
   if (!open) return null
   const requests = [
@@ -138,7 +131,6 @@ function NotificationsPanel({ open, onClose, onSelect }) {
   </div>
 }
 
-// Estrutura comum: cabeçalho, notificações e conteúdo específico de cada página.
 function PageFrame({ mode, active, children, onToast, onOpenService, onOpenAccess, profileName }) {
   const [notices, setNotices] = useState(false)
   const navigate = useNavigate()
@@ -151,7 +143,7 @@ function PageFrame({ mode, active, children, onToast, onOpenService, onOpenAcces
   </div>
 }
 
-// Guarda os campos do formulário e direciona para uma área; este login não autentica no backend.
+// Login apenas demonstrativo: direciona por perfil, sem autenticar no backend.
 function LoginPage({ onToast, onAccessRequest }) {
   const navigate = useNavigate()
   const [networkLogin, setNetworkLogin] = useState('')
@@ -188,7 +180,6 @@ function LoginPage({ onToast, onAccessRequest }) {
   </main>
 }
 
-// Simula a solicitação de acesso, com validação HTML e confirmação visual.
 function AccessRequestForm({ onClose, onToast }) {
   return <div className="modal-backdrop access-form-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
     <form className="access-form-card" onSubmit={e => { e.preventDefault(); onClose(); onToast('Solicitação de acesso enviada para análise') }}>
@@ -204,7 +195,6 @@ function AccessRequestForm({ onClose, onToast }) {
   </div>
 }
 
-// Marca as etapas concluídas, a etapa atual e as próximas etapas da manutenção.
 function ProgressSteps({ current = 2 }) {
   const steps = ['Recebido', 'Em diagnóstico', 'Em preparo', 'Aguardando retirada']
   return <div className="progress-steps">
@@ -216,7 +206,6 @@ function ProgressSteps({ current = 2 }) {
   </div>
 }
 
-// Painel do solicitante com dados de exemplo e atalhos para as demais telas.
 function UserHome({ onToast, openRequest }) {
   const navigate = useNavigate()
   return <PageFrame mode="user" active="home" onToast={onToast}>
@@ -252,7 +241,7 @@ function UserHome({ onToast, openRequest }) {
   </PageFrame>
 }
 
-// Formulário de manutenção: os callbacks recebidos controlam o fechamento e a confirmação.
+// Usa as funções recebidas por props para fechar ou confirmar a solicitação.
 function RequestModal({ onClose, onSubmit }) {
   return <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
     <form className="request-modal" onSubmit={e => { e.preventDefault(); onSubmit() }}>
@@ -269,7 +258,7 @@ function RequestModal({ onClose, onSubmit }) {
   </div>
 }
 
-// Equipamentos fictícios usados na demonstração da listagem e da leitura automática.
+// Equipamentos usados na demonstração; a leitura também é simulada.
 const computerInventory = {
   desktop: {
     id: '001', nickname: 'Desktop de usuário', status: 'Em Manutenção', statusType: 'maintenance',
@@ -285,7 +274,6 @@ const computerInventory = {
   },
 }
 
-// Apresenta os dados do equipamento recebido por props em um cartão.
 function DeviceCard({ device, onHistory }) {
   return <article className="device-card">
     <h3>{device.model}</h3>
@@ -295,7 +283,6 @@ function DeviceCard({ device, onHistory }) {
   </article>
 }
 
-// Exibe os equipamentos de exemplo e inclui o segundo após confirmar a leitura simulada.
 function MyComputers({ onToast, onScan, macbookAdded }) {
   const navigate = useNavigate()
   const devices = [computerInventory.desktop, ...(macbookAdded ? [computerInventory.macbook] : [])]
@@ -324,7 +311,6 @@ function MyComputers({ onToast, onScan, macbookAdded }) {
   </PageFrame>
 }
 
-// Renderiza o histórico demonstrativo; os registros ainda não vêm do backend.
 function HistoryPage({ onToast }) {
   const history = [
     ['Pedido de usuário', 'Em Manutenção', 'Troca de SSD', '----------------', 'João Silva', 'maintenance'],
@@ -342,7 +328,7 @@ function HistoryPage({ onToast }) {
   </PageFrame>
 }
 
-// Simula uma leitura de 1,8 segundo e mostra um resultado fixo; não detecta hardware real.
+// Simula a leitura e retorna um equipamento de exemplo.
 function ScanModal({ status, onClose, onComplete, onConfirm }) {
   useEffect(() => {
     if (status !== 'reading') return undefined
@@ -363,13 +349,11 @@ function ScanModal({ status, onClose, onComplete, onConfirm }) {
   </div>
 }
 
-// Cartão reutilizável para um indicador, seu ícone e sua barra visual.
 function MetricCard({ icon: Icon, value, title, percentage, tone = 'blue' }) {
   const showPercentage = tone === 'orange' || tone === 'red'
   return <article className={`metric-card metric-${tone}`}><div className="metric-icon"><Icon size={35} /></div><div className="metric-value">{value}</div><p>{title}</p><div className="metric-progress-row"><div className="metric-track"><i style={{ width: `${percentage}%` }} /></div>{showPercentage && <span className="metric-percent">{percentage}%</span>}</div><button>Ver todas</button></article>
 }
 
-// Painel administrativo com indicadores, alertas e ordens demonstrativos.
 function AdminHome({ onToast, openService }) {
   const navigate = useNavigate()
   return <PageFrame mode="admin" active="home" profileName="Técnico" onToast={onToast} onOpenService={openService} onOpenAccess={() => navigate('/admin/solicitacoes')}>
@@ -406,12 +390,10 @@ function AdminHome({ onToast, openService }) {
   </PageFrame>
 }
 
-// Converte a lista recebida em linhas e informa ao pai qual ordem foi selecionada.
 function SimpleServiceTable({ rows, onSelect, compact = false }) {
   return <div className="table-scroll"><table className={`data-table service-table ${compact ? 'compact-table' : ''}`}><thead><tr><th>OS</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th>{!compact && <><th>PRIORIDADE</th><th>MTTR</th></>}</tr></thead><tbody>{rows.map(row => <tr key={row.id}><td><button className="link-button" onClick={() => onSelect?.(row)}>{row.id}</button></td><td>{row.equipment}</td><td>{row.user}</td><td><StatusPill type={row.status} /></td>{!compact && <><td><StatusPill type={row.priority === 'Baixa' ? 'done' : row.priority === 'Média' ? 'waiting' : row.priority === 'Alta' ? 'late' : row.status}>{row.priority}</StatusPill></td><td>{row.mttr}</td></>}</tr>)}</tbody></table></div>
 }
 
-// Séries fictícias usadas para desenhar os gráficos de desempenho.
 const mtbfData = [
   { month: 'JAN', value: 2.6 }, { month: 'FEV', value: 4.1 }, { month: 'MAR', value: 5 },
   { month: 'ABR', value: 3.4 }, { month: 'MAI', value: 3.2 }, { month: 'JUN', value: 4.5 }, { month: 'JUL', value: 3.6 },
@@ -421,12 +403,10 @@ const mttrData = [
   { month: 'ABR', value: 5.4 }, { month: 'MAI', value: 7.4 }, { month: 'JUN', value: 4.5 }, { month: 'JUL', value: 8.8 },
 ]
 
-// Exibe o indicador e seu gráfico a partir dos dados recebidos por props.
 function TrendCard({ title, value, caption, color, data, icon: Icon }) {
   return <article className="trend-card"><h3>{title}</h3><div className="trend-value"><Icon size={27} style={{ color }} /><b>{value}</b></div><p>{caption}</p><ResponsiveContainer width="100%" height={138}><LineChart data={data} margin={{ top: 9, right: 2, bottom: 1, left: -23 }}><CartesianGrid stroke="#e5e8ee" vertical horizontal /><XAxis dataKey="month" tick={{ fontSize: 10, fill: '#68758a' }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 9, fill: '#68758a' }} axisLine={false} tickLine={false} /><Tooltip /><Line dataKey="value" type="linear" stroke={color} strokeWidth={2.5} dot={{ r: 3, fill: color, strokeWidth: 0 }} /></LineChart></ResponsiveContainer></article>
 }
 
-// Desenha a distribuição demonstrativa de ordens por situação.
 function StatusDonut({ compact = false }) {
   const data = compact
     ? [{ value: 75, color: '#307db7' }, { value: 25, color: '#ff7c82' }]
@@ -450,7 +430,6 @@ function StatusDonut({ compact = false }) {
   </div>
 }
 
-// Aplica a busca e o filtro de status à lista local de ordens.
 function AdminOrders({ onToast, openService }) {
   const navigate = useNavigate()
   const [month, setMonth] = useState('JUL/2026')
@@ -486,7 +465,6 @@ function AdminOrders({ onToast, openService }) {
   </PageFrame>
 }
 
-// Filtra as manutenções demonstrativas conforme o resumo selecionado.
 function AdminMaintenance({ onToast, openService }) {
   const navigate = useNavigate()
   const [filter, setFilter] = useState('Todas')
@@ -506,7 +484,6 @@ function AdminMaintenance({ onToast, openService }) {
   </PageFrame>
 }
 
-// Simula a análise de acesso; a decisão altera apenas o estado da interface.
 function AccessRequestReview({ onToast }) {
   const navigate = useNavigate()
   const [accessType, setAccessType] = useState('Usuário solicitante')
@@ -548,7 +525,6 @@ function AccessRequestReview({ onToast }) {
   </PageFrame>
 }
 
-// Usuários fictícios que iniciam a demonstração da gestão de contas.
 const initialUsers = [
   { name: 'João Pedro Arantes', login: 'jpedro.arantes', cpf: '***.123.123-**', role: 'Usuário solicitante', admin: false, active: true },
   { name: 'Gabriel Lima', login: 'glima', cpf: '***.456.456-**', role: 'Técnico', admin: false, active: true },
@@ -557,7 +533,6 @@ const initialUsers = [
   { name: 'Pedro Alves', login: 'palves', cpf: '***.654.654-**', role: 'Usuário solicitante', admin: false, active: false },
 ]
 
-// Busca e alterações de usuários são mantidas apenas na memória desta tela.
 function UserManagement({ onToast }) {
   const navigate = useNavigate()
   const [users, setUsers] = useState(initialUsers)
@@ -578,7 +553,6 @@ function UserManagement({ onToast }) {
   </PageFrame>
 }
 
-// Mostra os detalhes da ordem selecionada e simula ações de manutenção.
 function ServiceModal({ service, onClose, onToast }) {
   const [status, setStatus] = useState(service?.status || 'diagnosis')
   const [menu, setMenu] = useState(false)
@@ -622,7 +596,6 @@ function ServiceModal({ service, onClose, onToast }) {
   </div>
 }
 
-// Demonstra o formulário de cadastro; a confirmação não envia dados ao servidor.
 function UserRegistration({ onToast }) {
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
@@ -643,7 +616,6 @@ function UserRegistration({ onToast }) {
   </main>
 }
 
-// Remove automaticamente o aviso após alguns segundos e limpa o temporizador ao desmontar.
 function ToastViewport({ toast, onClose }) {
   useEffect(() => {
     if (!toast) return undefined
@@ -653,7 +625,7 @@ function ToastViewport({ toast, onClose }) {
   return <Toast message={toast} onClose={onClose} />
 }
 
-// Coordena rotas, avisos e modais; nesta versão, as ações não fazem chamadas ao backend.
+// Centraliza os estados de navegação e modais; esta versão ainda não chama a API.
 function NexusApp() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -704,7 +676,7 @@ function NexusApp() {
   </>
 }
 
-// HashRouter mantém a navegação com /#/ compatível com a hospedagem estática do Pages.
+// HashRouter mantém a navegação compatível com o GitHub Pages.
 export default function App() {
   return <HashRouter><NexusApp /></HashRouter>
 }
