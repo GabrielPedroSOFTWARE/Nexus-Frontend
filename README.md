@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://gabrielpedrosoftware.github.io/Nexus-Frontend/"><strong>Acessar demonstração</strong></a>
+  <a href="https://gabrielpedrosoftware.github.io/Nexus-Frontend/"><strong>Acessar o NEXUS</strong></a>
   ·
   <a href="#instalação-e-execução"><strong>Executar localmente</strong></a>
 </p>
@@ -26,7 +26,7 @@
 
 O NEXUS é uma aplicação web para acompanhar solicitações e manutenções de equipamentos de TI. Esta versão apresenta, em uma interface responsiva, os fluxos de quem solicita atendimento e da equipe administrativa.
 
-Este repositório contém a interface do sistema. O GitHub Pages apresenta uma demonstração com dados simulados. Localmente, é possível conectar as funções disponíveis à API do backend.
+Este repositório contém a interface do sistema. O GitHub Pages pode tentar acessar o backend local no computador do usuário e oferece uma opção de demonstração com dados simulados. Localmente, é possível conectar as funções disponíveis à API do backend.
 
 ## Captura de tela
 
@@ -109,7 +109,7 @@ A publicação é feita pelo GitHub Actions, usando o fluxo de trabalho [`pages.
 
 Para configurar uma cópia do projeto, selecione **Configurações → Pages → GitHub Actions** como origem da publicação. O arquivo `vite.config.js` ajusta automaticamente o caminho-base para o endereço do repositório durante a execução do fluxo de trabalho.
 
-**Demonstração publicada:** [gabrielpedrosoftware.github.io/Nexus-Frontend](https://gabrielpedrosoftware.github.io/Nexus-Frontend/)
+**Frontend publicado:** [gabrielpedrosoftware.github.io/Nexus-Frontend](https://gabrielpedrosoftware.github.io/Nexus-Frontend/)
 
 ## Estrutura do projeto
 
@@ -148,7 +148,7 @@ A lógica de autenticação, equipamentos e solicitações fica em hooks dentro 
 
 ## Escopo atual
 
-A demonstração publicada no GitHub Pages não depende de backend. No modo local, login, equipamentos e pedidos usam a API configurada. As telas administrativas e os fluxos de cadastro de usuário e solicitação de acesso estão indisponíveis até a integração correspondente.
+O GitHub Pages tenta acessar o backend local no computador do usuário. No modo de demonstração, os dados são simulados. No modo local, login, equipamentos e pedidos usam a API configurada. As telas administrativas e os fluxos de cadastro de usuário e solicitação de acesso estão indisponíveis até a integração correspondente.
 
 ## Dúvidas e sugestões
 
@@ -169,4 +169,4 @@ No Windows, copie `.env.local.example` para `.env.local` pelo VS Code. Abra o en
 
 O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. As telas administrativas e a solicitação de acesso não estão integradas. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
 
-No GitHub Pages, sem API configurada, o sistema funciona apenas como demonstração: dados, login e ações são simulados e não são salvos. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.
+No GitHub Pages, o endereço da API é `http://127.0.0.1:8080` no próprio computador que abriu o site. O backend deve permitir a origem `https://gabrielpedrosoftware.github.io` por CORS, inclusive as requisições de verificação e os cabeçalhos necessários, e o navegador pode exigir permissão para acesso local. A opção “Abrir demonstração” usa dados simulados. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.

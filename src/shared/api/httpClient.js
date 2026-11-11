@@ -1,7 +1,8 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 const SESSION_KEY = 'nexus.local.session'
 
-export const hasLocalApi = Boolean(API_BASE_URL)
+export const isPagesConnection = import.meta.env.PROD && /^http:\/\/127\.0\.0\.1(?::\d+)?$/.test(API_BASE_URL)
+export const hasLocalApi = Boolean(API_BASE_URL) && !(isPagesConnection && new URLSearchParams(window.location.search).get('modo') === 'demonstracao')
 
 export function loadSession() {
   try {
@@ -39,10 +40,13 @@ export async function apiRequest(path, options = {}) {
     response = await fetch(API_BASE_URL + path, {
       method,
       headers,
+      ...(isPagesConnection ? { targetAddressSpace: 'loopback' } : {}),
       body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
     })
   } catch {
-    throw new Error('Não foi possível conectar ao backend local. Confira se ele está iniciado em localhost:8080.')
+    throw new Error(isPagesConnection
+      ? 'Não foi possível conectar ao backend. Confira se ele está iniciado neste computador e se permite o acesso do site e autorize o acesso local no navegador.'
+      : 'Não foi possível conectar ao backend local. Confira se ele está iniciado em localhost:8080.')
   }
 
   const raw = await response.text()

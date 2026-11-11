@@ -1,4 +1,4 @@
-import { hasLocalApi } from '../../shared/api/httpClient.js'
+import { clearSession, hasLocalApi, isPagesConnection } from '../../shared/api/httpClient.js'
 import { BRAND_ASSET } from '../../shared/assets.js'
 import { useState } from 'react'
 import { Eye, EyeOff, Mail, LockKeyhole } from 'lucide-react'
@@ -8,6 +8,14 @@ export function LoginPage({ onAccessRequest, onLogin }) {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(false)
+  const switchMode = demo => {
+    clearSession()
+    const url = new URL(window.location.href)
+    if (demo) url.searchParams.set('modo', 'demonstracao')
+    else url.searchParams.delete('modo')
+    url.hash = '/'
+    window.location.assign(url.href)
+  }
   const login = event => {
     event.preventDefault()
     onLogin({ login: networkLogin.trim(), senha: password })
@@ -26,6 +34,8 @@ export function LoginPage({ onAccessRequest, onLogin }) {
         <h1>Acessar Sistema</h1>
         <p className="auth-subtitle">Faça login para continuar</p>
         {!hasLocalApi && <p role="status">Modo demonstração: o login é simulado e não conecta ao backend.</p>}
+        {isPagesConnection && hasLocalApi && <p>Conecte o backend neste computador para entrar.</p>}
+        {isPagesConnection && <button type="button" className="access-request-button" onClick={() => switchMode(hasLocalApi)}>{hasLocalApi ? 'Abrir demonstração' : 'Voltar à conexão local'}</button>}
         <label>Login de rede <em>*</em></label>
         <div className="input-with-icon"><Mail size={19} /><input type="text" autoComplete="username" placeholder="Digite seu login de rede" value={networkLogin} onChange={e => setNetworkLogin(e.target.value)} required /></div>
         <label>Senha <em>*</em></label>
