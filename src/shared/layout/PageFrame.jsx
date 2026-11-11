@@ -12,7 +12,7 @@ export function PageFrame({ mode, active, children, onToast, onOpenService, onOp
   return <div className="app-page">
     <AppHeader mode={mode} active={active} onNotifications={openNotification} onToast={toast} profileName={profileName} />
     {!hasLocalApi && <div role="status" style={{ textAlign: 'center', background: '#fff3cd', padding: '8px', color: '#5c4700' }}>Modo demonstração: dados e ações são simulados.</div>}
-    <NotificationsPanel demo={!hasLocalApi} open={notices} onClose={() => setNotices(false)} onSelect={() => { setNotices(false); (onOpenAccess || onOpenService)?.() }} />
+    <NotificationsPanel demo={!hasLocalApi} open={notices} onClose={() => setNotices(false)} onSelect={() => { setNotices(false); if (hasLocalApi) navigate(mode === 'admin' ? '/admin/ordens' : '/historico'); else (onOpenAccess || onOpenService)?.() }} />
     {children}
   </div>
 }

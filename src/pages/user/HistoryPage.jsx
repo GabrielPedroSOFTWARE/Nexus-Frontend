@@ -3,9 +3,12 @@ import { StatusPill } from '../../shared/ui/StatusPill.jsx'
 import { hasLocalApi } from '../../shared/api/httpClient.js'
 import { listUserOrders } from '../../features/service-requests/api.js'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { ListFilter } from 'lucide-react'
 
 export function HistoryPage({ onToast, profileName }) {
+  const [searchParams] = useSearchParams()
+  const equipmentId = searchParams.get('equipamento')
   const [apiHistory, setApiHistory] = useState(null)
   const [error, setError] = useState('')
   useEffect(() => {
@@ -17,10 +20,10 @@ export function HistoryPage({ onToast, profileName }) {
     return () => { active = false }
   }, [])
   const history = hasLocalApi
-    ? (apiHistory || []).map(order => [order.id || 'Pedido', order.status == null ? 'Não informado' : 'Status ' + order.status, order.problema || order.descricao || 'Sem descrição', order.dataManutencao || '—', order.tecnico || 'Não atribuído', 'active'])
+    ? (apiHistory || []).filter(order => !equipmentId || String(order.idPC) === equipmentId).map(order => [order.id || 'Pedido', order.status == null ? 'Não informado' : 'Status ' + order.status, order.problema || order.descricao || 'Sem descrição', order.dataInicioManutencao || order.dataManutencao || '—', order.idTecnico || order.tecnico || 'Não atribuído', 'active'])
     : [['Pedido de usuário', 'Em Manutenção', 'Troca de SSD', '—', 'João Silva', 'maintenance'], ['Pedido de usuário', 'Concluída', 'Lentidão', '30/05/2026', 'João Silva', 'done'], ['Pedido de usuário', 'Concluída', 'Não liga', '12/04/2026', 'Carlos Costa', 'done']]
   return <PageFrame mode="user" active="history" onToast={onToast} profileName={profileName}>
-    <main className="page-content history-content"><h1 className="page-title">Histórico de manutenções</h1>
+    <main className="page-content history-content"><h1 className="page-title">{equipmentId && hasLocalApi ? `Histórico do equipamento ${equipmentId}` : 'Histórico de manutenções'}</h1>
       {error ? <p role="alert">Não foi possível carregar o histórico: {error}</p> : hasLocalApi && apiHistory === null ? <p>Carregando histórico...</p> : <>
         <div className="history-summary"><div><ListFilter /><b>{history.length}</b><span>Totais</span></div></div>
         {!history.length && <p>Nenhuma manutenção encontrada.</p>}

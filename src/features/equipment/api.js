@@ -5,7 +5,10 @@ export function listUserEquipment() {
 }
 
 export function deleteEquipment(id) {
-  return apiRequest('/remover-equipamento/' + encodeURIComponent(id), { method: 'DELETE' })
+  return apiRequest('/remover-equipamento/' + encodeURIComponent(id), { method: 'DELETE' }).then(result => {
+    if (typeof result !== 'string' || result.trim().toLowerCase() !== 'peça deletada') throw new Error(typeof result === 'string' && result ? result : 'Não foi possível confirmar a exclusão.')
+    return result
+  })
 }
 
 export function detectEquipment() {

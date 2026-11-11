@@ -27,7 +27,7 @@ export function MyComputers({ onToast, equipmentStatus, refreshEquipment, remove
               <span role="cell"><StatusPill type={device.statusType}>{device.status}</StatusPill></span>
               <span role="cell">{device.lastMaintenance}</span>
               <span role="cell">{device.warranty}</span>
-              <span role="cell" className="action-cell"><button aria-label={`Atualizar ${device.nickname}`} onClick={() => { if (hasLocalApi) { refreshEquipment(); onToast('Atualizando lista de equipamentos') } else onToast('Demonstração: dados de exemplo') }}><RefreshCw size={20} /></button><button aria-label={`Excluir ${device.nickname}`} onClick={() => removeEquipment(device.id)}><Trash2 size={20} /></button></span>
+              <span role="cell" className="action-cell"><button aria-label={`Atualizar lista de ${device.nickname}`} onClick={() => { if (hasLocalApi) { refreshEquipment(); onToast('Atualizando lista de equipamentos') } else onToast('Demonstração: dados de exemplo') }}><RefreshCw size={20} /></button><button aria-label={`Excluir ${device.nickname}`} onClick={() => removeEquipment(device.id)}><Trash2 size={20} /></button></span>
             </div>)}
           </div>
         </div>
@@ -35,7 +35,7 @@ export function MyComputers({ onToast, equipmentStatus, refreshEquipment, remove
       {hasLocalApi && equipmentStatus === 'error' && <p role="alert">Não foi possível carregar os equipamentos.</p>}
       {hasLocalApi && equipmentStatus === 'loading' && <p>Carregando equipamentos...</p>}
       {hasLocalApi && equipmentStatus === 'ready' && devices.length === 0 && <p>Nenhum equipamento cadastrado.</p>}
-      <div className="device-card-list">{devices.map(device => <DeviceCard key={device.id} device={device} onHistory={() => navigate('/historico')} />)}</div>
+      <div className="device-card-list">{devices.map(device => <DeviceCard key={device.id} device={device} onHistory={() => navigate(hasLocalApi ? '/historico?equipamento=' + encodeURIComponent(device.id) : '/historico')} />)}</div>
     </main>
   </PageFrame>
 }

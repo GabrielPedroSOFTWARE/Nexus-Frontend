@@ -168,6 +168,15 @@ npm run dev
 
 No Windows, copie `.env.local.example` para `.env.local` pelo VS Code. Abra o endereço informado pelo Vite. O frontend encaminha as chamadas `/api` para `http://127.0.0.1:8080`; se necessário, ajuste `NEXUS_BACKEND_URL` no `.env.local` e reinicie o Vite. O arquivo `.env.local` não deve ser enviado ao Git.
 
-O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. A área administrativa usa os contratos da versão do backend `fd13cbb` ou compatível. A solicitação de acesso pela tela de login e a negação de solicitações permanecem indisponíveis. Os significados dos códigos de status devem ser informados pela equipe do backend. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
+O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. A área administrativa usa os contratos da versão do backend `fd13cbb` ou compatível. A solicitação de acesso pela tela de login usa o endpoint de cadastro; a negação de solicitações permanece indisponível. Os significados dos códigos de status devem ser informados pela equipe do backend. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
 
 No GitHub Pages, o endereço da API é `http://127.0.0.1:8080` no próprio computador que abriu o site. O backend deve permitir a origem `https://gabrielpedrosoftware.github.io` por CORS, inclusive as requisições de verificação e os cabeçalhos necessários, e o navegador pode exigir permissão para acesso local. Na versão `fd13cbb` o CORS permite a origem do Pages, mas não permite `PATCH`; assim, as alterações que usam esse método dependem de ajuste pelo responsável pelo backend. A opção “Abrir demonstração” usa dados simulados. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.
+
+### Limitações atuais da integração
+
+- A versão do backend `fd13cbb` não possui campo próprio para frequência. O frontend inclui a informação no texto do problema e também envia o campo `frequencia`, para compatibilidade com versões que o aceitem.
+- O backend retorna o anexo sem nome nem tipo original. O frontend o disponibiliza como `anexo.bin`.
+- A leitura automática descreve a máquina onde o backend está rodando.
+- As notificações são consultadas, mas o backend não oferece uma rota para marcá-las como lidas.
+- Os indicadores de prazo, estoque e desempenho precisam de dados ou regras adicionais do backend. As ordens apresentam os códigos de status enquanto seus significados não forem confirmados.
+- O responsável pelo backend deve revisar as permissões e os dados devolvidos pela API antes do uso com informações reais.

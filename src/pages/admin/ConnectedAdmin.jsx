@@ -36,6 +36,14 @@ function OrderDetails({ order, onClose, onSaved }) {
   const [technician, setTechnician] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
+  const downloadAttachment = () => {
+    try {
+      const bytes = Uint8Array.from(atob(order.foto), char => char.charCodeAt(0))
+      const url = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }))
+      const link = document.createElement('a'); link.href = url; link.download = 'anexo.bin'; link.click()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+    } catch { setMessage('Não foi possível abrir o anexo.') }
+  }
   const saveStatus = async event => {
     event.preventDefault(); setBusy(true); setMessage('')
     try {
@@ -55,7 +63,8 @@ function OrderDetails({ order, onClose, onSaved }) {
     <p><b>Equipamento:</b> {display(order.apelido || order.idPC)} &nbsp; <b>Usuário:</b> {display(order.idUsuario)}</p>
     <p><b>Problema:</b> {display(order.problema)} &nbsp; <b>Status:</b> {order.status == null ? '—' : `Código ${order.status}`}</p>
     <p><b>Técnico:</b> {display(order.idTecnico || order.tecnico)} &nbsp; <b>Observação:</b> {display(order.observacoesTecnico)}</p>
-    <form onSubmit={saveStatus} className="connected-form"><h3>Alterar status</h3><label>Código do status<input type="number" min="0" max="5" required value={status} onChange={e => setStatus(e.target.value)} /></label><small>Use os códigos definidos pela equipe do backend.</small>{status === '1' && <label>Observação<input required value={observation} onChange={e => setObservation(e.target.value)} /></label>}{status === '5' && <label>Descrição da conclusão<input required value={description} onChange={e => setDescription(e.target.value)} /></label>}<button className="primary-button" disabled={busy}>Salvar status</button></form>
+    {order.foto && <p><button type="button" className="outline-button" onClick={downloadAttachment}>Baixar anexo</button></p>}
+    <form onSubmit={saveStatus} className="connected-form"><h3>Alterar status</h3><label>Código do status<input type="number" min="0" max="6" required value={status} onChange={e => setStatus(e.target.value)} /></label><small>Use os códigos definidos pela equipe do backend.</small>{status === '1' && <label>Observação<input required value={observation} onChange={e => setObservation(e.target.value)} /></label>}{status === '5' && <label>Descrição da conclusão<input required value={description} onChange={e => setDescription(e.target.value)} /></label>}<button className="primary-button" disabled={busy}>Salvar status</button></form>
     <form onSubmit={saveTechnician} className="connected-form"><h3>Atribuir técnico</h3><label>Identificador do técnico<input required value={technician} onChange={e => setTechnician(e.target.value)} /></label><button className="primary-button" disabled={busy}>Atribuir técnico</button></form>
     {message && <p role="status">{message}</p>}
   </section></div>
@@ -110,7 +119,7 @@ function Registration() {
     const data = new FormData(form)
     setBusy(true); setMessage('')
     try {
-      await registerUser({ id: crypto.randomUUID(), nome: String(data.get('nome')).trim(), login: String(data.get('login')).trim(), cpf: String(data.get('cpf')).trim(), email: String(data.get('email')).trim(), setor: String(data.get('setor')).trim(), senha: String(data.get('senha')), perfil: 'PENDENT', status: 'Aguardando análise', ehAdmin: false })
+      await registerUser({ id: crypto.randomUUID(), nome: String(data.get('nome')).trim(), login: String(data.get('login')).trim(), cpf: String(data.get('cpf')).trim(), email: String(data.get('email')).trim(), setor: String(data.get('setor')).trim(), senha: String(data.get('senha')), perfil: 'PENDENT', status: 'Aguardando análise', ehAdmin: false, versaoToken: 1 })
       form.reset(); setMessage('Cadastro enviado. A conta precisa ser aprovada na lista de solicitações.')
     } catch (error) { setMessage('Não foi possível cadastrar o usuário: ' + error.message) }
     finally { setBusy(false) }
