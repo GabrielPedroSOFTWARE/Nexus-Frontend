@@ -69,12 +69,12 @@ function OrderDetails({ order, onClose, onSaved }) {
     {message && <p role="status">{message}</p>}
   </section></div>
 }
-function Orders({ compact = false }) {
+function Orders({ compact = false, activeOnly = false }) {
   const state = useRemote(listOrders)
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState('')
-  const visible = (state.data || []).filter(order => `${order.id} ${order.idUsuario} ${order.idPC}`.toLowerCase().includes(query.toLowerCase().trim()))
-  return <AdminPanel title={compact ? 'Ordens de serviço' : 'Ordens de serviço cadastradas'}><RemoteState state={state} empty="Nenhuma ordem encontrada.">
+  const visible = (state.data || []).filter(order => (!activeOnly || (order.status != null && ![5, 6].includes(Number(order.status)))) && `${order.id} ${order.idUsuario} ${order.idPC}`.toLowerCase().includes(query.toLowerCase().trim()))
+  return <AdminPanel title={compact ? 'Ordens de serviço' : activeOnly ? 'Manutenções ativas' : 'Ordens de serviço cadastradas'}><RemoteState state={state} empty="Nenhuma ordem encontrada.">
     <label className="connected-search">Pesquisar ordem, usuário ou equipamento<input value={query} onChange={e => setQuery(e.target.value)} /></label><OrderTable orders={compact ? visible.slice(0, 5) : visible} onSelect={setSelected} />{!visible.length && <p>Nenhuma ordem corresponde à pesquisa.</p>}
   </RemoteState>{selected && <OrderDetails order={selected} onClose={() => setSelected(null)} onSaved={async () => { await state.refresh(); setSelected(null) }} />}</AdminPanel>
 }
@@ -131,7 +131,7 @@ function Registration() {
 export function ConnectedAdmin({ pathname, onToast, profileName }) {
   const navigate = useNavigate()
   const active = pathname === '/admin/ordens' ? 'orders' : pathname === '/admin/manutencoes' ? 'maintenance' : 'home'
-  return <PageFrame mode="admin" active={active} onToast={onToast} profileName={profileName} onOpenAccess={() => navigate('/admin/solicitacoes')}><main className="page-content connected-admin"><h1 className="page-title">{pathname === '/admin' ? 'Painel administrativo' : pathname === '/admin/usuarios' ? 'Gestão de usuários' : pathname === '/admin/solicitacoes' ? 'Solicitações de acesso' : pathname === '/admin/cadastro-usuario' ? 'Cadastrar usuário' : 'Ordens de serviço'}</h1>
-    {pathname === '/admin' ? <Dashboard /> : pathname === '/admin/usuarios' ? <Users /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : <Orders />}
+  return <PageFrame mode="admin" active={active} onToast={onToast} profileName={profileName} onOpenAccess={() => navigate('/admin/solicitacoes')}><main className="page-content connected-admin"><h1 className="page-title">{pathname === '/admin' ? 'Painel administrativo' : pathname === '/admin/usuarios' ? 'Gestão de usuários' : pathname === '/admin/solicitacoes' ? 'Solicitações de acesso' : pathname === '/admin/cadastro-usuario' ? 'Cadastrar usuário' : pathname === '/admin/manutencoes' ? 'Manutenções ativas' : 'Ordens de serviço'}</h1>
+    {pathname === '/admin' ? <Dashboard /> : pathname === '/admin/usuarios' ? <Users /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : <Orders activeOnly={pathname === '/admin/manutencoes'} />}
   </main></PageFrame>
 }

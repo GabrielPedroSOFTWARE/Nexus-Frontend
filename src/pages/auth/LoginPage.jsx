@@ -4,10 +4,14 @@ import { useState } from 'react'
 import { Eye, EyeOff, Mail, LockKeyhole } from 'lucide-react'
 
 export function LoginPage({ onAccessRequest, onLogin }) {
-  const [networkLogin, setNetworkLogin] = useState('')
+  const [networkLogin, setNetworkLogin] = useState(() => {
+    try { return localStorage.getItem('nexus.remembered.login') || '' } catch { return '' }
+  })
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [remember, setRemember] = useState(false)
+  const [remember, setRemember] = useState(() => {
+    try { return Boolean(localStorage.getItem('nexus.remembered.login')) } catch { return false }
+  })
   const switchMode = demo => {
     clearSession()
     const url = new URL(window.location.href)
@@ -18,6 +22,10 @@ export function LoginPage({ onAccessRequest, onLogin }) {
   }
   const login = event => {
     event.preventDefault()
+    try {
+      if (remember) localStorage.setItem('nexus.remembered.login', networkLogin.trim())
+      else localStorage.removeItem('nexus.remembered.login')
+    } catch { /* O login continua disponível sem armazenamento local. */ }
     onLogin({ login: networkLogin.trim(), senha: password })
   }
 
@@ -40,7 +48,7 @@ export function LoginPage({ onAccessRequest, onLogin }) {
         <div className="input-with-icon"><Mail size={19} /><input type="text" autoComplete="username" placeholder="Digite seu login de rede" value={networkLogin} onChange={e => setNetworkLogin(e.target.value)} required /></div>
         <label>Senha <em>*</em></label>
         <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
-        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label></div>
+        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar meu login</label></div>
         <button className="primary-button login-button" type="submit">Fazer Login</button>
         <div className="or-divider"><span />OU<span /></div>
         <button className="access-request-button" type="button" onClick={onAccessRequest}>Solicitar acesso</button>
