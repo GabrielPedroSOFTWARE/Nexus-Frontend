@@ -101,7 +101,7 @@ As páginas podem ser acessadas pelas rotas abaixo. Como o projeto usa `HashRout
 | `/#/admin` | Início da área administrativa. |
 | `/#/admin/ordens` | Ordens de serviço e indicadores. |
 | `/#/admin/manutencoes` | Manutenções ativas. |
-| `/#/admin/cadastro-usuario` | Cadastro demonstrativo de usuário. |
+| `/#/admin/cadastro-usuario` | Cadastro de usuário. |
 
 ## Publicação no GitHub Pages
 
@@ -123,6 +123,7 @@ Para configurar uma cópia do projeto, selecione **Configurações → Pages →
 │   ├── assets/fonts/               # Fontes locais
 │   ├── features/                   # Fluxos e dados de cada domínio
 │   │   ├── access-requests/
+│   │   ├── admin/
 │   │   ├── auth/
 │   │   ├── equipment/
 │   │   ├── service-orders/
@@ -148,7 +149,7 @@ A lógica de autenticação, equipamentos e solicitações fica em hooks dentro 
 
 ## Escopo atual
 
-O GitHub Pages tenta acessar o backend local no computador do usuário. No modo de demonstração, os dados são simulados. No modo local, login, equipamentos e pedidos usam a API configurada. As telas administrativas e os fluxos de cadastro de usuário e solicitação de acesso estão indisponíveis até a integração correspondente.
+O GitHub Pages tenta acessar o backend local no computador do usuário. No modo de demonstração, os dados são simulados. No modo local, login, equipamentos e pedidos usam a API configurada. Na área administrativa conectada é possível consultar ordens, usuários e pendências, aprovar acessos, cadastrar usuários, alterar perfis e status e atribuir técnicos, conforme as rotas oferecidas pelo backend.
 
 ## Dúvidas e sugestões
 
@@ -167,6 +168,6 @@ npm run dev
 
 No Windows, copie `.env.local.example` para `.env.local` pelo VS Code. Abra o endereço informado pelo Vite. O frontend encaminha as chamadas `/api` para `http://127.0.0.1:8080`; se necessário, ajuste `NEXUS_BACKEND_URL` no `.env.local` e reinicie o Vite. O arquivo `.env.local` não deve ser enviado ao Git.
 
-O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. As telas administrativas e a solicitação de acesso não estão integradas. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
+O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. A área administrativa usa os contratos da versão do backend `fd13cbb` ou compatível. A solicitação de acesso pela tela de login e a negação de solicitações permanecem indisponíveis. Os significados dos códigos de status devem ser informados pela equipe do backend. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
 
-No GitHub Pages, o endereço da API é `http://127.0.0.1:8080` no próprio computador que abriu o site. O backend deve permitir a origem `https://gabrielpedrosoftware.github.io` por CORS, inclusive as requisições de verificação e os cabeçalhos necessários, e o navegador pode exigir permissão para acesso local. A opção “Abrir demonstração” usa dados simulados. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.
+No GitHub Pages, o endereço da API é `http://127.0.0.1:8080` no próprio computador que abriu o site. O backend deve permitir a origem `https://gabrielpedrosoftware.github.io` por CORS, inclusive as requisições de verificação e os cabeçalhos necessários, e o navegador pode exigir permissão para acesso local. Na versão `fd13cbb` o CORS permite a origem do Pages, mas não permite `PATCH`; assim, as alterações que usam esse método dependem de ajuste pelo responsável pelo backend. A opção “Abrir demonstração” usa dados simulados. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.

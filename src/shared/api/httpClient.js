@@ -28,7 +28,7 @@ export async function apiRequest(path, options = {}) {
   const headers = {}
   const isFormData = body instanceof FormData
 
-  if (body !== undefined && !isFormData) headers['Content-Type'] = 'application/json'
+  if (body !== undefined && !isFormData) headers['Content-Type'] = options.rawBody ? 'text/plain;charset=UTF-8' : 'application/json'
 
   const session = loadSession()
   if (options.requiresAuth !== false && session?.token) {
@@ -41,7 +41,7 @@ export async function apiRequest(path, options = {}) {
       method,
       headers,
       ...(isPagesConnection ? { targetAddressSpace: 'loopback' } : {}),
-      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
+      body: body === undefined ? undefined : isFormData || options.rawBody ? body : JSON.stringify(body),
     })
   } catch {
     throw new Error(isPagesConnection

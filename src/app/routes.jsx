@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { hasLocalApi } from '../shared/api/httpClient.js'
-import { PageFrame } from '../shared/layout/PageFrame.jsx'
+import { ConnectedAdmin } from '../pages/admin/ConnectedAdmin.jsx'
 import { LoginPage } from '../pages/auth/LoginPage.jsx'
 import { UserHome } from '../pages/user/HomePage.jsx'
 import { MyComputers } from '../pages/user/ComputersPage.jsx'
@@ -16,9 +16,7 @@ export function AppRoutes({ pathname, session, equipmentStatus, refreshEquipment
   const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/')
   if (pathname !== '/' && (!session || (hasLocalApi && !session.token))) return <Navigate to="/" replace />
   if (isAdminRoute && !session?.isAdmin) return <Navigate to="/home" replace />
-  if (isAdminRoute && hasLocalApi) return <PageFrame mode="admin" active="home" profileName={profileName} onToast={onToast}>
-    <main className="page-content"><h1 className="page-title">Área administrativa</h1><section className="panel" style={{ padding: '24px' }}><p>As telas administrativas ainda não estão integradas aos dados do backend.</p><p>As operações de gestão estão indisponíveis nesta versão.</p></section></main>
-  </PageFrame>
+  if (isAdminRoute && hasLocalApi) return <ConnectedAdmin pathname={pathname} profileName={profileName} onToast={onToast} />
   switch (pathname) {
     case '/home':
       return <UserHome onToast={onToast} openRequest={openRequest} profileName={profileName} registeredEquipment={registeredEquipment} equipmentStatus={equipmentStatus} refreshEquipment={refreshEquipment} />

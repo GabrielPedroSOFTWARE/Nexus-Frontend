@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.NEXUS_BACKEND_URL || 'http://127.0.0.1:8080',
           changeOrigin: true,
+          configure: proxy => {
+            proxy.on('proxyReq', proxyRequest => proxyRequest.removeHeader('origin'))
+          },
           rewrite: path => path.slice(4),
         },
       },
