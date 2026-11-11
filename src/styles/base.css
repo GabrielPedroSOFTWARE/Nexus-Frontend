@@ -1,0 +1,33 @@
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/inter-latin-variable.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  color: #33435f;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  font-weight: 400;
+  --nexus-navy: #33435f;
+  --nexus-ink: #34445f;
+  --nexus-border: #c6c9ce;
+  --nexus-blue: #357cb5;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; min-height: 100%; margin: 0; }
+body { min-width: 360px; min-height: 100vh; }
+button, input, select, textarea { font: inherit; }
+button { color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #87b7ff; outline-offset: 2px; }
+button { cursor: pointer; }
+
+.app-page { min-height: 100vh; position: relative; background: #fff; }
+.brand-mark { display: block; flex: 0 0 auto; color: #fff; mix-blend-mode: lighten; }

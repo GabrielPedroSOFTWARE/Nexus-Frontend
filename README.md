@@ -26,7 +26,7 @@
 
 O NEXUS é uma aplicação web para acompanhar solicitações e manutenções de equipamentos de TI. Esta versão apresenta, em uma interface responsiva, os fluxos de quem solicita atendimento e da equipe administrativa.
 
-Este repositório contém a interface do sistema. As telas usam dados demonstrativos para apresentar a navegação e as interações disponíveis.
+Este repositório contém a interface do sistema. O GitHub Pages apresenta uma demonstração com dados simulados. Localmente, é possível conectar as funções disponíveis à API do backend.
 
 ## Captura de tela
 
@@ -115,24 +115,58 @@ Para configurar uma cópia do projeto, selecione **Configurações → Pages →
 
 ```text
 .
-├── .github/workflows/pages.yml       # Publicação no GitHub Pages
-├── docs/imagens/                     # Imagens da documentação
-├── public/                           # Imagens e logotipo da aplicação
+├── .github/workflows/              # Publicação no GitHub Pages
+├── docs/imagens/                   # Imagens usadas nesta documentação
+├── public/                         # Imagens e identidade visual da aplicação
 ├── src/
-│   ├── App.jsx                       # Telas e navegação
-│   ├── main.jsx                      # Inicialização do React
-│   └── styles.css                    # Estilos da aplicação
-├── index.html                        # Documento HTML principal
-├── package.json                      # Dependências e comandos
-├── package-lock.json                 # Versões das dependências
-├── vite.config.js                    # Configuração do Vite e do caminho-base
-└── README.md                         # Documentação do projeto
+│   ├── app/                        # Composição da aplicação e seleção de rotas
+│   ├── assets/fonts/               # Fontes locais
+│   ├── features/                   # Fluxos e dados de cada domínio
+│   │   ├── access-requests/
+│   │   ├── auth/
+│   │   ├── equipment/
+│   │   ├── service-orders/
+│   │   ├── service-requests/
+│   │   └── users/
+│   ├── pages/                      # Telas separadas por perfil e rota
+│   │   ├── admin/
+│   │   ├── auth/
+│   │   └── user/
+│   ├── shared/                    # API genérica, layout e componentes comuns
+│   ├── styles/                     # Estilos base, por área e ajustes responsivos
+│   └── main.jsx                    # Inicialização do React
+├── index.html                      # Documento HTML principal
+├── package.json                    # Dependências e comandos
+├── package-lock.json               # Versões das dependências
+├── vite.config.js                  # Configuração do Vite e do caminho-base
+└── README.md                       # Documentação do projeto
 ```
+
+`app` conecta as telas e mantém a navegação. `pages` reúne as telas completas; `features` concentra componentes, dados e chamadas da API ligados a cada fluxo; `shared` contém partes reutilizadas. Em `styles/index.css`, os arquivos CSS são carregados na ordem necessária para preservar a apresentação.
+
+A lógica de autenticação, equipamentos e solicitações fica em hooks dentro de `features/`. Arquivos chamados `demoData.js` guardam dados de exemplo usados nas telas demonstrativas.
 
 ## Escopo atual
 
-Esta versão é um protótipo de interface. A autenticação, os cadastros e as alterações apresentados são demonstrações; os dados não são enviados a um servidor nem salvos em um banco de dados. A autenticação institucional, a API Java/Spring Boot e o banco MySQL ainda não estão integrados.
+A demonstração publicada no GitHub Pages não depende de backend. No modo local, login, equipamentos e pedidos usam a API configurada. As telas administrativas e os fluxos de cadastro de usuário e solicitação de acesso estão indisponíveis até a integração correspondente.
 
 ## Dúvidas e sugestões
 
 Registre dúvidas, sugestões ou problemas na [área de problemas do repositório](https://github.com/GabrielPedroSOFTWARE/Nexus-Frontend/issues).
+
+
+## Execução integrada local
+
+Com o backend já iniciado na porta 8080 pelo responsável, configure o frontend:
+
+```bash
+cp .env.local.example .env.local
+npm ci
+npm run dev
+```
+
+No Windows, copie `.env.local.example` para `.env.local` pelo VS Code. Abra o endereço informado pelo Vite. O frontend encaminha as chamadas `/api` para `http://127.0.0.1:8080`; se necessário, ajuste `NEXUS_BACKEND_URL` no `.env.local` e reinicie o Vite. O arquivo `.env.local` não deve ser enviado ao Git.
+
+O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. As telas administrativas e a solicitação de acesso não estão integradas. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
+
+No GitHub Pages, sem API configurada, o sistema funciona apenas como demonstração: dados, login e ações são simulados e não são salvos. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.
