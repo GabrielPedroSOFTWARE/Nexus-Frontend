@@ -6,7 +6,7 @@ const publicUser = ({ id, nome, login, email, setor, justificativa, perfil, stat
 export async function listOrders() {
   const data = await apiRequest('/listar-pedidos')
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar pedidos.')
-  return data.map(({ id, idPC, idUsuario, apelido, status, prioridade, problema, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto }) => ({ id, idPC, idUsuario, apelido, status, prioridade, problema, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto }))
+  return data.map(({ id, idPC, idUsuario, apelido, status, prioridade, problema, frequencia, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto }) => ({ id, idPC, idUsuario, apelido, status, prioridade, problema, frequencia, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto }))
 }
 export const getTotals = () => apiRequest('/totalUsuarios')
 export async function listUsers() {

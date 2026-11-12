@@ -1,4 +1,5 @@
 import { hasLocalApi } from '../../shared/api/httpClient.js'
+import { FREQUENCY_OPTIONS } from './frequency.js'
 import { Paperclip, Wrench, X } from 'lucide-react'
 
 export function RequestModal({ onClose, onSubmit, equipment }) {
@@ -8,7 +9,7 @@ export function RequestModal({ onClose, onSubmit, equipment }) {
       <div className="form-section"><label>EQUIPAMENTO <em>*</em><small>Selecione o equipamento que necessita de manutenção</small></label><select name="idPC" required defaultValue=""><option value="" disabled>▣ &nbsp; Selecione a máquina</option>{hasLocalApi ? equipment.map(item => <option key={item.id} value={item.id}>{item.nickname} · {item.id}</option>) : <option value="PC-0010">PC-0010 · Desktop de usuário</option>}</select></div>
       <div className="form-section"><label>O QUE ESTÁ ACONTECENDO? <em>*</em><small>Descreva o que está acontecendo de errado com o equipamento</small></label><textarea name="problema" required placeholder="Ex.: O equipamento está muito lento, travando, etc..." /></div>
       <div className="form-section frequency-section"><label>COM QUE FREQUÊNCIA OCORRE O PROBLEMA? <em>*</em><small>Assim a equipe pode avaliar melhor a frequência com que o problema relatado ocorre</small></label><div className="radio-grid">
-        {['Sempre que utiliza', 'Mais de uma vez por semana', 'Raramente', 'Não sei informar', 'Começou hoje'].map(item => <label key={item}><input type="radio" name="frequencia" value={item} required />{item}</label>)}
+        {FREQUENCY_OPTIONS.map(item => <label key={item}><input type="radio" name="frequencia" value={item} required />{item}</label>)}
       </div></div>
       <div className="form-section attach-section"><label>ANEXAR ARQUIVOS <small>(opcional)</small><small>Arquivos de vídeo ou prints podem ajudar na solução do problema!</small></label><label className="dropzone"><Paperclip size={24} /><span>Arraste arquivos aqui ou clique para selecionar<small>Vídeo, JPG, PNG, PDF, etc.</small></span><input type="file" name="arquivoImagem" /></label></div>
       <small className="required-note">Todos os campos com <em>*</em> são obrigatórios.</small>

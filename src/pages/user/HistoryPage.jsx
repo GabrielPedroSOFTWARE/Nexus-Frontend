@@ -3,6 +3,7 @@ import { StatusPill } from '../../shared/ui/StatusPill.jsx'
 import { orderStatusLabel } from '../../shared/orderStatus.js'
 import { hasLocalApi } from '../../shared/api/httpClient.js'
 import { listUserOrders } from '../../features/service-requests/api.js'
+import { getRequestDetails } from '../../features/service-requests/frequency.js'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ListFilter } from 'lucide-react'
@@ -21,7 +22,10 @@ export function HistoryPage({ onToast, profileName }) {
     return () => { active = false }
   }, [])
   const history = hasLocalApi
-    ? (apiHistory || []).filter(order => !equipmentId || String(order.idPC) === equipmentId).map(order => [order.id || 'Pedido', orderStatusLabel(order.status), order.problema || order.descricao || 'Sem descrição', order.dataInicioManutencao || order.dataManutencao || '—', order.idTecnico || order.tecnico || 'Não atribuído', 'active'])
+    ? (apiHistory || []).filter(order => !equipmentId || String(order.idPC) === equipmentId).map(order => {
+        const details = getRequestDetails(order)
+        return [order.id || 'Pedido', orderStatusLabel(order.status), <>{details.problem}<br /><small>Frequência: {details.frequency || 'Não informada'}</small></>, order.dataInicioManutencao || order.dataManutencao || '—', order.idTecnico || order.tecnico || 'Não atribuído', 'active']
+      })
     : [['Pedido de usuário', 'Em Manutenção', 'Troca de SSD', '—', 'João Silva', 'maintenance'], ['Pedido de usuário', 'Concluída', 'Lentidão', '30/05/2026', 'João Silva', 'done'], ['Pedido de usuário', 'Concluída', 'Não liga', '12/04/2026', 'Carlos Costa', 'done']]
   return <PageFrame mode="user" active="history" onToast={onToast} profileName={profileName}>
     <main className="page-content history-content"><h1 className="page-title">{equipmentId && hasLocalApi ? `Histórico do equipamento ${equipmentId}` : 'Histórico de manutenções'}</h1>

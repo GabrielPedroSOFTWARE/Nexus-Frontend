@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
+import { getRequestDetails } from '../../features/service-requests/frequency.js'
 import { ORDER_STATUS_STEPS, orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
 import { approveUser, assignTechnician, changeOrderStatus, changeUserProfile, getTotals, listOrders, listPendingUsers, listUsers, registerUser, toggleUserAdmin, toggleUserStatus } from '../../features/admin/api.js'
 import '../../styles/connected-admin.css'
@@ -31,6 +32,7 @@ function OrderTable({ orders, onSelect }) {
   return <div className="table-scroll"><table className="data-table"><thead><tr><th>ORDEM</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th><th>PRIORIDADE</th><th>TÉCNICO</th></tr></thead><tbody>{orders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => onSelect(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{display(order.idUsuario)}</td><td>{orderStatusLabel(order.status)}</td><td>{order.prioridade == null ? '—' : `Código ${order.prioridade}`}</td><td>{display(order.idTecnico || order.tecnico)}</td></tr>)}</tbody></table></div>
 }
 function OrderDetails({ order, onClose, onSaved }) {
+  const details = getRequestDetails(order)
   const [status, setStatus] = useState('')
   const [observation, setObservation] = useState('')
   const [description, setDescription] = useState('')
@@ -62,7 +64,8 @@ function OrderDetails({ order, onClose, onSaved }) {
   return <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}><section className="connected-dialog" role="dialog" aria-modal="true" aria-label="Detalhes da ordem">
     <div className="section-title-row"><h2>Ordem {display(order.id)}</h2><button type="button" className="outline-button" onClick={onClose}>Fechar</button></div>
     <p><b>Equipamento:</b> {display(order.apelido || order.idPC)} &nbsp; <b>Usuário:</b> {display(order.idUsuario)}</p>
-    <p><b>Problema:</b> {display(order.problema)} &nbsp; <b>Status:</b> {orderStatusLabel(order.status)}</p>
+    <p><b>Problema:</b> {details.problem} &nbsp; <b>Status:</b> {orderStatusLabel(order.status)}</p>
+    <p><b>Frequência:</b> {details.frequency || 'Não informada'}</p>
     <p><b>Técnico:</b> {display(order.idTecnico || order.tecnico)} &nbsp; <b>Observação:</b> {display(order.observacoesTecnico)}</p>
     <div className="timeline" aria-label="Etapas da manutenção">{ORDER_STATUS_STEPS.map((step, index) => <div className={`timeline-step ${orderStatusCode(order.status) === index ? 'timeline-current reached' : ''}`} key={step} aria-current={orderStatusCode(order.status) === index ? 'step' : undefined}><span /><div><b>{step}</b>{index === 3 && <small>Opcional: se faltar peça</small>}</div></div>)}</div>
     {order.foto && <p><button type="button" className="outline-button" onClick={downloadAttachment}>Baixar anexo</button></p>}
