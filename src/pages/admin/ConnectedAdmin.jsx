@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
+import { ORDER_STATUS_STEPS, orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
 import { approveUser, assignTechnician, changeOrderStatus, changeUserProfile, getTotals, listOrders, listPendingUsers, listUsers, registerUser, toggleUserAdmin, toggleUserStatus } from '../../features/admin/api.js'
 import '../../styles/connected-admin.css'
 
@@ -27,7 +28,7 @@ function AdminPanel({ title, children }) {
   return <section className="panel connected-panel"><h2>{title}</h2>{children}</section>
 }
 function OrderTable({ orders, onSelect }) {
-  return <div className="table-scroll"><table className="data-table"><thead><tr><th>ORDEM</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th><th>PRIORIDADE</th><th>TÉCNICO</th></tr></thead><tbody>{orders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => onSelect(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{display(order.idUsuario)}</td><td>{order.status == null ? '—' : `Código ${order.status}`}</td><td>{order.prioridade == null ? '—' : `Código ${order.prioridade}`}</td><td>{display(order.idTecnico || order.tecnico)}</td></tr>)}</tbody></table></div>
+  return <div className="table-scroll"><table className="data-table"><thead><tr><th>ORDEM</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th><th>PRIORIDADE</th><th>TÉCNICO</th></tr></thead><tbody>{orders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => onSelect(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{display(order.idUsuario)}</td><td>{orderStatusLabel(order.status)}</td><td>{order.prioridade == null ? '—' : `Código ${order.prioridade}`}</td><td>{display(order.idTecnico || order.tecnico)}</td></tr>)}</tbody></table></div>
 }
 function OrderDetails({ order, onClose, onSaved }) {
   const [status, setStatus] = useState('')
@@ -61,10 +62,11 @@ function OrderDetails({ order, onClose, onSaved }) {
   return <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}><section className="connected-dialog" role="dialog" aria-modal="true" aria-label="Detalhes da ordem">
     <div className="section-title-row"><h2>Ordem {display(order.id)}</h2><button type="button" className="outline-button" onClick={onClose}>Fechar</button></div>
     <p><b>Equipamento:</b> {display(order.apelido || order.idPC)} &nbsp; <b>Usuário:</b> {display(order.idUsuario)}</p>
-    <p><b>Problema:</b> {display(order.problema)} &nbsp; <b>Status:</b> {order.status == null ? '—' : `Código ${order.status}`}</p>
+    <p><b>Problema:</b> {display(order.problema)} &nbsp; <b>Status:</b> {orderStatusLabel(order.status)}</p>
     <p><b>Técnico:</b> {display(order.idTecnico || order.tecnico)} &nbsp; <b>Observação:</b> {display(order.observacoesTecnico)}</p>
+    <div className="timeline" aria-label="Etapas da manutenção">{ORDER_STATUS_STEPS.map((step, index) => <div className={`timeline-step ${orderStatusCode(order.status) === index ? 'timeline-current reached' : ''}`} key={step} aria-current={orderStatusCode(order.status) === index ? 'step' : undefined}><span /><div><b>{step}</b>{index === 3 && <small>Opcional: se faltar peça</small>}</div></div>)}</div>
     {order.foto && <p><button type="button" className="outline-button" onClick={downloadAttachment}>Baixar anexo</button></p>}
-    <form onSubmit={saveStatus} className="connected-form"><h3>Alterar status</h3><label>Código do status<input type="number" min="0" max="6" required value={status} onChange={e => setStatus(e.target.value)} /></label><small>Use os códigos definidos pela equipe do backend.</small>{status === '1' && <label>Observação<input required value={observation} onChange={e => setObservation(e.target.value)} /></label>}{status === '5' && <label>Descrição da conclusão<input required value={description} onChange={e => setDescription(e.target.value)} /></label>}<button className="primary-button" disabled={busy}>Salvar status</button></form>
+    <form onSubmit={saveStatus} className="connected-form"><h3>Alterar status</h3><label>Status<select aria-label="Status" required value={status} onChange={e => setStatus(e.target.value)}><option value="">Selecione o status</option>{ORDER_STATUS_STEPS.map((label, code) => <option key={code} value={String(code)}>{label}</option>)}</select></label>{status === '1' && <label>Observação<input required value={observation} onChange={e => setObservation(e.target.value)} /></label>}{status === '5' && <label>Descrição da conclusão<input required value={description} onChange={e => setDescription(e.target.value)} /></label>}<button className="primary-button" disabled={busy}>Salvar status</button></form>
     <form onSubmit={saveTechnician} className="connected-form"><h3>Atribuir técnico</h3><label>Identificador do técnico<input required value={technician} onChange={e => setTechnician(e.target.value)} /></label><button className="primary-button" disabled={busy}>Atribuir técnico</button></form>
     {message && <p role="status">{message}</p>}
   </section></div>

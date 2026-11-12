@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiRequest } from '../api/httpClient.js'
+import { orderStatusLabel } from '../orderStatus.js'
 import { ChevronRight, X } from 'lucide-react'
 
 export function NotificationsPanel({ demo, open, onClose, onSelect }) {
@@ -20,7 +21,7 @@ export function NotificationsPanel({ demo, open, onClose, onSelect }) {
   return <div className="notifications-panel">
     <div className="notifications-heading"><strong>{demo ? 'Solicitações de cadastro' : 'Notificações'}</strong><button onClick={onClose} aria-label="Fechar notificações"><X size={16} /></button></div>
     {demo ? requests.map(([name, date]) => <button className="notification-item" key={name} onClick={() => onSelect(name)}><span className="notification-dot" /><span><b>{name} solicitou acesso</b><small>{date}</small></span><ChevronRight size={21} /></button>) : <>
-      {error ? <p role="alert" style={{ padding: '12px' }}>Não foi possível carregar as notificações: {error}</p> : items === null ? <p style={{ padding: '12px' }}>Carregando...</p> : items.length === 0 ? <p style={{ padding: '12px' }}>Nenhuma notificação encontrada.</p> : items.map(item => <button className="notification-item" key={item.id} onClick={() => onSelect(item)}><span className="notification-dot" /><span><b>{item.resumo || 'Atualização de manutenção'}</b><small>{item.status == null ? 'Status não informado' : `Código de status: ${item.status}`}{item.prazo ? ` · Prazo: ${item.prazo}` : ''}</small></span><ChevronRight size={21} /></button>)}
+      {error ? <p role="alert" style={{ padding: '12px' }}>Não foi possível carregar as notificações: {error}</p> : items === null ? <p style={{ padding: '12px' }}>Carregando...</p> : items.length === 0 ? <p style={{ padding: '12px' }}>Nenhuma notificação encontrada.</p> : items.map(item => <button className="notification-item" key={item.id} onClick={() => onSelect(item)}><span className="notification-dot" /><span><b>{item.resumo || 'Atualização de manutenção'}</b><small>{orderStatusLabel(item.status)}{item.prazo ? ` · Prazo: ${item.prazo}` : ''}</small></span><ChevronRight size={21} /></button>)}
     </>}
   </div>
 }
