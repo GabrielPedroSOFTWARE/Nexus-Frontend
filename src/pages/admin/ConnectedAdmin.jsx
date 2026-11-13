@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Search, X } from 'lucide-react'
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
 import { ConnectedOrderDetails } from './ConnectedOrderDetails.jsx'
 import { orderStatusLabel } from '../../shared/orderStatus.js'
@@ -84,8 +85,17 @@ function Users() {
     catch (error) { setMessage('Não foi possível salvar a alteração: ' + error.message) }
     finally { setBusy('') }
   }
-  return <section className="panel users-panel"><RemoteState state={state} empty="Nenhum outro usuário encontrado."><div className="users-toolbar"><label className="users-search"><input aria-label="Pesquisar usuário por nome ou login" placeholder="Pesquisar usuário por nome ou login" value={query} onChange={e => setQuery(e.target.value)} /></label></div><div className="table-scroll users-table-scroll"><table className="users-table"><thead><tr><th>NOME</th><th>LOGIN DE REDE</th><th>TIPO DE ACESSO</th><th>PERMISSÃO ADM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>{state.data?.filter(user => `${user.nome || ''} ${user.login || ''}`.toLowerCase().includes(query.trim().toLowerCase())).map(user => <tr key={user.id}><td>{display(user.nome)}</td><td>{display(user.login)}</td><td><select aria-label={`Perfil de ${user.nome || user.login}`} value={user.perfil || 'PENDENT'} disabled={!!busy} onChange={e => action(user, () => updateUser(user, { perfil: e.target.value }), 'Alterar perfil')}>
-    {Object.entries(roles).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></td><td>{user.ehAdmin ? 'Sim' : 'Não'}</td><td>{display(user.status)}</td><td><button className="outline-button" disabled={!!busy} onClick={() => action(user, () => updateUser(user, { ehAdmin: !user.ehAdmin }), 'Alterar permissão administrativa')}>Alterar admin</button> <button className="outline-button" disabled={!!busy || !['Ativo','Inativo'].includes(user.status)} onClick={() => action(user, () => updateUser(user, { status: user.status === 'Ativo' ? 'Inativo' : 'Ativo' }), 'Alterar status da conta')}>{user.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button></td></tr>)}</tbody></table></div></RemoteState>{message && <p role="status">{message}</p>}</section>
+  const filteredUsers = (state.data || []).filter(user => `${user.nome || ''} ${user.login || ''}`.toLowerCase().includes(query.trim().toLowerCase()))
+  return <section className="panel users-panel"><RemoteState state={state} empty="Nenhum outro usuário encontrado.">
+    <div className="users-toolbar"><label className="users-search"><Search size={19} /><input aria-label="Pesquisar usuário por nome ou login" placeholder="Pesquisar usuário por nome ou login" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label></div>
+    <div className="table-scroll users-table-scroll"><table className="users-table"><thead><tr><th>NOME</th><th>LOGIN DE REDE</th><th>TIPO DE ACESSO</th><th>PERMISSÃO ADM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>
+      {filteredUsers.map(user => <tr key={user.id}><td><b className="user-name-cell">{display(user.nome)}</b></td><td>{display(user.login)}</td><td><select aria-label={`Perfil de ${user.nome || user.login}`} value={user.perfil || 'PENDENT'} disabled={!!busy} onChange={e => action(user, () => updateUser(user, { perfil: e.target.value }), 'Alterar perfil')}>
+        {Object.entries(roles).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></td>
+        <td><button className={`permission-toggle ${user.ehAdmin ? 'is-enabled' : ''}`} role="switch" aria-checked={!!user.ehAdmin} aria-label={`Permissão administrativa de ${user.nome || user.login}`} disabled={!!busy} onClick={() => action(user, () => updateUser(user, { ehAdmin: !user.ehAdmin }), 'Alterar permissão administrativa')}><span /></button><span className="permission-label">{user.ehAdmin ? 'Sim' : 'Não'}</span></td>
+        <td><span className={`user-status ${user.status === 'Ativo' ? 'active' : user.status === 'Inativo' ? 'inactive' : ''}`}>{display(user.status)}</span></td>
+        <td><button className={`user-action-button ${user.status === 'Ativo' ? 'deactivate' : 'activate'}`} disabled={!!busy || !['Ativo', 'Inativo'].includes(user.status)} onClick={() => action(user, () => updateUser(user, { status: user.status === 'Ativo' ? 'Inativo' : 'Ativo' }), 'Alterar status da conta')}>{user.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button></td></tr>)}
+      {!filteredUsers.length && <tr><td className="users-empty" colSpan="6">Nenhum usuário encontrado.</td></tr>}
+    </tbody></table></div></RemoteState>{message && <p role="status">{message}</p>}</section>
 }
 function Registration() {
   const [busy, setBusy] = useState(false)
@@ -108,7 +118,7 @@ function Registration() {
 export function ConnectedAdmin({ pathname, onToast, profileName }) {
   const navigate = useNavigate()
   const active = pathname === '/admin/ordens' ? 'orders' : pathname === '/admin/manutencoes' ? 'maintenance' : 'home'
-  return <PageFrame mode="admin" active={active} onToast={onToast} profileName={profileName} onOpenAccess={() => navigate('/admin/solicitacoes')}><main className="page-content connected-admin"><h1 className="page-title">{pathname === '/admin' ? 'Painel administrativo' : pathname === '/admin/usuarios' ? 'Gestão de usuários' : pathname === '/admin/solicitacoes' ? 'Solicitações de acesso' : pathname === '/admin/cadastro-usuario' ? 'Cadastrar usuário' : pathname === '/admin/manutencoes' ? 'Manutenções ativas' : 'Ordens de serviço'}</h1>
+  return <PageFrame mode="admin" active={active} onToast={onToast} profileName={profileName} onOpenAccess={() => navigate('/admin/solicitacoes')}><main className="page-content connected-admin"><h1 className="page-title">{pathname === '/admin' ? 'Painel administrativo' : pathname === '/admin/usuarios' ? 'Gestão de Usuários' : pathname === '/admin/solicitacoes' ? 'Solicitações de acesso' : pathname === '/admin/cadastro-usuario' ? 'Cadastrar usuário' : pathname === '/admin/manutencoes' ? 'Manutenções ativas' : 'Ordens de serviço'}</h1>
     {pathname === '/admin' ? <Dashboard /> : pathname === '/admin/usuarios' ? <Users /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : <Orders activeOnly={pathname === '/admin/manutencoes'} />}
   </main></PageFrame>
 }

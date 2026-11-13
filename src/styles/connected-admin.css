@@ -15,3 +15,6 @@
 .equipment-history-link { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 15px; padding: 12px 0 0; border: 0; border-top: 1px solid #e0e4ea; color: #315d9e; background: transparent; font-size: 11px; text-decoration: underline; text-align: left; }
 .assign-technician-select select { display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #a9b4c4; border-radius: 6px; background: white; }
 .service-title-group h2 { overflow-wrap: anywhere; }
+
+.change-history-link { padding: 0; border: 0; background: transparent; color: #315d9e; font-size: 10px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.change-history-link:focus-visible, .equipment-history-link:focus-visible { outline: 2px solid #315d9e; outline-offset: 3px; }
