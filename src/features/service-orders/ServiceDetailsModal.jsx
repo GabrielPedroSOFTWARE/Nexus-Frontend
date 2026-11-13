@@ -1,7 +1,7 @@
 import { StatusPill } from '../../shared/ui/StatusPill.jsx'
 import { STATUS } from '../../shared/constants.js'
 import { useState } from 'react'
-import { Check, ChevronDown, ClipboardList, Paperclip, RefreshCw, X } from 'lucide-react'
+import { Check, ChevronDown, ClipboardList, History, Paperclip, RefreshCw, X } from 'lucide-react'
 
 export function ServiceModal({ service, onClose, onToast }) {
   const [status, setStatus] = useState(service?.status || 'diagnosis')
@@ -22,7 +22,7 @@ export function ServiceModal({ service, onClose, onToast }) {
       <div className="service-modal-body">
         <div className="service-detail-column">
           <article className="detail-card client-card"><h3>CLIENTE</h3><div className="detail-grid"><p><small>NOME</small><b>João Pedro Arantes</b></p><p><small>SETOR</small><b>Recursos Humanos</b></p><p><small>TELEFONE</small><b>(61) 91234-4321</b></p><p><small>CPF</small><b>***.123.123-**</b></p></div></article>
-          <article className="detail-card specs-card"><h3>ESPECIFICAÇÕES DA MÁQUINA</h3><div className="detail-grid spec-grid"><p><small>MODELO</small><b>Desktop Lenovo<br />ThinkCentre</b></p><p><small>PATRIMÔNIO</small><b>123456</b></p><p><small>SISTEMA OPERACIONAL</small><b>Windows 11 Pro</b></p><p><small>ARMAZENAMENTO</small><b>SSD 1TB</b></p><p><small>EQUIPAMENTO</small><b>PC-0010</b></p><p><small>CPU</small><b>Intel Core i5 10500F</b></p><p><small>MEMÓRIA RAM</small><b>8GB DDR4 · 2666 MHz</b></p><p><small>GPU</small><b>Intel Graphics</b></p></div></article>
+          <article className="detail-card specs-card"><h3>ESPECIFICAÇÕES DA MÁQUINA</h3><div className="detail-grid spec-grid"><p><small>MODELO</small><b>Desktop Lenovo<br />ThinkCentre</b></p><p><small>PATRIMÔNIO</small><b>123456</b></p><p><small>SISTEMA OPERACIONAL</small><b>Windows 11 Pro</b></p><p><small>ARMAZENAMENTO</small><b>SSD 1TB</b></p><p><small>EQUIPAMENTO</small><b>PC-0010</b></p><p><small>CPU</small><b>Intel Core i5 10500F</b></p><p><small>MEMÓRIA RAM</small><b>8GB DDR4 · 2666 MHz</b></p><p><small>GPU</small><b>Intel Graphics</b></p></div><button type="button" className="equipment-history-link" onClick={() => onToast('Histórico de manutenção disponível na versão conectada.')}><History size={16} />Consultar Histórico de Manutenções</button></article>
           <article className="detail-card problem-card"><div className="section-title-row"><h3>PROBLEMA RELATADO</h3><span className="frequency-chip">Frequência &nbsp; Sempre que utiliza a máquina</span></div><p>O usuário relata problemas recorrentes de lentidão no equipamento, com desempenho abaixo do esperado e incompatível com o histórico de utilização da máquina. Informa que a demora na inicialização do sistema e na abertura de programas tem impactado diretamente a execução de suas atividades.</p></article>
           <article className="detail-card observations-card"><h3>OBSERVAÇÕES DO TÉCNICO</h3><textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Nenhuma observação registrada até o momento." /></article>
           <article className="detail-card attachments-card"><h3>ANEXOS</h3><button onClick={() => onToast('Abrindo anexo Fotos PC.JPG')}><Paperclip size={23} />Fotos PC.JPG</button></article>

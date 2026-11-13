@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
-import { getRequestDetails } from '../../features/service-requests/frequency.js'
-import { ORDER_STATUS_STEPS, orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
-import { approveUser, assignTechnician, changeOrderStatus, changeUserProfile, getTotals, listOrders, listPendingUsers, listUsers, registerUser, toggleUserAdmin, toggleUserStatus } from '../../features/admin/api.js'
+import { ConnectedOrderDetails } from './ConnectedOrderDetails.jsx'
+import { orderStatusLabel } from '../../shared/orderStatus.js'
+import { approveUser, rejectUser, updateUser, getTotals, listOrders, listPendingUsers, listUsers, registerUser } from '../../features/admin/api.js'
 import '../../styles/connected-admin.css'
 
 const roles = { USER: 'Solicitante', SUPPORT: 'Técnico', MANAGER: 'Gestor', PENDENT: 'Pendente' }
@@ -31,49 +31,6 @@ function AdminPanel({ title, children }) {
 function OrderTable({ orders, onSelect }) {
   return <div className="table-scroll"><table className="data-table"><thead><tr><th>ORDEM</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th><th>PRIORIDADE</th><th>TÉCNICO</th></tr></thead><tbody>{orders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => onSelect(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{display(order.idUsuario)}</td><td>{orderStatusLabel(order.status)}</td><td>{order.prioridade == null ? '—' : `Código ${order.prioridade}`}</td><td>{display(order.idTecnico || order.tecnico)}</td></tr>)}</tbody></table></div>
 }
-function OrderDetails({ order, onClose, onSaved }) {
-  const details = getRequestDetails(order)
-  const [status, setStatus] = useState('')
-  const [observation, setObservation] = useState('')
-  const [description, setDescription] = useState('')
-  const [technician, setTechnician] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [message, setMessage] = useState('')
-  const downloadAttachment = () => {
-    try {
-      const bytes = Uint8Array.from(atob(order.foto), char => char.charCodeAt(0))
-      const url = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }))
-      const link = document.createElement('a'); link.href = url; link.download = 'anexo.bin'; link.click()
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
-    } catch { setMessage('Não foi possível abrir o anexo.') }
-  }
-  const saveStatus = async event => {
-    event.preventDefault(); setBusy(true); setMessage('')
-    try {
-      await changeOrderStatus(order.id, { novoStatusId: status, observacao: observation, descricao: description })
-      setMessage('Status atualizado.'); await onSaved()
-    } catch (error) { setMessage('Não foi possível alterar o status: ' + error.message) }
-    finally { setBusy(false) }
-  }
-  const saveTechnician = async event => {
-    event.preventDefault(); setBusy(true); setMessage('')
-    try { await assignTechnician(order.id, technician.trim()); setMessage('Técnico atribuído.'); await onSaved() }
-    catch (error) { setMessage('Não foi possível atribuir o técnico: ' + error.message) }
-    finally { setBusy(false) }
-  }
-  return <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}><section className="connected-dialog" role="dialog" aria-modal="true" aria-label="Detalhes da ordem">
-    <div className="section-title-row"><h2>Ordem {display(order.id)}</h2><button type="button" className="outline-button" onClick={onClose}>Fechar</button></div>
-    <p><b>Equipamento:</b> {display(order.apelido || order.idPC)} &nbsp; <b>Usuário:</b> {display(order.idUsuario)}</p>
-    <p><b>Problema:</b> {details.problem} &nbsp; <b>Status:</b> {orderStatusLabel(order.status)}</p>
-    <p><b>Frequência:</b> {details.frequency || 'Não informada'}</p>
-    <p><b>Técnico:</b> {display(order.idTecnico || order.tecnico)} &nbsp; <b>Observação:</b> {display(order.observacoesTecnico)}</p>
-    <div className="timeline" aria-label="Etapas da manutenção">{ORDER_STATUS_STEPS.map((step, index) => <div className={`timeline-step ${orderStatusCode(order.status) === index ? 'timeline-current reached' : ''}`} key={step} aria-current={orderStatusCode(order.status) === index ? 'step' : undefined}><span /><div><b>{step}</b>{index === 3 && <small>Opcional: se faltar peça</small>}</div></div>)}</div>
-    {order.foto && <p><button type="button" className="outline-button" onClick={downloadAttachment}>Baixar anexo</button></p>}
-    <form onSubmit={saveStatus} className="connected-form"><h3>Alterar status</h3><label>Status<select aria-label="Status" required value={status} onChange={e => setStatus(e.target.value)}><option value="">Selecione o status</option>{ORDER_STATUS_STEPS.map((label, code) => <option key={code} value={String(code)}>{label}</option>)}</select></label>{status === '1' && <label>Observação<input required value={observation} onChange={e => setObservation(e.target.value)} /></label>}{status === '5' && <label>Descrição da conclusão<input required value={description} onChange={e => setDescription(e.target.value)} /></label>}<button className="primary-button" disabled={busy}>Salvar status</button></form>
-    <form onSubmit={saveTechnician} className="connected-form"><h3>Atribuir técnico</h3><label>Identificador do técnico<input required value={technician} onChange={e => setTechnician(e.target.value)} /></label><button className="primary-button" disabled={busy}>Atribuir técnico</button></form>
-    {message && <p role="status">{message}</p>}
-  </section></div>
-}
 function Orders({ compact = false, activeOnly = false }) {
   const state = useRemote(listOrders)
   const [selected, setSelected] = useState(null)
@@ -81,7 +38,7 @@ function Orders({ compact = false, activeOnly = false }) {
   const visible = (state.data || []).filter(order => (!activeOnly || (order.status != null && ![5, 6].includes(Number(order.status)))) && `${order.id} ${order.idUsuario} ${order.idPC}`.toLowerCase().includes(query.toLowerCase().trim()))
   return <AdminPanel title={compact ? 'Ordens de serviço' : activeOnly ? 'Manutenções ativas' : 'Ordens de serviço cadastradas'}><RemoteState state={state} empty="Nenhuma ordem encontrada.">
     <label className="connected-search">Pesquisar ordem, usuário ou equipamento<input value={query} onChange={e => setQuery(e.target.value)} /></label><OrderTable orders={compact ? visible.slice(0, 5) : visible} onSelect={setSelected} />{!visible.length && <p>Nenhuma ordem corresponde à pesquisa.</p>}
-  </RemoteState>{selected && <OrderDetails order={selected} onClose={() => setSelected(null)} onSaved={async () => { await state.refresh(); setSelected(null) }} />}</AdminPanel>
+  </RemoteState>{selected && <ConnectedOrderDetails order={selected} onClose={() => setSelected(null)} onSaved={async () => { await state.refresh(); setSelected(null) }} />}</AdminPanel>
 }
 function Dashboard() {
   const totals = useRemote(getTotals)
@@ -91,6 +48,7 @@ function Dashboard() {
 function Pending() {
   const state = useRemote(listPendingUsers)
   const [profiles, setProfiles] = useState({})
+  const [selectedId, setSelectedId] = useState('')
   const [busy, setBusy] = useState('')
   const [message, setMessage] = useState('')
   const approve = async user => {
@@ -99,12 +57,26 @@ function Pending() {
     catch (error) { setMessage('Não foi possível liberar o acesso: ' + error.message) }
     finally { setBusy('') }
   }
-  return <AdminPanel title="Solicitações de acesso"><RemoteState state={state} empty="Nenhuma solicitação pendente.">{state.data?.map(user => <article key={user.id} className="connected-user"><h3>{display(user.nome)}</h3><p>Login: {display(user.login)} · E-mail: {display(user.email)} · Setor: {display(user.setor)}</p><p>Justificativa: {display(user.justificativa)}</p><label>Perfil <select value={profiles[user.id] || 'USER'} onChange={e => setProfiles({ ...profiles, [user.id]: e.target.value })}><option value="USER">Solicitante</option><option value="SUPPORT">Técnico</option><option value="MANAGER">Gestor</option></select></label> <button className="primary-button" disabled={!!busy} onClick={() => approve(user)}>Liberar acesso</button></article>)}</RemoteState>{message && <p role="status">{message}</p>}<p>O backend não disponibiliza uma operação de negar solicitação.</p></AdminPanel>
+  const reject = async user => {
+    if (!window.confirm('Negar a solicitação de ' + (user.nome || user.login) + '? O cadastro pendente será excluído.')) return
+    setBusy(user.id); setMessage('')
+    try { await rejectUser(user.id); setMessage('Solicitação negada.'); await state.refresh() }
+    catch (error) { setMessage('Não foi possível negar a solicitação: ' + error.message) }
+    finally { setBusy('') }
+  }
+  const selected = state.data?.find(user => user.id === selectedId) || state.data?.[0]
+  return <RemoteState state={state} empty="Nenhuma solicitação pendente.">{selected && <div className="access-review-grid">
+    <section className="panel request-details-panel"><h2 className="figma-panel-title">DADOS DA SOLICITAÇÃO</h2>
+      {state.data.length > 1 && <label>Solicitação<select value={selected.id} onChange={e => setSelectedId(e.target.value)}>{state.data.map(user => <option key={user.id} value={user.id}>{display(user.nome)}</option>)}</select></label>}
+      <div className="request-data-grid"><div><small>NOME</small><b>{display(selected.nome)}</b></div><div><small>LOGIN DE REDE</small><b>{display(selected.login)}</b></div><div><small>SETOR</small><b>{display(selected.setor)}</b></div><div><small>E-MAIL</small><b>{display(selected.email)}</b></div><div><small>DATA DA SOLICITAÇÃO</small><b>{display(selected.dataHoraCadastro)}</b></div><div><small>STATUS</small><span className="request-status pending">{display(selected.status)}</span></div><div className="request-justification"><small>JUSTIFICATIVA DA SOLICITAÇÃO</small><b>{display(selected.justificativa)}</b></div></div>
+    </section><section className="panel access-decision-panel"><h2 className="figma-panel-title">DEFINIR ACESSO</h2><span className="access-type-label">TIPO DE ACESSO</span><div className="access-choice-list">{[['USER','Usuário solicitante'],['SUPPORT','Técnico'],['MANAGER','Gestor']].map(([value,label]) => <label className={`access-choice ${(profiles[selected.id] || 'USER') === value ? 'selected' : ''}`} key={value}><input type="radio" name="perfil" value={value} checked={(profiles[selected.id] || 'USER') === value} onChange={() => setProfiles({ ...profiles, [selected.id]: value })} /><span>{label}</span></label>)}</div><small className="access-hint">Defina o tipo de acesso antes de liberar.</small><div className="access-decision-actions"><button className="approve-access-button" disabled={!!busy} onClick={() => approve(selected)}>Liberar acesso</button><button className="deny-access-button" disabled={!!busy} onClick={() => reject(selected)}>Negar acesso</button></div>{message && <p role="status">{message}</p>}</section>
+  </div>}</RemoteState>
 }
 function Users() {
   const state = useRemote(listUsers)
   const [busy, setBusy] = useState('')
   const [message, setMessage] = useState('')
+  const [query, setQuery] = useState('')
   const action = async (user, task, label) => {
     if (!window.confirm(label + ' para ' + (user.nome || user.login) + '?')) return
     setBusy(user.id); setMessage('')
@@ -112,8 +84,8 @@ function Users() {
     catch (error) { setMessage('Não foi possível salvar a alteração: ' + error.message) }
     finally { setBusy('') }
   }
-  return <AdminPanel title="Gestão de usuários"><RemoteState state={state} empty="Nenhum outro usuário encontrado."><div className="table-scroll"><table className="data-table"><thead><tr><th>NOME</th><th>LOGIN</th><th>PERFIL</th><th>ADMIN</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>{state.data?.map(user => <tr key={user.id}><td>{display(user.nome)}</td><td>{display(user.login)}</td><td><select aria-label={`Perfil de ${user.nome || user.login}`} value={user.perfil || 'PENDENT'} disabled={!!busy} onChange={e => action(user, () => changeUserProfile(user.id, e.target.value), 'Alterar perfil')}>
-    {Object.entries(roles).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></td><td>{user.ehAdmin ? 'Sim' : 'Não'}</td><td>{display(user.status)}</td><td><button className="outline-button" disabled={!!busy} onClick={() => action(user, () => toggleUserAdmin(user.id), 'Alterar permissão administrativa')}>Alterar admin</button> <button className="outline-button" disabled={!!busy || !['Ativo','Inativo'].includes(user.status)} onClick={() => action(user, () => toggleUserStatus(user.id), 'Alterar status da conta')}>{user.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button></td></tr>)}</tbody></table></div></RemoteState>{message && <p role="status">{message}</p>}</AdminPanel>
+  return <section className="panel users-panel"><RemoteState state={state} empty="Nenhum outro usuário encontrado."><div className="users-toolbar"><label className="users-search"><input aria-label="Pesquisar usuário por nome ou login" placeholder="Pesquisar usuário por nome ou login" value={query} onChange={e => setQuery(e.target.value)} /></label></div><div className="table-scroll users-table-scroll"><table className="users-table"><thead><tr><th>NOME</th><th>LOGIN DE REDE</th><th>TIPO DE ACESSO</th><th>PERMISSÃO ADM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>{state.data?.filter(user => `${user.nome || ''} ${user.login || ''}`.toLowerCase().includes(query.trim().toLowerCase())).map(user => <tr key={user.id}><td>{display(user.nome)}</td><td>{display(user.login)}</td><td><select aria-label={`Perfil de ${user.nome || user.login}`} value={user.perfil || 'PENDENT'} disabled={!!busy} onChange={e => action(user, () => updateUser(user, { perfil: e.target.value }), 'Alterar perfil')}>
+    {Object.entries(roles).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></td><td>{user.ehAdmin ? 'Sim' : 'Não'}</td><td>{display(user.status)}</td><td><button className="outline-button" disabled={!!busy} onClick={() => action(user, () => updateUser(user, { ehAdmin: !user.ehAdmin }), 'Alterar permissão administrativa')}>Alterar admin</button> <button className="outline-button" disabled={!!busy || !['Ativo','Inativo'].includes(user.status)} onClick={() => action(user, () => updateUser(user, { status: user.status === 'Ativo' ? 'Inativo' : 'Ativo' }), 'Alterar status da conta')}>{user.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button></td></tr>)}</tbody></table></div></RemoteState>{message && <p role="status">{message}</p>}</section>
 }
 function Registration() {
   const [busy, setBusy] = useState(false)

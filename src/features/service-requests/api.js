@@ -1,4 +1,5 @@
 import { apiRequest } from '../../shared/api/httpClient.js'
+import { getFrequencyCode } from './frequency.js'
 
 export function listUserOrders() {
   return apiRequest('/listar-pedidos-usuario')
@@ -9,9 +10,9 @@ export function createServiceRequest(formData) {
   const problem = String(formData.get('problema') || '').trim()
   payload.append('idPC', String(formData.get('idPC') || ''))
   const frequency = String(formData.get('frequencia') || '').trim()
-  payload.append('problema', frequency ? problem + '\nFrequência: ' + frequency : problem)
+  payload.append('problema', problem)
+  payload.append('frequencia', String(getFrequencyCode(frequency)))
   payload.append('descricao', problem)
-  payload.append('frequencia', frequency)
   const file = formData.get('arquivoImagem')
   if (file instanceof File && file.size > 0) payload.append('arquivoImagem', file)
   return apiRequest('/criar-pedido', { method: 'POST', body: payload }).then(result => {
