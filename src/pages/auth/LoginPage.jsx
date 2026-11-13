@@ -1,4 +1,4 @@
-import { clearSession, hasLocalApi, isPagesConnection } from '../../shared/api/httpClient.js'
+import { hasLocalApi } from '../../shared/api/httpClient.js'
 import { BRAND_ASSET } from '../../shared/assets.js'
 import { useState } from 'react'
 import { Eye, EyeOff, Mail, LockKeyhole } from 'lucide-react'
@@ -12,14 +12,6 @@ export function LoginPage({ onAccessRequest, onLogin }) {
   const [remember, setRemember] = useState(() => {
     try { return Boolean(localStorage.getItem('nexus.remembered.login')) } catch { return false }
   })
-  const switchMode = demo => {
-    clearSession()
-    const url = new URL(window.location.href)
-    if (demo) url.searchParams.set('modo', 'demonstracao')
-    else url.searchParams.delete('modo')
-    url.hash = '/'
-    window.location.assign(url.href)
-  }
   const login = event => {
     event.preventDefault()
     try {
@@ -42,13 +34,11 @@ export function LoginPage({ onAccessRequest, onLogin }) {
         <h1>Acessar Sistema</h1>
         <p className="auth-subtitle">Faça login para continuar</p>
         {!hasLocalApi && <p role="status">Modo demonstração: o login é simulado e não conecta ao backend.</p>}
-        {isPagesConnection && hasLocalApi && <p>Conecte o backend neste computador para entrar.</p>}
-        {isPagesConnection && <button type="button" className="access-request-button" onClick={() => switchMode(hasLocalApi)}>{hasLocalApi ? 'Abrir demonstração' : 'Voltar à conexão local'}</button>}
         <label>Login de rede <em>*</em></label>
         <div className="input-with-icon"><Mail size={19} /><input type="text" autoComplete="username" placeholder="Digite seu login de rede" value={networkLogin} onChange={e => setNetworkLogin(e.target.value)} required /></div>
         <label>Senha <em>*</em></label>
         <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
-        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar meu login</label></div>
+        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label></div>
         <button className="primary-button login-button" type="submit">Fazer Login</button>
         <div className="or-divider"><span />OU<span /></div>
         <button className="access-request-button" type="button" onClick={onAccessRequest}>Solicitar acesso</button>
