@@ -25,7 +25,9 @@ function NexusApp() {
   const { requestOpen, setRequestOpen, submitRequest } = useServiceRequest(showToast)
   const openService = item => setService(item || demoServiceOrders[0])
   const closeService = () => setService(null)
-  const displayName = session?.login || 'usuário'
+  const displayName = session?.nome || (session?.isAdmin ? 'Administrador'
+    : session?.perfil === 'SUPPORT' ? 'Técnico'
+      : session?.perfil === 'MANAGER' ? 'Gestor' : 'Usuário')
 
   useEffect(() => {
     const logout = () => {

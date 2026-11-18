@@ -6,23 +6,32 @@ export function useAuth(navigate, showToast) {
   const [session, setSession] = useState(() => loadSession())
   const handleLogin = async credentials => {
     if (!hasLocalApi) {
-      const nextSession = { login: credentials.login, isAdmin: /admin|tec/i.test(credentials.login), demo: true }
+      const demoIdentity = String(credentials.cpf || '').toLowerCase()
+      const isAdmin = /admin/i.test(demoIdentity)
+      const perfil = /tec|support|suporte/i.test(demoIdentity) ? 'SUPPORT'
+        : /gestor|manager/i.test(demoIdentity) ? 'MANAGER' : 'USER'
+      const nextSession = { cpf: credentials.cpf, perfil, isAdmin, isBackoffice: isAdmin || perfil !== 'USER', demo: true }
       saveSession(nextSession)
       setSession(nextSession)
-      navigate(nextSession.isAdmin ? '/admin' : '/home')
+      navigate(nextSession.isBackoffice ? '/admin' : '/home')
       return
     }
     try {
       const response = await authenticate(credentials)
       if (!response?.token) throw new Error('Resposta de autenticação inválida.')
+      const perfil = String(response.perfil || '').toUpperCase()
+      const isAdmin = String(response?.admin).toLowerCase() === 'true'
+      const isBackoffice = isAdmin || ['SUPPORT', 'MANAGER'].includes(perfil)
       const nextSession = {
         ...response,
-        login: credentials.login,
-        isAdmin: String(response?.admin).toLowerCase() === 'true',
+        cpf: credentials.cpf,
+        perfil,
+        isAdmin,
+        isBackoffice,
       }
       saveSession(nextSession)
       setSession(nextSession)
-      navigate(nextSession.isAdmin ? '/admin' : '/home')
+      navigate(isBackoffice ? '/admin' : '/home')
     } catch (error) {
       showToast(error.message || 'Não foi possível entrar no sistema.')
     }

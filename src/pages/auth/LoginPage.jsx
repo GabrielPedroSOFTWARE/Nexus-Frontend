@@ -1,24 +1,26 @@
 import { hasLocalApi } from '../../shared/api/httpClient.js'
 import { BRAND_ASSET } from '../../shared/assets.js'
+import { normalizeCpf } from '../../shared/cpf.js'
 import { useState } from 'react'
-import { Eye, EyeOff, Mail, LockKeyhole } from 'lucide-react'
+import { Eye, EyeOff, UserRound, LockKeyhole } from 'lucide-react'
 
 export function LoginPage({ onAccessRequest, onLogin }) {
-  const [networkLogin, setNetworkLogin] = useState(() => {
-    try { return localStorage.getItem('nexus.remembered.login') || '' } catch { return '' }
+  const [cpf, setCpf] = useState(() => {
+    try { return localStorage.getItem('nexus.remembered.cpf') || '' } catch { return '' }
   })
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(() => {
-    try { return Boolean(localStorage.getItem('nexus.remembered.login')) } catch { return false }
+    try { return Boolean(localStorage.getItem('nexus.remembered.cpf')) } catch { return false }
   })
   const login = event => {
     event.preventDefault()
     try {
-      if (remember) localStorage.setItem('nexus.remembered.login', networkLogin.trim())
-      else localStorage.removeItem('nexus.remembered.login')
+      if (remember) localStorage.setItem('nexus.remembered.cpf', hasLocalApi ? normalizeCpf(cpf) : cpf.trim())
+      else localStorage.removeItem('nexus.remembered.cpf')
+      localStorage.removeItem('nexus.remembered.login')
     } catch { /* O login continua disponível sem armazenamento local. */ }
-    onLogin({ login: networkLogin.trim(), senha: password })
+    onLogin({ cpf: hasLocalApi ? normalizeCpf(cpf) : cpf.trim(), senha: password })
   }
 
   return <main className="auth-screen">
@@ -33,9 +35,9 @@ export function LoginPage({ onAccessRequest, onLogin }) {
       <form className="auth-card" onSubmit={login}>
         <h1>Acessar Sistema</h1>
         <p className="auth-subtitle">Faça login para continuar</p>
-        {!hasLocalApi && <p role="status">Modo demonstração: o login é simulado e não conecta ao backend.</p>}
-        <label>Login de rede <em>*</em></label>
-        <div className="input-with-icon"><Mail size={19} /><input type="text" autoComplete="username" placeholder="Digite seu login de rede" value={networkLogin} onChange={e => setNetworkLogin(e.target.value)} required /></div>
+        {!hasLocalApi && <p role="status">Modo demonstração: a autenticação é simulada. Digite “admin” para abrir o painel.</p>}
+        <label>CPF <em>*</em></label>
+        <div className="input-with-icon"><UserRound size={19} /><input type="text" inputMode={hasLocalApi ? 'numeric' : 'text'} autoComplete="username" maxLength={hasLocalApi ? 14 : 32} placeholder={hasLocalApi ? 'Digite seu CPF' : 'Digite seu CPF ou admin na demonstração'} value={cpf} onChange={e => setCpf(hasLocalApi ? e.target.value.slice(0, 14) : e.target.value)} required /></div>
         <label>Senha <em>*</em></label>
         <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
         <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label></div>

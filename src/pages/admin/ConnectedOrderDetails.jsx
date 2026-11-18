@@ -8,7 +8,7 @@ import { assignTechnician, changeOrderStatus, listUsers } from '../../features/a
 const display = value => value == null || value === '' ? 'Não informado' : String(value)
 const date = value => value ? String(value).slice(0, 10).split('-').reverse().join('/') : 'Não informado'
 
-export function ConnectedOrderDetails({ order, onClose, onSaved }) {
+export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false }) {
   const details = getRequestDetails(order)
   const [users, setUsers] = useState([])
   const [history, setHistory] = useState(null)
@@ -28,11 +28,13 @@ export function ConnectedOrderDetails({ order, onClose, onSaved }) {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   useEffect(() => {
+    if (!isAdmin) return undefined
     let active = true
     listUsers().then(data => { if (active) setUsers(data) }).catch(() => { if (active) setMessage('Não foi possível carregar os usuários e técnicos.') })
     return () => { active = false }
-  }, [order.id])
-  const client = users.find(user => user.id === order.idUsuario)
+  }, [order.id, isAdmin])
+  const userCpf = order.cpfUsuario || order.idUsuario
+  const client = users.find(user => String(user.cpf || user.id) === String(userCpf))
   const technicians = users.filter(user => ['SUPPORT', 'MANAGER'].includes(user.perfil) && user.status === 'Ativo')
   const selectedStatus = orderStatusCode(order.status)
   const downloadAttachment = () => {
@@ -70,7 +72,7 @@ export function ConnectedOrderDetails({ order, onClose, onSaved }) {
     if (historyOpen) { setHistoryOpen(false); return }
     setHistoryOpen(true); setHistoryLoading(true); setHistoryError('')
     try {
-      const data = await apiRequest('/retornar-historico-pedido-alt/' + encodeURIComponent(order.id))
+      const data = await apiRequest('/backoffice/retornar-historico-pedido-alt/' + encodeURIComponent(order.id))
       if (!Array.isArray(data)) throw new Error('Resposta inválida do backend.')
       setHistory(data)
     } catch (error) { setHistoryError('Não foi possível carregar o histórico de alterações: ' + error.message) }
@@ -78,9 +80,9 @@ export function ConnectedOrderDetails({ order, onClose, onSaved }) {
   }
   return <div className="modal-backdrop service-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
     <section className="service-modal" role="dialog" aria-modal="true" aria-label="Detalhes da ordem">
-      <div className="service-modal-heading"><span className="modal-icon"><ClipboardList size={26} /></span><div className="service-title-group"><small>ORDEM DE SERVIÇO</small><h2>{display(order.id)}</h2></div><span className="frequency-chip">Prioridade · {order.prioridade == null ? 'Não informada' : `Código ${order.prioridade}`}</span><span className="date-chip">Início &nbsp; {date(order.dataInicioManutencao)}</span><span className="date-chip">Prazo &nbsp; {date(order.dataFinalManutencao)}</span><button className="assign-technician-button" onClick={() => setAssignOpen(true)}>Atribuir técnico</button><button type="button" onClick={onClose} aria-label="Fechar"><X /></button></div>
+      <div className="service-modal-heading"><span className="modal-icon"><ClipboardList size={26} /></span><div className="service-title-group"><small>ORDEM DE SERVIÇO</small><h2>{display(order.id)}</h2></div><span className="frequency-chip">Prioridade · {order.prioridade == null ? 'Não informada' : `Código ${order.prioridade}`}</span><span className="date-chip">Início &nbsp; {date(order.dataInicioManutencao)}</span><span className="date-chip">Prazo &nbsp; {date(order.dataFinalManutencao)}</span>{isAdmin && <button className="assign-technician-button" onClick={() => setAssignOpen(true)}>Atribuir técnico</button>}<button type="button" onClick={onClose} aria-label="Fechar"><X /></button></div>
       <div className="service-modal-body"><div className="service-detail-column">
-        <article className="detail-card client-card"><h3>CLIENTE</h3><div className="detail-grid"><p><small>NOME</small><b>{display(client?.nome)}</b></p><p><small>SETOR</small><b>{display(client?.setor)}</b></p><p><small>TELEFONE</small><b>{display(client?.telefone)}</b></p><p><small>CPF</small><b>Não informado</b></p></div></article>
+        <article className="detail-card client-card"><h3>CLIENTE</h3><div className="detail-grid"><p><small>NOME</small><b>{display(client?.nome)}</b></p><p><small>SETOR</small><b>{display(client?.setor)}</b></p><p><small>TELEFONE</small><b>{display(client?.telefone)}</b></p><p><small>CPF</small><b>{display(client?.cpf || userCpf)}</b></p></div></article>
         <article className="detail-card specs-card"><h3>ESPECIFICAÇÕES DA MÁQUINA</h3><div className="detail-grid spec-grid"><p><small>MODELO</small><b>Não informado</b></p><p><small>PATRIMÔNIO</small><b>Não informado</b></p><p><small>SISTEMA OPERACIONAL</small><b>Não informado</b></p><p><small>ARMAZENAMENTO</small><b>Não informado</b></p><p><small>EQUIPAMENTO</small><b>{display(order.apelido || order.idPC)}</b></p><p><small>CPU</small><b>Não informado</b></p><p><small>MEMÓRIA RAM</small><b>Não informado</b></p><p><small>GPU</small><b>Não informado</b></p></div><button type="button" className="equipment-history-link" disabled={order.idPC == null} aria-expanded={equipmentHistoryOpen} aria-controls="equipment-history" onClick={loadEquipmentHistory}><History size={16} />Consultar Histórico de Manutenções</button></article>
         {equipmentHistoryOpen && <article className="detail-card" id="equipment-history"><h3>HISTÓRICO DE MANUTENÇÕES</h3>{equipmentHistoryLoading ? <p>Carregando...</p> : equipmentHistoryError ? <p role="alert">{equipmentHistoryError}</p> : equipmentHistory?.length ? equipmentHistory.map(item => <p key={item.id}>{display(item.id)} · {orderStatusLabel(item.status)} · {date(item.dataInicioManutencao)}</p>) : <p>Nenhuma manutenção encontrada.</p>}</article>}
         <article className="detail-card problem-card"><div className="section-title-row"><h3>PROBLEMA RELATADO</h3><span className="frequency-chip">Frequência &nbsp; {details.frequency || 'Não informada'}</span></div><p>{details.problem}</p></article>
@@ -91,7 +93,7 @@ export function ConnectedOrderDetails({ order, onClose, onSaved }) {
         {statusOpen && <form onSubmit={saveStatus} className="connected-form"><label>Status<select required value={status} onChange={e => setStatus(e.target.value)}><option value="">Selecione o status</option>{ORDER_STATUS_STEPS.map((label, code) => <option key={code} value={String(code)}>{label}</option>)}</select></label>{status === '1' && <label>Observação<input required value={observation} onChange={e => setObservation(e.target.value)} /></label>}{status === '5' && <label>Descrição da conclusão<input required value={description} onChange={e => setDescription(e.target.value)} /></label>}<button className="primary-button" disabled={busy}>Salvar status</button></form>}
         <div className="change-history"><button type="button" className="change-history-link" aria-expanded={historyOpen} aria-controls="change-history-content" onClick={loadChangeHistory}>HISTÓRICO DE ALTERAÇÕES</button>{historyOpen && <div id="change-history-content">{historyLoading ? <p>Carregando...</p> : historyError ? <p role="alert">{historyError}</p> : history?.length ? history.map(item => <p key={item.id}><i />{display(item.alteracao)}<small>{display(item.dataHora)}</small></p>) : <p>Nenhuma alteração registrada.</p>}</div>}</div>
       </aside></div>{message && <p role="alert">{message}</p>}
-    {assignOpen && <div className="assign-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setAssignOpen(false) }}><form className="assign-dialog" role="dialog" aria-modal="true" aria-label="Atribuir técnico" onSubmit={saveTechnician}><h2>Atribuir técnico</h2><p className="assign-order-info">{display(order.id)} · {display(order.apelido || order.idPC)}</p><label className="assign-technician-select">Técnico<select required value={technician} onChange={e => setTechnician(e.target.value)}><option value="">Selecione um técnico</option>{technicians.map(user => <option key={user.id} value={user.id}>{user.nome || user.login}</option>)}</select></label>{!technicians.length && <p>Nenhum técnico ativo disponível.</p>}<div className="assign-dialog-actions"><button type="button" className="outline-button" onClick={() => setAssignOpen(false)}>Cancelar</button><button className="primary-button" disabled={busy || !technicians.length}>Confirmar</button></div></form></div>}
+    {assignOpen && isAdmin && <div className="assign-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setAssignOpen(false) }}><form className="assign-dialog" role="dialog" aria-modal="true" aria-label="Atribuir técnico" onSubmit={saveTechnician}><h2>Atribuir técnico</h2><p className="assign-order-info">{display(order.id)} · {display(order.apelido || order.idPC)}</p><label className="assign-technician-select">Técnico<select required value={technician} onChange={e => setTechnician(e.target.value)}><option value="">Selecione um técnico</option>{technicians.map(user => <option key={user.id} value={user.id}>{user.nome || user.cpf}</option>)}</select></label>{!technicians.length && <p>Nenhum técnico ativo disponível.</p>}<div className="assign-dialog-actions"><button type="button" className="outline-button" onClick={() => setAssignOpen(false)}>Cancelar</button><button className="primary-button" disabled={busy || !technicians.length}>Confirmar</button></div></form></div>}
     </section>
   </div>
 }

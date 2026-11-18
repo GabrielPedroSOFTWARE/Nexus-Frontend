@@ -13,10 +13,18 @@ import { UserManagement } from '../pages/admin/UsersPage.jsx'
 import { UserRegistration } from '../pages/admin/UserRegistrationPage.jsx'
 
 export function AppRoutes({ pathname, session, equipmentStatus, refreshEquipment, removeEquipment, onToast, openRequest, profileName, onScan, macbookAdded, registeredEquipment, openService, onLogin, onAccessRequest }) {
-  const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/')
+  const isBackofficeRoute = pathname === '/admin' || pathname.startsWith('/admin/')
+  const isAdminOnlyRoute = ['/admin/usuarios', '/admin/solicitacoes', '/admin/cadastro-usuario'].includes(pathname)
+  const isUserRoute = ['/home', '/meus-pcs', '/historico'].includes(pathname)
+  const perfil = String(session?.perfil || '').toUpperCase()
+  const isAdmin = Boolean(session?.isAdmin || String(session?.admin).toLowerCase() === 'true')
+  const isBackoffice = Boolean(session?.isBackoffice || isAdmin || ['SUPPORT', 'MANAGER'].includes(perfil))
+  const isUser = perfil === 'USER' || (!hasLocalApi && !perfil && !isBackoffice)
   if (pathname !== '/' && (!session || (hasLocalApi && !session.token))) return <Navigate to="/" replace />
-  if (isAdminRoute && !session?.isAdmin) return <Navigate to="/home" replace />
-  if (isAdminRoute && hasLocalApi) return <ConnectedAdmin pathname={pathname} profileName={profileName} onToast={onToast} />
+  if (isAdminOnlyRoute && !isAdmin) return <Navigate to={isBackoffice ? '/admin' : '/home'} replace />
+  if (isBackofficeRoute && !isBackoffice) return <Navigate to="/home" replace />
+  if (isUserRoute && !isUser) return <Navigate to={isBackoffice ? '/admin' : '/'} replace />
+  if (isBackofficeRoute && hasLocalApi) return <ConnectedAdmin pathname={pathname} profileName={profileName} isAdmin={isAdmin} onToast={onToast} />
   switch (pathname) {
     case '/home':
       return <UserHome onToast={onToast} openRequest={openRequest} profileName={profileName} registeredEquipment={registeredEquipment} equipmentStatus={equipmentStatus} refreshEquipment={refreshEquipment} />

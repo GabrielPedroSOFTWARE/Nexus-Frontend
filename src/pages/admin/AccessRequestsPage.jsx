@@ -19,7 +19,7 @@ export function AccessRequestReview({ onToast }) {
           <h2 className="figma-panel-title">DADOS DA SOLICITAÇÃO</h2>
           <div className="request-data-grid">
             <div><small>NOME</small><b>Fernanda Costa</b></div>
-            <div><small>LOGIN DE REDE</small><b>fcosta</b></div>
+            <div><small>CPF</small><b>***.123.456-**</b></div>
             <div><small>SETOR</small><b>Financeiro</b></div>
             <div><small>E-MAIL</small><b>fernanda.costa@empresa.com</b></div>
             <div><small>DATA DA SOLICITAÇÃO</small><b>06/11/2026 às 08:47</b></div>

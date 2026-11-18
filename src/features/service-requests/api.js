@@ -2,7 +2,7 @@ import { apiRequest } from '../../shared/api/httpClient.js'
 import { getFrequencyCode } from './frequency.js'
 
 export function listUserOrders() {
-  return apiRequest('/listar-pedidos-usuario')
+  return apiRequest('/user/listar-pedidos-usuario')
 }
 
 export function createServiceRequest(formData) {
@@ -15,7 +15,7 @@ export function createServiceRequest(formData) {
   payload.append('descricao', problem)
   const file = formData.get('arquivoImagem')
   if (file instanceof File && file.size > 0) payload.append('arquivoImagem', file)
-  return apiRequest('/criar-pedido', { method: 'POST', body: payload }).then(result => {
+  return apiRequest('/user/criar-pedido', { method: 'POST', body: payload }).then(result => {
     if (typeof result !== 'string' || !result.toLowerCase().includes('pedido salvo com sucesso')) throw new Error(typeof result === 'string' && result ? result : 'Não foi possível confirmar o envio.')
     return result
   })

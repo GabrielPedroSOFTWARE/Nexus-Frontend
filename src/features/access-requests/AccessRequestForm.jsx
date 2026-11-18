@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { apiRequest, hasLocalApi } from '../../shared/api/httpClient.js'
+import { normalizeCpf } from '../../shared/cpf.js'
 import { X, UserRoundPlus } from 'lucide-react'
 
 export function AccessRequestForm({ onClose, onToast }) {
@@ -9,10 +10,12 @@ export function AccessRequestForm({ onClose, onToast }) {
     event.preventDefault()
     if (!hasLocalApi) { onClose(); onToast('Demonstração: nenhuma solicitação foi enviada.'); return }
     const data = new FormData(event.currentTarget)
+    const cpf = normalizeCpf(data.get('cpf'))
+    if (cpf.length !== 11) { setError('Informe os 11 dígitos do CPF.'); return }
     setBusy(true); setError('')
     try {
       await apiRequest('/cadastrar', { method: 'POST', requiresAuth: false, body: {
-        id: crypto.randomUUID(), nome: String(data.get('nome')).trim(), login: String(data.get('login')).trim(),
+        nome: String(data.get('nome')).trim(), cpf,
         setor: String(data.get('setor')).trim(), email: String(data.get('email')).trim(),
         justificativa: String(data.get('justificativa')).trim(), senha: String(data.get('senha')),
         perfil: 'PENDENT', status: 'Aguardando análise', ehAdmin: false, versaoToken: 1,
@@ -26,7 +29,7 @@ export function AccessRequestForm({ onClose, onToast }) {
       <div className="modal-title"><span className="modal-icon"><UserRoundPlus size={22} /></span><h2>Solicitar acesso</h2><button type="button" onClick={onClose} aria-label="Fechar"><X size={22} /></button></div>
       <p>Preencha seus dados para enviar uma solicitação de acesso ao NEXUS.</p>
       <label>Nome completo<input name="nome" required placeholder="Digite seu nome completo" /></label>
-      <label>Login de rede<input name="login" required placeholder="Ex.: fcosta" /></label>
+      <label>CPF<input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required placeholder="Ex.: 12345678900" /></label>
       <label>Setor<input name="setor" required placeholder="Ex.: Financeiro" /></label>
       <label>E-mail institucional<input name="email" type="email" required placeholder="nome@instituicao.edu.br" /></label>
       <label>Justificativa<textarea name="justificativa" required placeholder="Conte por que precisa acessar o sistema" /></label>
