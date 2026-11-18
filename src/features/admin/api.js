@@ -4,11 +4,11 @@ const idPath = id => encodeURIComponent(String(id))
 const publicUser = ({ id, nome, login, email, setor, telefone, justificativa, perfil, status, ehAdmin, dataHoraCadastro }) => ({ id, nome, login, email, setor, telefone, justificativa, perfil, status, ehAdmin, dataHoraCadastro })
 
 export async function listOrders() {
-  const data = await apiRequest('/listar-pedidos')
+  const data = await apiRequest('/backoffice/listar-pedidos')
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar pedidos.')
-  return data.map(({ id, idPC, idUsuario, apelido, status, prioridade, problema, frequencia, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto, nomeArquivoFoto, tipoArquivoFoto }) => ({ id, idPC, idUsuario, apelido, status, prioridade, problema, frequencia, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto, nomeArquivoFoto, tipoArquivoFoto }))
+  return data.map(({ id, idPC, idUsuario, cpfUsuario, apelido, status, prioridade, problema, frequencia, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto, nomeArquivoFoto, tipoArquivoFoto }) => ({ id, idPC, idUsuario: idUsuario ?? cpfUsuario, cpfUsuario, apelido, status, prioridade, problema, frequencia, dataInicioManutencao, dataFinalManutencao, idTecnico, tecnico, descricao, observacoesTecnico, foto, nomeArquivoFoto, tipoArquivoFoto }))
 }
-export const getTotals = () => apiRequest('/totalUsuarios')
+export const getTotals = () => apiRequest('/backoffice/totalUsuarios')
 export async function listUsers() {
   const data = await apiRequest('/admin/retornar-todos-menos-atual')
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar usuários.')

@@ -21,6 +21,7 @@ export function AdminOrders({ onToast, openService }) {
   return <PageFrame mode="admin" active="orders" onToast={onToast} onOpenService={openService} onOpenAccess={() => navigate('/admin/solicitacoes')}>
     <main className="page-content orders-content">
       <h1 className="page-title page-title-icon"><ClipboardList />Ordens de Serviço</h1>
+      <p className="demo-data-notice">Modo de demonstração: os indicadores e gráficos desta tela usam dados fictícios.</p>
       <div className="orders-overview">
         <section className="panel trends-panel">
           <div className="section-title-row"><h2>Desempenho (MTBF E MTTR)</h2><select aria-label="Mês" value={month} onChange={e => setMonth(e.target.value)}><option>JUL/2026</option><option>JUN/2026</option><option>MAI/2026</option></select></div>

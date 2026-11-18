@@ -16,6 +16,7 @@ export function AdminHome({ onToast, openService }) {
   return <PageFrame mode="admin" active="home" profileName="Técnico" onToast={onToast} onOpenService={openService} onOpenAccess={() => navigate('/admin/solicitacoes')}>
     <main className="page-content admin-home-content">
       <h1 className="page-title">Olá, Técnico! Bem-vindo ao NEXUS.</h1>
+      <p className="demo-data-notice">Modo de demonstração: os indicadores e gráficos desta tela usam dados fictícios.</p>
       <div className="admin-dashboard-grid">
         <section className="admin-main-column">
           <article className="panel general-summary">

@@ -51,6 +51,7 @@
 .orange-dot { background: #ffcea9; }
 .chart-legend .blue-dot { background: #a9c3ff; }
 .bar-chart-wrap { height: 190px; margin: 15px 0 2px; }
+.demo-data-notice { margin: 0 0 16px; color: #68758a; font-size: 13px; }
 
 /* Orders dashboard */
 .orders-content, .maintenance-content { padding-top: 37px; }

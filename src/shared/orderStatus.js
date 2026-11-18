@@ -1,4 +1,3 @@
-// Correspondência provisória baseada na ordem das etapas do protótipo.
 export const ORDER_STATUS_STEPS = [
   'Recebida',
   'Em diagnóstico',
@@ -6,6 +5,7 @@ export const ORDER_STATUS_STEPS = [
   'Aguardando peças',
   'Pronta para retirada',
   'Concluída',
+  'Cancelada',
 ]
 
 export function orderStatusCode(value) {

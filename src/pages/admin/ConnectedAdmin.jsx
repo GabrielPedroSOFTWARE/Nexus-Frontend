@@ -5,6 +5,8 @@ import { PageFrame } from '../../shared/layout/PageFrame.jsx'
 import { ConnectedOrderDetails } from './ConnectedOrderDetails.jsx'
 import { orderStatusLabel } from '../../shared/orderStatus.js'
 import { approveUser, rejectUser, updateUser, getTotals, listOrders, listPendingUsers, listUsers, registerUser } from '../../features/admin/api.js'
+import { buildDashboardMetrics } from '../../features/admin/dashboardMetrics.js'
+import { ConnectedDashboardCharts } from '../../features/admin/ConnectedDashboardCharts.jsx'
 import '../../styles/connected-admin.css'
 
 const roles = { USER: 'Solicitante', SUPPORT: 'Técnico', MANAGER: 'Gestor', PENDENT: 'Pendente' }
@@ -23,7 +25,7 @@ function useRemote(loader) {
 function RemoteState({ state, empty, children }) {
   if (state.loading) return <p>Carregando...</p>
   if (state.error) return <div role="alert"><p>Não foi possível carregar os dados: {state.error}</p><button className="outline-button" onClick={state.refresh}>Tentar novamente</button></div>
-  if (Array.isArray(state.data) && !state.data.length) return <p>{empty}</p>
+  if (Array.isArray(state.data) && !state.data.length && empty) return <p>{empty}</p>
   return children
 }
 function AdminPanel({ title, children }) {
@@ -32,8 +34,7 @@ function AdminPanel({ title, children }) {
 function OrderTable({ orders, onSelect }) {
   return <div className="table-scroll"><table className="data-table"><thead><tr><th>ORDEM</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th><th>PRIORIDADE</th><th>TÉCNICO</th></tr></thead><tbody>{orders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => onSelect(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{display(order.idUsuario)}</td><td>{orderStatusLabel(order.status)}</td><td>{order.prioridade == null ? '—' : `Código ${order.prioridade}`}</td><td>{display(order.idTecnico || order.tecnico)}</td></tr>)}</tbody></table></div>
 }
-function Orders({ compact = false, activeOnly = false }) {
-  const state = useRemote(listOrders)
+function OrdersTable({ state, compact = false, activeOnly = false }) {
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState('')
   const visible = (state.data || []).filter(order => (!activeOnly || (order.status != null && ![5, 6].includes(Number(order.status)))) && `${order.id} ${order.idUsuario} ${order.idPC}`.toLowerCase().includes(query.toLowerCase().trim()))
@@ -41,10 +42,45 @@ function Orders({ compact = false, activeOnly = false }) {
     <label className="connected-search">Pesquisar ordem, usuário ou equipamento<input value={query} onChange={e => setQuery(e.target.value)} /></label><OrderTable orders={compact ? visible.slice(0, 5) : visible} onSelect={setSelected} />{!visible.length && <p>Nenhuma ordem corresponde à pesquisa.</p>}
   </RemoteState>{selected && <ConnectedOrderDetails order={selected} onClose={() => setSelected(null)} onSaved={async () => { await state.refresh(); setSelected(null) }} />}</AdminPanel>
 }
+function Orders({ compact = false, activeOnly = false }) {
+  const state = useRemote(listOrders)
+  return <OrdersTable state={state} compact={compact} activeOnly={activeOnly} />
+}
+function DashboardSummary({ orders, totals, pending }) {
+  const metrics = buildDashboardMetrics(orders.data)
+  return <div className="connected-grid">
+    <AdminPanel title="Resumo geral">
+      <RemoteState state={orders}><div className="connected-summary-stats">
+        <div><span>Ordens de serviço</span><b>{metrics.total}</b></div>
+        <div><span>Manutenções ativas</span><b>{metrics.active}</b></div>
+        <div><span>Concluídas</span><b>{metrics.completed}</b></div>
+        <div><span>Aguardando peças</span><b>{metrics.waitingForParts}</b></div>
+      </div></RemoteState>
+      <RemoteState state={totals}><p><b>Total de usuários:</b> {display(totals.data?.totalUsuarios)}</p><p><b>Total de máquinas:</b> {display(totals.data?.totalMaquinas)}</p></RemoteState>
+      <RemoteState state={pending} empty="Nenhuma solicitação pendente.">{pending.data && <p><b>Solicitações de acesso pendentes:</b> {pending.data.length}</p>}</RemoteState>
+    </AdminPanel>
+    <AdminPanel title="Indicadores disponíveis"><p>Os gráficos usam as ordens retornadas pelo backend na sua sessão.</p><p>MTBF, MTTR e atrasos não são estimados sem os dados e regras necessários.</p></AdminPanel>
+  </div>
+}
 function Dashboard() {
+  const orders = useRemote(listOrders)
   const totals = useRemote(getTotals)
   const pending = useRemote(listPendingUsers)
-  return <><div className="connected-grid"><AdminPanel title="Resumo geral"><RemoteState state={totals}><p><b>Total de usuários:</b> {display(totals.data?.totalUsuarios)}</p><p><b>Total de máquinas:</b> {display(totals.data?.totalMaquinas)}</p></RemoteState><RemoteState state={pending} empty="Nenhuma solicitação pendente.">{pending.data && <p><b>Solicitações de acesso pendentes:</b> {pending.data.length}</p>}</RemoteState></AdminPanel><AdminPanel title="Indicadores"><p>Os indicadores de prazo e desempenho ainda não estão disponíveis.</p></AdminPanel></div><Orders compact /></>
+  const refresh = () => { orders.refresh(); totals.refresh(); pending.refresh() }
+  return <>
+    <div className="connected-dashboard-toolbar"><span>Dados carregados da sessão atual.</span><button className="outline-button" onClick={refresh}>Atualizar dados</button></div>
+    <DashboardSummary orders={orders} totals={totals} pending={pending} />
+    <RemoteState state={orders}><ConnectedDashboardCharts orders={orders.data || []} /></RemoteState>
+    <OrdersTable state={orders} compact />
+  </>
+}
+function ConnectedOrdersPage() {
+  const orders = useRemote(listOrders)
+  return <>
+    <div className="connected-dashboard-toolbar"><span>Distribuição calculada com as ordens retornadas pelo backend.</span><button className="outline-button" onClick={orders.refresh}>Atualizar dados</button></div>
+    <RemoteState state={orders}><ConnectedDashboardCharts orders={orders.data || []} /></RemoteState>
+    <OrdersTable state={orders} />
+  </>
 }
 function Pending() {
   const state = useRemote(listPendingUsers)
@@ -118,7 +154,8 @@ function Registration() {
 export function ConnectedAdmin({ pathname, onToast, profileName }) {
   const navigate = useNavigate()
   const active = pathname === '/admin/ordens' ? 'orders' : pathname === '/admin/manutencoes' ? 'maintenance' : 'home'
+  const isOrdersPage = pathname === '/admin/ordens'
   return <PageFrame mode="admin" active={active} onToast={onToast} profileName={profileName} onOpenAccess={() => navigate('/admin/solicitacoes')}><main className="page-content connected-admin"><h1 className="page-title">{pathname === '/admin' ? 'Painel administrativo' : pathname === '/admin/usuarios' ? 'Gestão de Usuários' : pathname === '/admin/solicitacoes' ? 'Solicitações de acesso' : pathname === '/admin/cadastro-usuario' ? 'Cadastrar usuário' : pathname === '/admin/manutencoes' ? 'Manutenções ativas' : 'Ordens de serviço'}</h1>
-    {pathname === '/admin' ? <Dashboard /> : pathname === '/admin/usuarios' ? <Users /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : <Orders activeOnly={pathname === '/admin/manutencoes'} />}
+    {pathname === '/admin' ? <Dashboard /> : pathname === '/admin/usuarios' ? <Users /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : isOrdersPage ? <ConnectedOrdersPage /> : <Orders activeOnly={pathname === '/admin/manutencoes'} />}
   </main></PageFrame>
 }
