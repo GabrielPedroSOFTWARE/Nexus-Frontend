@@ -4,7 +4,7 @@ import { normalizeCpf } from '../../shared/cpf.js'
 import { useState } from 'react'
 import { Eye, EyeOff, UserRound, LockKeyhole } from 'lucide-react'
 
-export function LoginPage({ onAccessRequest, onLogin }) {
+export function LoginPage({ onAccessRequest, onLogin, onToast }) {
   const [cpf, setCpf] = useState(() => {
     try { return localStorage.getItem('nexus.remembered.cpf') || '' } catch { return '' }
   })
@@ -40,7 +40,10 @@ export function LoginPage({ onAccessRequest, onLogin }) {
         <div className="input-with-icon"><UserRound size={19} /><input type="text" inputMode={hasLocalApi ? 'numeric' : 'text'} autoComplete="username" maxLength={hasLocalApi ? 14 : 32} placeholder={hasLocalApi ? 'Digite seu CPF' : 'Digite seu CPF ou admin na demonstração'} value={cpf} onChange={e => setCpf(hasLocalApi ? e.target.value.slice(0, 14) : e.target.value)} required /></div>
         <label>Senha <em>*</em></label>
         <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
-        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label></div>
+        <div className="login-options">
+          <label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label>
+          <button type="button" className="password-recovery-button" onClick={() => onToast?.('Para recuperar sua senha, entre em contato com o administrador do sistema.')}>Recuperar senha</button>
+        </div>
         <button className="primary-button login-button" type="submit">Fazer Login</button>
         <div className="or-divider"><span />OU<span /></div>
         <button className="access-request-button" type="button" onClick={onAccessRequest}>Solicitar acesso</button>
