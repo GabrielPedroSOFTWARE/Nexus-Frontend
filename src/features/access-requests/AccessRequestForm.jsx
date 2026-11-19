@@ -28,12 +28,12 @@ export function AccessRequestForm({ onClose, onToast }) {
     <form className="access-form-card" onSubmit={submit}>
       <div className="modal-title"><span className="modal-icon"><UserRoundPlus size={22} /></span><h2>Solicitar acesso</h2><button type="button" onClick={onClose} aria-label="Fechar"><X size={22} /></button></div>
       <p>Preencha seus dados para enviar uma solicitação de acesso ao NEXUS.</p>
-      <label>Nome completo<input name="nome" required placeholder="Digite seu nome completo" /></label>
-      <label>CPF<input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required placeholder="Ex.: 12345678900" /></label>
-      <label>Setor<input name="setor" required placeholder="Ex.: Financeiro" /></label>
-      <label>E-mail institucional<input name="email" type="email" required placeholder="nome@instituicao.edu.br" /></label>
-      <label>Justificativa<textarea name="justificativa" required placeholder="Conte por que precisa acessar o sistema" /></label>
-      {hasLocalApi && <label>Senha<input name="senha" type="password" autoComplete="new-password" required /></label>}
+      <label>Nome completo <em>*</em><input name="nome" required placeholder="Digite seu nome completo" /></label>
+      <label>CPF <em>*</em><input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required placeholder="Ex.: 12345678900" /></label>
+      <label>Setor <em>*</em><input name="setor" required placeholder="Ex.: Financeiro" /></label>
+      <label>E-mail institucional <em>*</em><input name="email" type="email" required placeholder="nome@instituicao.edu.br" /></label>
+      <label>Justificativa <em>*</em><textarea name="justificativa" required placeholder="Conte por que precisa acessar o sistema" /></label>
+      {hasLocalApi && <label>Senha <em>*</em><input name="senha" type="password" autoComplete="new-password" required /></label>}
       {error && <p role="alert">{error}</p>}
       <div className="access-form-actions"><button type="button" className="outline-button" onClick={onClose}>Cancelar</button><button className="primary-button" type="submit" disabled={busy}>{busy ? 'Enviando...' : 'Enviar solicitação'}</button></div>
     </form>

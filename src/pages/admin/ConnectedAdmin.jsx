@@ -149,7 +149,7 @@ function Registration() {
     finally { setBusy(false) }
   }
   return <AdminPanel title="Cadastro de usuário"><form className="connected-form" onSubmit={submit}>
-    <label>Nome completo<input name="nome" required /></label><label>CPF<input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required /></label><label>E-mail<input name="email" type="email" required /></label><label>Setor<input name="setor" required /></label><label>Senha inicial<input name="senha" type="password" autoComplete="new-password" required /></label><button className="primary-button" disabled={busy}>Cadastrar usuário</button>
+    <label><span>Nome completo <em>*</em></span><input name="nome" required /></label><label><span>CPF <em>*</em></span><input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required /></label><label><span>E-mail <em>*</em></span><input name="email" type="email" required /></label><label><span>Setor <em>*</em></span><input name="setor" required /></label><label><span>Senha inicial <em>*</em></span><input name="senha" type="password" autoComplete="new-password" required /></label><button className="primary-button" disabled={busy}>Cadastrar usuário</button>
   </form>{message && <p role="status">{message}</p>}</AdminPanel>
 }
 export function ConnectedAdmin({ pathname, onToast, profileName, isAdmin = false }) {
