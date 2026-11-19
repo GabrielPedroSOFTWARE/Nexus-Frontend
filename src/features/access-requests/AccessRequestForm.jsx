@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { apiRequest, hasLocalApi } from '../../shared/api/httpClient.js'
 import { normalizeCpf } from '../../shared/cpf.js'
+import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
 import { X, UserRoundPlus } from 'lucide-react'
 
 export function AccessRequestForm({ onClose, onToast }) {
@@ -28,6 +29,7 @@ export function AccessRequestForm({ onClose, onToast }) {
     <form className="access-form-card" onSubmit={submit}>
       <div className="modal-title"><span className="modal-icon"><UserRoundPlus size={22} /></span><h2>Solicitar acesso</h2><button type="button" onClick={onClose} aria-label="Fechar"><X size={22} /></button></div>
       <p>Preencha seus dados para enviar uma solicitação de acesso ao NEXUS.</p>
+      <FormRequirementsNote />
       <label>Nome completo <em>*</em><input name="nome" required placeholder="Digite seu nome completo" /></label>
       <label>CPF <em>*</em><input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required placeholder="Ex.: 12345678900" /></label>
       <label>Setor <em>*</em><input name="setor" required placeholder="Ex.: Financeiro" /></label>

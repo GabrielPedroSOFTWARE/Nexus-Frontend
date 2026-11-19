@@ -1,6 +1,7 @@
 import { hasLocalApi } from '../../shared/api/httpClient.js'
 import { BRAND_ASSET } from '../../shared/assets.js'
 import { normalizeCpf } from '../../shared/cpf.js'
+import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
 import { useState } from 'react'
 import { Eye, EyeOff, UserRound, LockKeyhole } from 'lucide-react'
 
@@ -35,13 +36,14 @@ export function LoginPage({ onAccessRequest, onLogin, onToast }) {
       <form className="auth-card" onSubmit={login}>
         <h1>Acessar Sistema</h1>
         <p className="auth-subtitle">Faça login para continuar</p>
+        <FormRequirementsNote includeOptional />
         {!hasLocalApi && <p role="status">Modo demonstração: a autenticação é simulada. Digite “admin” para abrir o painel.</p>}
         <label>CPF <em>*</em></label>
         <div className="input-with-icon"><UserRound size={19} /><input type="text" inputMode={hasLocalApi ? 'numeric' : 'text'} autoComplete="username" maxLength={hasLocalApi ? 14 : 32} placeholder={hasLocalApi ? 'Digite seu CPF' : 'Digite seu CPF ou admin na demonstração'} value={cpf} onChange={e => setCpf(hasLocalApi ? e.target.value.slice(0, 14) : e.target.value)} required /></div>
         <label>Senha <em>*</em></label>
         <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
         <div className="login-options">
-          <label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label>
+          <label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me (opcional)</label>
           <button type="button" className="password-recovery-button" onClick={() => onToast?.('Para recuperar sua senha, entre em contato com o administrador do sistema.')}>Recuperar senha</button>
         </div>
         <button className="primary-button login-button" type="submit">Fazer Login</button>

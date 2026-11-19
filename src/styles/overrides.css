@@ -7,6 +7,7 @@
 .access-form-card { width: min(600px, 100%); max-height: calc(100vh - 36px); overflow: auto; padding: 22px 24px 24px; border: 1px solid #d5dae3; border-radius: 20px; color: #34445f; background: #fff; box-shadow: 0 14px 40px rgba(19, 31, 50, .28); }
 .access-form-card .modal-title { padding-bottom: 16px; }
 .access-form-card > p { margin: 16px 0 19px; color: #738097; font-size: 14px; line-height: 1.5; }
+.access-form-card > .form-requirements-note { margin: 0 0 12px; font-size: 12px; }
 .access-form-card > label { display: block; margin-top: 14px; font-size: 13px; font-weight: 700; }
 .access-form-card > label em { color: #ef4148; font-style: normal; margin-left: 3px; }
 .access-form-card input, .access-form-card textarea { width: 100%; margin-top: 6px; padding: 12px 13px; border: 1px solid #c9d0da; border-radius: 9px; color: #34445f; background: #fff; font-size: 14px; }

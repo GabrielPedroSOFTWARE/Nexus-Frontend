@@ -28,6 +28,8 @@ button, input, select, textarea { font: inherit; }
 button { color: inherit; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #87b7ff; outline-offset: 2px; }
 button { cursor: pointer; }
+.form-requirements-note { display: block; margin: 8px 0 14px; color: #738097; font-size: 12px; line-height: 1.45; }
+.form-requirements-note-star { color: #ef4148; font-weight: 700; }
 
 .app-page { min-height: 100vh; position: relative; background: #fff; }
 .brand-mark { display: block; flex: 0 0 auto; color: #fff; mix-blend-mode: lighten; }

@@ -34,6 +34,7 @@
   .connected-chart-legend { width: 100%; }
 }
 .connected-search, .connected-form label { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.connected-form > .form-requirements-note { margin: 0 0 10px; }
 .connected-form label em, .assign-technician-select em { color: #ef4148; font-style: normal; margin-left: 3px; }
 .connected-search input, .connected-form input, .connected-form select, .connected-user select, .connected-admin select { min-height: 38px; padding: 6px 9px; border: 1px solid #aab4c3; border-radius: 7px; }
 .connected-user { padding: 12px 0; border-bottom: 1px solid #e1e5eb; }
