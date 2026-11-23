@@ -9,6 +9,11 @@ import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
 const display = value => value == null || value === '' ? 'Não informado' : String(value)
 const date = value => value ? String(value).slice(0, 10).split('-').reverse().join('/') : 'Não informado'
 const dateInput = value => typeof value === 'string' ? value.slice(0, 10) : ''
+const orderOpenedAt = order => {
+  const value = order?.dataHoraAbertura || order?.dataInicioManutencao || order?.dataManutencao
+  const timestamp = value ? Date.parse(value) : Number.NaN
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
 const backendDate = value => {
   const [year, month, day] = value.split('-')
   return `${day}/${month}/${year}`
@@ -44,6 +49,7 @@ export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false
   const userCpf = order.cpfUsuario || order.idUsuario
   const client = users.find(user => String(user.cpf || user.id) === String(userCpf))
   const technicians = users.filter(user => user.perfil === 'SUPPORT_MANAGER' && user.status === 'Ativo')
+  const orderedEquipmentHistory = equipmentHistory?.slice().sort((a, b) => orderOpenedAt(b) - orderOpenedAt(a))
   const selectedStatus = orderStatusCode(order.status)
   const nextStatus = status === '' ? null : Number(status)
   const requiresDeadline = selectedStatus != null && nextStatus != null && ((selectedStatus < 2 && nextStatus === 2) || (selectedStatus > 1 && nextStatus === 1))
@@ -100,7 +106,7 @@ export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false
       <div className="service-modal-body"><div className="service-detail-column">
         <article className="detail-card client-card"><h3>CLIENTE</h3><div className="detail-grid"><p><small>NOME</small><b>{display(client?.nome)}</b></p><p><small>SETOR</small><b>{display(client?.setor)}</b></p><p><small>TELEFONE</small><b>{display(client?.telefone)}</b></p><p><small>CPF</small><b>{display(client?.cpfExibicao || order.cpfUsuarioDescriptografado)}</b></p></div></article>
         <article className="detail-card specs-card"><h3>ESPECIFICAÇÕES DA MÁQUINA</h3><div className="detail-grid spec-grid"><p><small>MODELO</small><b>Não informado</b></p><p><small>PATRIMÔNIO</small><b>Não informado</b></p><p><small>SISTEMA OPERACIONAL</small><b>Não informado</b></p><p><small>ARMAZENAMENTO</small><b>Não informado</b></p><p><small>EQUIPAMENTO</small><b>{display(order.apelido || order.idPC)}</b></p><p><small>CPU</small><b>Não informado</b></p><p><small>MEMÓRIA RAM</small><b>Não informado</b></p><p><small>GPU</small><b>Não informado</b></p></div><button type="button" className="equipment-history-link" disabled={order.idPC == null} aria-expanded={equipmentHistoryOpen} aria-controls="equipment-history" onClick={loadEquipmentHistory}><History size={16} />Consultar Histórico de Manutenções</button></article>
-        {equipmentHistoryOpen && <article className="detail-card" id="equipment-history"><h3>HISTÓRICO DE MANUTENÇÕES</h3>{equipmentHistoryLoading ? <p>Carregando...</p> : equipmentHistoryError ? <p role="alert">{equipmentHistoryError}</p> : equipmentHistory?.length ? equipmentHistory.map(item => <p key={item.id}>{display(item.id)} · {orderStatusLabel(item.status)} · {date(item.dataInicioManutencao)}</p>) : <p>Nenhuma manutenção encontrada.</p>}</article>}
+        {equipmentHistoryOpen && <article className="detail-card" id="equipment-history"><h3>HISTÓRICO DE MANUTENÇÕES</h3>{equipmentHistoryLoading ? <p>Carregando...</p> : equipmentHistoryError ? <p role="alert">{equipmentHistoryError}</p> : orderedEquipmentHistory?.length ? orderedEquipmentHistory.map(item => <p key={item.id}>{display(item.id)} · {orderStatusLabel(item.status)} · {date(item.dataInicioManutencao)}</p>) : <p>Nenhuma manutenção encontrada.</p>}</article>}
         <article className="detail-card problem-card"><div className="section-title-row"><h3>PROBLEMA RELATADO</h3><span className="frequency-chip">Frequência &nbsp; {details.frequency || 'Não informada'}</span></div><p>{details.problem}</p></article>
         <article className="detail-card observations-card"><h3>OBSERVAÇÕES DO TÉCNICO</h3><p>{order.observacoesTecnico || 'Nenhuma observação registrada até o momento.'}</p></article>
         <article className="detail-card attachments-card"><h3>ANEXOS</h3>{order.foto ? <button type="button" onClick={downloadAttachment}><Paperclip size={23} />{order.nomeArquivoFoto || 'Baixar anexo'}</button> : <p>Nenhum anexo.</p>}</article>

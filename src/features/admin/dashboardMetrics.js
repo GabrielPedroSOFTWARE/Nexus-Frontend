@@ -3,7 +3,7 @@ const STATUS_DEFINITIONS = [
   { code: 1, name: 'Em diagnóstico', color: '#4263eb' },
   { code: 2, name: 'Em manutenção', color: '#8877ff' },
   { code: 3, name: 'Aguardando peças', color: '#ef9b45' },
-  { code: 4, name: 'Pronta para retirada', color: '#239b8e' },
+  { code: 4, name: 'Pronto para retirada', color: '#239b8e' },
   { code: 5, name: 'Concluída', color: '#5b8e7d' },
   { code: 6, name: 'Cancelada', color: '#a16b82' },
 ]

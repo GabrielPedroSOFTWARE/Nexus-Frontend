@@ -8,6 +8,12 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ListFilter } from 'lucide-react'
 
+function historyTimestamp(order) {
+  const value = order?.dataHoraAbertura || order?.dataInicioManutencao || order?.dataManutencao
+  const timestamp = value ? Date.parse(value) : Number.NaN
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
+
 export function HistoryPage({ onToast, profileName }) {
   const [searchParams] = useSearchParams()
   const equipmentId = searchParams.get('equipamento')
@@ -22,7 +28,11 @@ export function HistoryPage({ onToast, profileName }) {
     return () => { active = false }
   }, [])
   const history = hasLocalApi
-    ? (apiHistory || []).filter(order => !equipmentId || String(order.idPC) === equipmentId).map(order => {
+    ? (apiHistory || [])
+        .filter(order => !equipmentId || String(order.idPC) === equipmentId)
+        .slice()
+        .sort((a, b) => historyTimestamp(b) - historyTimestamp(a))
+        .map(order => {
         const details = getRequestDetails(order)
         return [order.id || 'Pedido', orderStatusLabel(order.status), <>{details.problem}<br /><small>Frequência: {details.frequency || 'Não informada'}</small></>, order.dataInicioManutencao || order.dataManutencao || '—', order.idTecnico || order.tecnico || 'Não atribuído', 'active']
       })

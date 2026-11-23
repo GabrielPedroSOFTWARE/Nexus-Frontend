@@ -3,7 +3,7 @@ export const ORDER_STATUS_STEPS = [
   'Em diagnóstico',
   'Em manutenção',
   'Aguardando peças',
-  'Pronta para retirada',
+  'Pronto para retirada',
   'Concluída',
   'Cancelada',
 ]

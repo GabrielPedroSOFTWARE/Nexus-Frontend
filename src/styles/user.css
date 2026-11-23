@@ -2,10 +2,12 @@
 .user-home-content { padding-top: 43px; }
 .user-home-grid { display: grid; grid-template-columns: minmax(0, 2.14fr) minmax(340px, 1fr); gap: 34px; align-items: start; }
 .user-main-column, .user-side-column { min-width: 0; }
-.active-service-card { padding: 23px 27px 27px; min-height: 535px; border-color: #aab2c0; box-shadow: 0 2px 3px rgba(29,42,62,.22); }
+.active-service-card { padding: 23px 27px 27px; min-height: 0; border-color: #aab2c0; box-shadow: 0 2px 3px rgba(29,42,62,.22); }
+.active-service-card .section-title-row { flex-wrap: wrap; }
+.active-service-card .section-title-row h2 { flex: 1 1 auto; margin: 0; font-size: clamp(19px, 2.2vw, 26px); }
 .section-title-row h2 { font-size: 26px; }
-.service-number { padding: 7px 11px; border-radius: 9px; color: #333d50; background: #e4e4e4; font-size: 14px; }
-.progress-steps { min-height: 197px; display: flex; align-items: center; padding: 17px 10px 0; }
+.service-number { padding: 7px 11px; border-radius: 9px; color: #333d50; background: #e4e4e4; font-size: 14px; white-space: nowrap; }
+.progress-steps { min-height: 180px; display: flex; align-items: center; padding: 17px 10px 0; }
 .progress-step { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #33435f; text-align: center; }
 .step-icon { width: 84px; height: 84px; display: grid; place-items: center; background: #fff; position: relative; z-index: 2; }
 .step-icon svg { width: 42px; height: 42px; }
@@ -15,11 +17,14 @@
 .step-line { position: absolute; top: 42px; left: calc(50% + 41px); width: calc(100% - 82px); height: 3px; background: #c7cbd2; }
 .step-line.complete { background: #50bf59; }
 .progress-step b { max-width: 145px; margin-top: 5px; font-size: 14px; line-height: 1.15; text-transform: uppercase; }
+.progress-step.current .step-icon svg { animation: maintenance-step-spin 1.8s linear infinite; }
+@keyframes maintenance-step-spin { to { transform: rotate(360deg); } }
+.service-empty-state { padding: 32px 0; color: #65718a; }
 .forecast-line { padding: 14px 0; border-bottom: 1px solid #cbd0d8; font-size: 16px; }
 .forecast-line b { margin-right: 5px; font-size: 15px; }
 .description-block { padding-top: 14px; }
 .description-block h3, .equipment-summary h3, .device-card h3 { margin: 0 0 8px; font-size: 21px; }
-.description-block p { margin: 6px 0; font-size: 15px; }
+.description-block p { margin: 6px 0; font-size: 15px; white-space: pre-line; }
 .service-notice { padding-top: 12px; margin: 18px 0 0; border-top: 1px solid #cbd0d8; font-size: 21px; line-height: 1.3; font-weight: 700; }
 .equipment-summary { padding: 15px 17px; border-color: #aab2c0; box-shadow: 0 2px 3px rgba(29,42,62,.2); }
 .equipment-summary h3 { font-size: 15px; }

@@ -16,10 +16,10 @@ export function NotificationsPanel({ demo, mode, open, onClose, onSelect }) {
       if (!Array.isArray(data)) throw new Error('Resposta inválida do backend.')
       if (active) setItems(data.map(item => ({
         id: item.id,
-        resumo: isUser ? item.resumo : item.mensagem,
+        resumo: isUser ? (item['descrição'] ?? item.descricao ?? item.resumo) : item.mensagem,
         pedidoId: item.idPedido,
         prazo: item.prazo,
-        dataCriacao: item.dataCriacao,
+        dataCriacao: item.dataHoraCriacao ?? item.dataCriacao,
         status: item.status,
         lida: item.lida,
       })))

@@ -16,7 +16,7 @@ export function ServiceModal({ service, onClose, onToast }) {
   const steps = [
     ['Recebida', '24/06/2026 · 08:40'], ['Em diagnóstico', 'Em andamento desde 10:05'],
     ['Em manutenção', 'Formatação e peça técnica'], ['Aguardando peças', 'Opcional: se faltar peça'],
-    ['Pronta para retirada', 'O usuário é avisado'], ['Concluída', 'Registra a solução aplicada'],
+    ['Pronto para retirada', 'O usuário é avisado'], ['Concluída', 'Registra a solução aplicada'],
   ]
   return <div className="modal-backdrop service-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
     <section className="service-modal">
