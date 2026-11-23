@@ -7,7 +7,9 @@
 .access-form-card { width: min(600px, 100%); max-height: calc(100vh - 36px); overflow: auto; padding: 22px 24px 24px; border: 1px solid #d5dae3; border-radius: 20px; color: #34445f; background: #fff; box-shadow: 0 14px 40px rgba(19, 31, 50, .28); }
 .access-form-card .modal-title { padding-bottom: 16px; }
 .access-form-card > p { margin: 16px 0 19px; color: #738097; font-size: 14px; line-height: 1.5; }
+.access-form-card > .form-requirements-note { margin: 0 0 12px; font-size: 12px; }
 .access-form-card > label { display: block; margin-top: 14px; font-size: 13px; font-weight: 700; }
+.access-form-card > label em, .connected-form label em, .assign-dialog label em { color: #ef4148; font-style: normal; margin-left: 3px; }
 .access-form-card input, .access-form-card textarea { width: 100%; margin-top: 6px; padding: 12px 13px; border: 1px solid #c9d0da; border-radius: 9px; color: #34445f; background: #fff; font-size: 14px; }
 .access-form-card textarea { min-height: 82px; resize: vertical; }
 .access-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 19px; }
@@ -30,6 +32,12 @@
 .orders-filter-menu select { width: 100%; height: 39px; margin-top: 7px; padding: 0 8px; border: 1px solid #ccd3dd; border-radius: 7px; color: #34445f; background: #fff; font-size: 12px; }
 .orders-filter-menu > button { margin-top: 11px; padding: 0; border: 0; color: #397eb8; background: transparent; font-size: 12px; font-weight: 700; }
 .empty-orders { margin: 13px 0 2px; padding: 17px; border: 1px dashed #c9d0db; border-radius: 9px; color: #748198; text-align: center; font-size: 14px; }
+.password-requirements { display: flex; flex-wrap: wrap; gap: 5px 14px; margin: 8px 0 13px; padding: 0; color: #738097; font-size: 12px; line-height: 1.35; list-style: none; }
+.password-requirements li { display: inline-flex; align-items: center; gap: 5px; }
+.password-requirements li > span { width: 14px; text-align: center; font-weight: 700; }
+.password-requirements li.is-met { color: #237245; }
+.password-match-warning { display: block; margin: 6px 0; color: #a12b31; font-size: 12px; line-height: 1.4; }
+
 @media (min-width: 1121px) {
   .orders-controls { gap: 16px; margin-right: 145px; }
   .orders-search { width: 480px; height: 50px; }
@@ -240,10 +248,3 @@
   .request-details-panel, .access-decision-panel { padding: 18px 14px; }
   .access-choice > span { font-size: 10px; }
 }
-
-.password-requirements { display: flex; flex-wrap: wrap; gap: 5px 14px; margin: 8px 0 13px; padding: 0; color: #738097; font-size: 12px; line-height: 1.35; list-style: none; }
-.password-requirements li { display: inline-flex; align-items: center; gap: 5px; }
-.password-requirements li > span { width: 14px; text-align: center; font-weight: 700; }
-.password-requirements li.is-met { color: #237245; }
-.password-match-warning { display: block; margin: 6px 0; color: #a12b31; font-size: 12px; line-height: 1.4; }
-.access-form-card > label em, .connected-form label em { color: #ef4148; font-style: normal; }

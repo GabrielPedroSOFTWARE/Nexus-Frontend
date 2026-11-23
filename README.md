@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://gabrielpedrosoftware.github.io/Nexus-Frontend/"><strong>Acessar demonstração</strong></a>
+  <a href="https://gabrielpedrosoftware.github.io/Nexus-Frontend/"><strong>Acessar o NEXUS</strong></a>
   ·
   <a href="#instalação-e-execução"><strong>Executar localmente</strong></a>
 </p>
@@ -26,7 +26,7 @@
 
 O NEXUS é uma aplicação web para acompanhar solicitações e manutenções de equipamentos de TI. Esta versão apresenta, em uma interface responsiva, os fluxos de quem solicita atendimento e da equipe administrativa.
 
-Este repositório contém a interface do sistema. As telas usam dados demonstrativos para apresentar a navegação e as interações disponíveis.
+Este repositório contém a interface do sistema. O GitHub Pages pode tentar acessar o backend local no computador do usuário e oferece uma opção de demonstração com dados simulados. Localmente, é possível conectar as funções disponíveis à API do backend.
 
 ## Captura de tela
 
@@ -101,7 +101,7 @@ As páginas podem ser acessadas pelas rotas abaixo. Como o projeto usa `HashRout
 | `/#/admin` | Início da área administrativa. |
 | `/#/admin/ordens` | Ordens de serviço e indicadores. |
 | `/#/admin/manutencoes` | Manutenções ativas. |
-| `/#/admin/cadastro-usuario` | Cadastro demonstrativo de usuário. |
+| `/#/admin/cadastro-usuario` | Cadastro de usuário. |
 
 ## Publicação no GitHub Pages
 
@@ -109,7 +109,7 @@ A publicação é feita pelo GitHub Actions, usando o fluxo de trabalho [`pages.
 
 Para configurar uma cópia do projeto, selecione **Configurações → Pages → GitHub Actions** como origem da publicação. O arquivo `vite.config.js` ajusta automaticamente o caminho-base para o endereço do repositório durante a execução do fluxo de trabalho.
 
-**Demonstração publicada:** [gabrielpedrosoftware.github.io/Nexus-Frontend](https://gabrielpedrosoftware.github.io/Nexus-Frontend/)
+**Frontend publicado:** [gabrielpedrosoftware.github.io/Nexus-Frontend](https://gabrielpedrosoftware.github.io/Nexus-Frontend/)
 
 ## Estrutura do projeto
 
@@ -118,12 +118,12 @@ Para configurar uma cópia do projeto, selecione **Configurações → Pages →
 ├── .github/workflows/              # Publicação no GitHub Pages
 ├── docs/imagens/                   # Imagens usadas nesta documentação
 ├── public/                         # Imagens e identidade visual da aplicação
-├── scripts/                        # Preparação e execução do modo local
 ├── src/
 │   ├── app/                        # Composição da aplicação e seleção de rotas
 │   ├── assets/fonts/               # Fontes locais
 │   ├── features/                   # Fluxos e dados de cada domínio
 │   │   ├── access-requests/
+│   │   ├── admin/
 │   │   ├── auth/
 │   │   ├── equipment/
 │   │   ├── service-orders/
@@ -149,7 +149,7 @@ A lógica de autenticação, equipamentos e solicitações fica em hooks dentro 
 
 ## Escopo atual
 
-A demonstração publicada no GitHub Pages não depende de backend. No modo local, login, equipamentos e pedidos usam a API Spring Boot e o banco MySQL. As telas administrativas e os fluxos de cadastro de usuário/acesso continuam demonstrativos.
+O GitHub Pages tenta acessar o backend local no computador do usuário. No modo de demonstração, os dados são simulados. No modo local, login, equipamentos e pedidos usam a API configurada. Na área administrativa conectada é possível consultar ordens, usuários e pendências, aprovar acessos, cadastrar usuários, alterar perfis e status e atribuir técnicos, conforme as rotas oferecidas pelo backend.
 
 ## Dúvidas e sugestões
 
@@ -158,28 +158,25 @@ Registre dúvidas, sugestões ou problemas na [área de problemas do repositóri
 
 ## Execução integrada local
 
-Para executar a aplicação conectada, use uma cópia do backend Java/Spring Boot, JDK 21, MySQL e Node.js com npm. O padrão espera o backend em uma pasta irmã chamada Nexus.
+Com o backend já iniciado na porta 8080 pelo responsável, configure o frontend:
 
-No macOS com Homebrew, inicie o MySQL e prepare o banco e os segredos locais:
+```bash
+cp .env.local.example .env.local
+npm ci
+npm run dev
+```
 
-    brew services start mysql
-    npm run setup:local
+No Windows, copie `.env.local.example` para `.env.local` pelo VS Code. Abra o endereço informado pelo Vite. O frontend encaminha as chamadas `/api` para `http://127.0.0.1:8080`; se necessário, ajuste `NEXUS_BACKEND_URL` no `.env.local` e reinicie o Vite. O arquivo `.env.local` não deve ser enviado ao Git.
 
-A preparação cria o banco banco_teste, um usuário MySQL limitado a esse banco e credenciais aleatórias em .env.local. O arquivo é ignorado pelo Git. Um administrador local é criado na primeira inicialização; o login padrão é admin-local e a senha fica em .env.local.
+O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. A área administrativa usa os contratos da versão do backend `fd13cbb` ou compatível. A solicitação de acesso pela tela de login usa o endpoint de cadastro; a negação de solicitações permanece indisponível. Os status de 0 a 5 seguem provisoriamente a ordem do protótipo (Recebida, Em diagnóstico, Em manutenção, Aguardando peças, Pronta para retirada e Concluída). O código 6 permanece não identificado, e a correspondência e as transições devem ser confirmadas com a equipe do backend. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
 
-Inicie frontend e backend juntos:
+No GitHub Pages, o endereço da API é `http://127.0.0.1:8080` no próprio computador que abriu o site. O backend deve permitir a origem `https://gabrielpedrosoftware.github.io` por CORS, inclusive as requisições de verificação e os cabeçalhos necessários, e o navegador pode exigir permissão para acesso local. Na versão `fd13cbb` o CORS permite a origem do Pages, mas não permite `PATCH`; assim, as alterações que usam esse método dependem de ajuste pelo responsável pelo backend. A opção “Abrir demonstração” usa dados simulados. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.
 
-    npm run dev:local
+### Limitações atuais da integração
 
-Abra http://localhost:5173. A API fica em http://localhost:8080 e o frontend a acessa pelo proxy local do Vite. Encerre ambos com Ctrl+C.
-
-Se o backend estiver em outro diretório, ajuste NEXUS_BACKEND_DIR em .env.local. Para outros sistemas operacionais, inicie o MySQL manualmente e preencha as variáveis do arquivo .env.local.example.
-
-### Comandos locais
-
-- npm run dev inicia somente o frontend.
-- npm run setup:local prepara o banco e gera configurações locais.
-- npm run dev:local inicia o frontend e o backend juntos.
-- npm run build gera os arquivos estáticos em dist/.
-
-No modo integrado, as funções conectadas são login, leitura/cadastro/listagem de equipamentos, criação de pedido com frequência/anexo e histórico do solicitante. Os painéis administrativos e os formulários de cadastro de usuários continuam usando dados demonstrativos porque o backend ainda não oferece todos os contratos necessários.
+- A versão do backend `fd13cbb` não possui campo próprio para frequência. O frontend inclui a informação no texto do problema e também envia o campo `frequencia`, para compatibilidade com versões que o aceitem. Nas telas, uma frequência reconhecida é mostrada separadamente. Sem campo próprio no backend, não há consulta ou filtro independente por frequência.
+- O backend retorna o anexo sem nome nem tipo original. O frontend o disponibiliza como `anexo.bin`.
+- A leitura automática descreve a máquina onde o backend está rodando.
+- As notificações são consultadas, mas o backend não oferece uma rota para marcá-las como lidas.
+- Os indicadores de prazo, estoque e desempenho precisam de dados ou regras adicionais do backend. A correspondência provisória dos status precisa de confirmação com a equipe do backend.
+- O responsável pelo backend deve revisar as permissões e os dados devolvidos pela API antes do uso com informações reais.

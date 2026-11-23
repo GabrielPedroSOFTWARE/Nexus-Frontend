@@ -3,6 +3,7 @@ import { BRAND_ASSET } from '../../shared/assets.js'
 import { normalizeCpf } from '../../shared/cpf.js'
 import { checkPasswordRecovery, requestPasswordReset, resetPassword } from '../../features/auth/api.js'
 import { PasswordRequirements } from '../../features/auth/PasswordRequirements.jsx'
+import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
 import { isPasswordValid, PASSWORD_POLICY_MESSAGE } from '../../features/auth/passwordPolicy.js'
 import { useState } from 'react'
 import { Eye, EyeOff, UserRound, LockKeyhole } from 'lucide-react'
@@ -101,6 +102,7 @@ export function LoginPage({ onAccessRequest, onLogin }) {
   const recoveryContent = authView === 'request' ? <form className="auth-card recovery-card" onSubmit={submitRecoveryRequest}>
     <h1>Recuperar senha</h1>
     <p className="auth-subtitle">Informe seu CPF para receber o link de recuperação</p>
+    <FormRequirementsNote />
     <label>CPF <em>*</em></label>
     <div className="input-with-icon"><UserRound size={19} /><input type="text" inputMode="numeric" autoComplete="username" maxLength="14" placeholder="Digite seu CPF" value={cpf} onChange={e => setCpf(e.target.value.slice(0, 14))} required /></div>
     {recoveryFeedback}
@@ -116,6 +118,7 @@ export function LoginPage({ onAccessRequest, onLogin }) {
   </section> : <form className="auth-card recovery-card" onSubmit={submitNewPassword}>
     <h1>Nova senha</h1>
     <p className="auth-subtitle">Escolha uma senha que atenda aos requisitos abaixo</p>
+    <FormRequirementsNote />
     <label>Nova senha <em>*</em></label>
     <div className="input-with-icon"><LockKeyhole size={19} /><input type={showNewPassword ? 'text' : 'password'} autoComplete="new-password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setRecoveryError('') }} required /><button type="button" className="input-action" onClick={() => setShowNewPassword(value => !value)} aria-label="Mostrar ou ocultar nova senha">{showNewPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
     <PasswordRequirements value={newPassword} />
@@ -139,13 +142,14 @@ export function LoginPage({ onAccessRequest, onLogin }) {
       {authView !== 'login' ? recoveryContent : <form className="auth-card" onSubmit={login}>
         <h1>Acessar Sistema</h1>
         <p className="auth-subtitle">Faça login para continuar</p>
+        <FormRequirementsNote includeOptional />
         {!hasLocalApi && <p role="status">Modo demonstração: a autenticação é simulada. Digite “admin” para abrir o painel.</p>}
         {recoveryFeedback}
         <label>CPF <em>*</em></label>
         <div className="input-with-icon"><UserRound size={19} /><input type="text" inputMode={hasLocalApi ? 'numeric' : 'text'} autoComplete="username" maxLength={hasLocalApi ? 14 : 32} placeholder={hasLocalApi ? 'Digite seu CPF' : 'Digite seu CPF ou admin na demonstração'} value={cpf} onChange={e => setCpf(hasLocalApi ? e.target.value.slice(0, 14) : e.target.value)} required /></div>
         <label>Senha <em>*</em></label>
         <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
-        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me</label><button type="button" onClick={openRecovery}>Esqueci minha senha</button></div>
+        <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me <small>(opcional)</small></label><button type="button" onClick={openRecovery}>Esqueci minha senha</button></div>
         <button className="primary-button login-button" type="submit">Fazer Login</button>
         <div className="or-divider"><span />OU<span /></div>
         <button className="access-request-button" type="button" onClick={onAccessRequest}>Solicitar acesso</button>

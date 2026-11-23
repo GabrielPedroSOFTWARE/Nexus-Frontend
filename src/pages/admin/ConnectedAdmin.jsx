@@ -7,6 +7,7 @@ import { orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
 import { approveUser, rejectUser, updateUser, getMtbf, getMttr, getTotals, listAssignedOrders, listOrders, listPendingUsers, listUsers, registerUser } from '../../features/admin/api.js'
 import { buildDashboardMetrics, isOverdueOrder } from '../../features/admin/dashboardMetrics.js'
 import { PasswordRequirements } from '../../features/auth/PasswordRequirements.jsx'
+import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
 import { isPasswordValid, PASSWORD_POLICY_MESSAGE } from '../../features/auth/passwordPolicy.js'
 import { ConnectedDashboardCharts } from '../../features/admin/ConnectedDashboardCharts.jsx'
 import { ConnectedOrdersOverview } from '../../features/admin/ConnectedOrdersOverview.jsx'
@@ -331,7 +332,8 @@ function Registration() {
     finally { setBusy(false) }
   }
   return <AdminPanel title="Cadastro de usuário"><form className="connected-form" onSubmit={submit}>
-    <label>Nome completo<input name="nome" required /></label><label>CPF<input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required /></label><label>E-mail<input name="email" type="email" required /></label><label>Setor<input name="setor" required /></label>
+    <FormRequirementsNote />
+    <label>Nome completo <em>*</em><input name="nome" required /></label><label>CPF <em>*</em><input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required /></label><label>E-mail <em>*</em><input name="email" type="email" required /></label><label>Setor <em>*</em><input name="setor" required /></label>
     <label>Senha inicial <em>*</em><input name="senha" type="password" autoComplete="new-password" value={password} onChange={e => { setPassword(e.target.value); setMessage('') }} required /></label>
     <PasswordRequirements value={password} />
     <label>Confirmar senha inicial <em>*</em><input name="confirmarSenha" type="password" autoComplete="new-password" aria-invalid={Boolean(confirmPassword && confirmPassword !== password)} value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setMessage('') }} required /></label>

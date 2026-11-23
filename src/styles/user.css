@@ -50,7 +50,7 @@
 .modal-title > button, .service-modal-heading > button { border: 0; background: transparent; color: #718099; display: grid; place-items: center; }
 .form-section { margin: 20px 0 0; padding: 14px 14px; border: 1px solid #d9dee6; border-radius: 12px; }
 .form-section > label { display: block; color: #36455e; font-size: 12px; font-weight: 700; }
-.form-section label em, .required-intro em, .registration-card em, .required-note em { color: #ff3e48; font-style: normal; }
+.form-section label em, .registration-card em { color: #ff3e48; font-style: normal; }
 .form-section label small { display: block; margin-top: 4px; color: #8791a2; font-size: 11px; font-weight: 400; }
 .form-section select, .form-section textarea { width: 100%; margin-top: 7px; padding: 10px 12px; border: 1px solid #c8ced8; border-radius: 8px; background: #fff; color: #36445c; font-size: 13px; }
 .form-section select { height: 42px; }
@@ -64,7 +64,6 @@
 .dropzone span { font-size: 12px; font-weight: 500; }
 .dropzone small { margin-top: 3px !important; font-size: 10px !important; }
 .dropzone input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-.required-note { display: block; margin: 8px 0; color: #8791a2; font-size: 11px; }
 .submit-request { width: 100%; min-height: 43px; border: 0; border-radius: 8px; color: #fff; background: #25ba61; font-size: 14px; font-weight: 700; }
 .submit-request:hover { background: #15994a; }
 
