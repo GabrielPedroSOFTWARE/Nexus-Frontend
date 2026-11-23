@@ -115,24 +115,71 @@ Para configurar uma cópia do projeto, selecione **Configurações → Pages →
 
 ```text
 .
-├── .github/workflows/pages.yml       # Publicação no GitHub Pages
-├── docs/imagens/                     # Imagens da documentação
-├── public/                           # Imagens e logotipo da aplicação
+├── .github/workflows/              # Publicação no GitHub Pages
+├── docs/imagens/                   # Imagens usadas nesta documentação
+├── public/                         # Imagens e identidade visual da aplicação
+├── scripts/                        # Preparação e execução do modo local
 ├── src/
-│   ├── App.jsx                       # Telas e navegação
-│   ├── main.jsx                      # Inicialização do React
-│   └── styles.css                    # Estilos da aplicação
-├── index.html                        # Documento HTML principal
-├── package.json                      # Dependências e comandos
-├── package-lock.json                 # Versões das dependências
-├── vite.config.js                    # Configuração do Vite e do caminho-base
-└── README.md                         # Documentação do projeto
+│   ├── app/                        # Composição da aplicação e seleção de rotas
+│   ├── assets/fonts/               # Fontes locais
+│   ├── features/                   # Fluxos e dados de cada domínio
+│   │   ├── access-requests/
+│   │   ├── auth/
+│   │   ├── equipment/
+│   │   ├── service-orders/
+│   │   ├── service-requests/
+│   │   └── users/
+│   ├── pages/                      # Telas separadas por perfil e rota
+│   │   ├── admin/
+│   │   ├── auth/
+│   │   └── user/
+│   ├── shared/                    # API genérica, layout e componentes comuns
+│   ├── styles/                     # Estilos base, por área e ajustes responsivos
+│   └── main.jsx                    # Inicialização do React
+├── index.html                      # Documento HTML principal
+├── package.json                    # Dependências e comandos
+├── package-lock.json               # Versões das dependências
+├── vite.config.js                  # Configuração do Vite e do caminho-base
+└── README.md                       # Documentação do projeto
 ```
+
+`app` conecta as telas e mantém a navegação. `pages` reúne as telas completas; `features` concentra componentes, dados e chamadas da API ligados a cada fluxo; `shared` contém partes reutilizadas. Em `styles/index.css`, os arquivos CSS são carregados na ordem necessária para preservar a apresentação.
+
+A lógica de autenticação, equipamentos e solicitações fica em hooks dentro de `features/`. Arquivos chamados `demoData.js` guardam dados de exemplo usados nas telas demonstrativas.
 
 ## Escopo atual
 
-Esta versão é um protótipo de interface. A autenticação, os cadastros e as alterações apresentados são demonstrações; os dados não são enviados a um servidor nem salvos em um banco de dados. A autenticação institucional, a API Java/Spring Boot e o banco MySQL ainda não estão integrados.
+A demonstração publicada no GitHub Pages não depende de backend. No modo local, login, equipamentos e pedidos usam a API Spring Boot e o banco MySQL. As telas administrativas e os fluxos de cadastro de usuário/acesso continuam demonstrativos.
 
 ## Dúvidas e sugestões
 
 Registre dúvidas, sugestões ou problemas na [área de problemas do repositório](https://github.com/GabrielPedroSOFTWARE/Nexus-Frontend/issues).
+
+
+## Execução integrada local
+
+Para executar a aplicação conectada, use uma cópia do backend Java/Spring Boot, JDK 21, MySQL e Node.js com npm. O padrão espera o backend em uma pasta irmã chamada Nexus.
+
+No macOS com Homebrew, inicie o MySQL e prepare o banco e os segredos locais:
+
+    brew services start mysql
+    npm run setup:local
+
+A preparação cria o banco banco_teste, um usuário MySQL limitado a esse banco e credenciais aleatórias em .env.local. O arquivo é ignorado pelo Git. Um administrador local é criado na primeira inicialização; o login padrão é admin-local e a senha fica em .env.local.
+
+Inicie frontend e backend juntos:
+
+    npm run dev:local
+
+Abra http://localhost:5173. A API fica em http://localhost:8080 e o frontend a acessa pelo proxy local do Vite. Encerre ambos com Ctrl+C.
+
+Se o backend estiver em outro diretório, ajuste NEXUS_BACKEND_DIR em .env.local. Para outros sistemas operacionais, inicie o MySQL manualmente e preencha as variáveis do arquivo .env.local.example.
+
+### Comandos locais
+
+- npm run dev inicia somente o frontend.
+- npm run setup:local prepara o banco e gera configurações locais.
+- npm run dev:local inicia o frontend e o backend juntos.
+- npm run build gera os arquivos estáticos em dist/.
+
+No modo integrado, as funções conectadas são login, leitura/cadastro/listagem de equipamentos, criação de pedido com frequência/anexo e histórico do solicitante. Os painéis administrativos e os formulários de cadastro de usuários continuam usando dados demonstrativos porque o backend ainda não oferece todos os contratos necessários.

@@ -1,0 +1,4 @@
+/* Small feedback */
+.toast { position: fixed; right: 26px; bottom: 25px; z-index: 100; max-width: min(480px, calc(100vw - 32px)); min-height: 56px; padding: 13px 15px; display: flex; align-items: center; gap: 10px; border-radius: 12px; background: #33435f; box-shadow: 0 5px 18px rgba(20,31,49,.25); color: #fff; font-size: 14px; }
+.toast svg { flex: 0 0 auto; color: #7af084; }
+.toast button { margin-left: auto; padding: 4px; display: flex; border: 0; color: #fff; background: transparent; }
