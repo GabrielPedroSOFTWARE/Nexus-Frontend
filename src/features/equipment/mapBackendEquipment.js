@@ -3,7 +3,7 @@ export function mapBackendEquipment(item) {
   return {
     id: item.id,
     nickname: model,
-    status: 'Cadastrado',
+    status: 'Em uso',
     statusType: 'inUse',
     lastMaintenance: '—',
     warranty: item.garantia || '—',

@@ -10,3 +10,7 @@ export const STATUS = {
   maintenance: { text: 'Em Manutenção', color: '#ffe0bf', ink: '#825b35' },
   active: { text: 'Em andamento', color: '#d7e2ff', ink: '#334a78' },
 }
+
+export const EQUIPMENT_STATUS = {
+  equipmentMaintenance: { text: 'Em manutenção', color: '#ffe97a', ink: '#5f4a00' },
+}

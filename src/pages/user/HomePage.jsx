@@ -168,7 +168,7 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
           </div>
           {!hasLocalApi && <>
             <h2 className="subsection-heading equipment-heading">EQUIPAMENTO CADASTRADO</h2>
-            <button className="registered-device" onClick={() => navigate('/meus-pcs')}><Monitor /><span><b>PC</b><small>Desktop de Usuário</small></span><StatusPill type="maintenance" /></button>
+            <button className="registered-device" onClick={() => navigate('/meus-pcs')}><Monitor /><span><b>PC</b><small>Desktop de Usuário</small></span><StatusPill type="equipmentMaintenance" /></button>
           </>}
         </aside>
       </div>

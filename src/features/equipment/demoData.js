@@ -1,6 +1,6 @@
 export const demoComputerInventory = {
   desktop: {
-    id: '001', nickname: 'Desktop de usuário', status: 'Em Manutenção', statusType: 'maintenance',
+    id: '001', nickname: 'Desktop de usuário', status: 'Em manutenção', statusType: 'equipmentMaintenance',
     lastMaintenance: 'Em andamento', warranty: '-------------', model: 'Desktop Lenovo ThinkCenter',
     ehNotebook: false, cpu: 'Intel core i5 10500F', ram: '8GB', gpu: 'Intel graphics', operatingSystem: 'Window 11 PRO',
     details: [['Armazenamento', 'SSD 1TB'], ['Memória', '8GB, DDR4, 2666 MHZ']],

@@ -2,15 +2,53 @@ import { PageFrame } from '../../shared/layout/PageFrame.jsx'
 import { StatusPill } from '../../shared/ui/StatusPill.jsx'
 import { DeviceCard } from '../../features/equipment/DeviceCard.jsx'
 import { mapBackendEquipment } from '../../features/equipment/mapBackendEquipment.js'
+import { equipmentStatusFromOrders } from '../../features/equipment/equipmentStatus.js'
 import { demoComputerInventory } from '../../features/equipment/demoData.js'
+import { listUserOrders } from '../../features/service-requests/api.js'
 import { hasLocalApi } from '../../shared/api/httpClient.js'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Barcode, RefreshCw, Trash2 } from 'lucide-react'
 
+const CHECKING_STATUS = { status: 'Verificando...', statusType: 'active' }
+const UNKNOWN_STATUS = { status: 'Indisponível', statusType: 'active' }
+
 export function MyComputers({ onToast, equipmentStatus, refreshEquipment, removeEquipment, onScan, macbookAdded, registeredEquipment, profileName }) {
   const navigate = useNavigate()
+  const [orders, setOrders] = useState(null)
+  const [ordersError, setOrdersError] = useState(false)
+  const hasEquipment = Boolean(registeredEquipment?.length)
+
+  // O status do PC depende das O.S. do usuário; recarrega junto com a lista de equipamentos.
+  useEffect(() => {
+    if (!hasLocalApi || equipmentStatus !== 'ready') {
+      setOrders(null)
+      setOrdersError(false)
+      return undefined
+    }
+    if (!hasEquipment) {
+      setOrders([])
+      setOrdersError(false)
+      return undefined
+    }
+    let active = true
+    setOrders(null)
+    setOrdersError(false)
+    listUserOrders()
+      .then(data => {
+        if (!Array.isArray(data)) throw new Error('Resposta inválida.')
+        if (active) { setOrders(data); setOrdersError(false) }
+      })
+      .catch(() => { if (active) setOrdersError(true) })
+    return () => { active = false }
+  }, [equipmentStatus, hasEquipment])
+
   const devices = hasLocalApi
-    ? (registeredEquipment || []).map(mapBackendEquipment)
+    ? (registeredEquipment || []).map(item => {
+      const device = mapBackendEquipment(item)
+      const status = ordersError ? UNKNOWN_STATUS : orders === null ? CHECKING_STATUS : equipmentStatusFromOrders(item.id, orders)
+      return { ...device, ...status }
+    })
     : [demoComputerInventory.desktop, ...(macbookAdded ? [demoComputerInventory.macbook] : [])]
   return <PageFrame mode="user" active="computers" onToast={onToast} profileName={profileName}>
     <main className="page-content computers-content">
@@ -33,6 +71,7 @@ export function MyComputers({ onToast, equipmentStatus, refreshEquipment, remove
         </div>
       </div>
       {hasLocalApi && equipmentStatus === 'error' && <p role="alert">Não foi possível carregar os equipamentos.</p>}
+      {hasLocalApi && equipmentStatus === 'ready' && devices.length > 0 && ordersError && <p role="alert">Não foi possível verificar as manutenções dos equipamentos.</p>}
       {hasLocalApi && equipmentStatus === 'loading' && <p>Carregando equipamentos...</p>}
       {hasLocalApi && equipmentStatus === 'ready' && devices.length === 0 && <p>Nenhum equipamento cadastrado.</p>}
       <div className="device-card-list">{devices.map(device => <DeviceCard key={device.id} device={device} onHistory={() => navigate(hasLocalApi ? '/historico?equipamento=' + encodeURIComponent(device.id) : '/historico')} />)}</div>
