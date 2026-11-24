@@ -1,6 +1,6 @@
 import { hasLocalApi } from '../../shared/api/httpClient.js'
 import { BRAND_ASSET } from '../../shared/assets.js'
-import { normalizeCpf } from '../../shared/cpf.js'
+import { formatCpf, formatCpfOrDemo, normalizeCpf } from '../../shared/cpf.js'
 import { checkPasswordRecovery, requestPasswordReset, resetPassword } from '../../features/auth/api.js'
 import { PasswordRequirements } from '../../features/auth/PasswordRequirements.jsx'
 import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
@@ -10,7 +10,10 @@ import { Eye, EyeOff, UserRound, LockKeyhole } from 'lucide-react'
 
 export function LoginPage({ onAccessRequest, onLogin }) {
   const [cpf, setCpf] = useState(() => {
-    try { return localStorage.getItem('nexus.remembered.cpf') || '' } catch { return '' }
+    try {
+      const saved = localStorage.getItem('nexus.remembered.cpf') || ''
+      return formatCpfOrDemo(saved, !hasLocalApi)
+    } catch { return '' }
   })
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -36,6 +39,7 @@ export function LoginPage({ onAccessRequest, onLogin }) {
   }
 
   const openRecovery = () => {
+    setCpf(current => formatCpf(current))
     setRecoveryMessage('')
     setRecoveryError('')
     setAuthView('request')
@@ -103,8 +107,8 @@ export function LoginPage({ onAccessRequest, onLogin }) {
     <h1>Recuperar senha</h1>
     <p className="auth-subtitle">Informe seu CPF para receber o link de recuperação</p>
     <FormRequirementsNote />
-    <label>CPF <em>*</em></label>
-    <div className="input-with-icon"><UserRound size={19} /><input type="text" inputMode="numeric" autoComplete="username" maxLength="14" placeholder="Digite seu CPF" value={cpf} onChange={e => setCpf(e.target.value.slice(0, 14))} required /></div>
+    <label htmlFor="recovery-cpf">CPF <em>*</em></label>
+    <div className="input-with-icon"><UserRound size={19} /><input id="recovery-cpf" type="text" inputMode="numeric" autoComplete="username" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="Digite os 11 números do CPF." placeholder="000.000.000-00" value={cpf} onChange={e => setCpf(formatCpf(e.target.value))} required /></div>
     {recoveryFeedback}
     <button className="primary-button login-button" type="submit" disabled={recoveryBusy}>{recoveryBusy ? 'Enviando...' : 'Enviar link de recuperação'}</button>
     <button className="auth-secondary-button" type="button" onClick={backToLogin}>Voltar para o login</button>
@@ -145,10 +149,10 @@ export function LoginPage({ onAccessRequest, onLogin }) {
         <FormRequirementsNote includeOptional />
         {!hasLocalApi && <p role="status">Modo demonstração: a autenticação é simulada. Digite “admin” para abrir o painel.</p>}
         {recoveryFeedback}
-        <label>CPF <em>*</em></label>
-        <div className="input-with-icon"><UserRound size={19} /><input type="text" inputMode={hasLocalApi ? 'numeric' : 'text'} autoComplete="username" maxLength={hasLocalApi ? 14 : 32} placeholder={hasLocalApi ? 'Digite seu CPF' : 'Digite seu CPF ou admin na demonstração'} value={cpf} onChange={e => setCpf(hasLocalApi ? e.target.value.slice(0, 14) : e.target.value)} required /></div>
-        <label>Senha <em>*</em></label>
-        <div className="input-with-icon"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
+        <label htmlFor="login-cpf">CPF <em>*</em></label>
+        <div className="input-with-icon"><UserRound size={19} /><input id="login-cpf" type="text" inputMode={hasLocalApi ? 'numeric' : 'text'} autoComplete="username" pattern={hasLocalApi ? '\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}' : undefined} title={hasLocalApi ? 'Digite os 11 números do CPF.' : undefined} placeholder={hasLocalApi ? '000.000.000-00' : '000.000.000-00 ou admin na demonstração'} value={cpf} onChange={e => setCpf(formatCpfOrDemo(e.target.value, !hasLocalApi))} required /></div>
+        <label htmlFor="login-password">Senha <em>*</em></label>
+        <div className="input-with-icon"><LockKeyhole size={19} /><input id="login-password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={password} onChange={e => setPassword(e.target.value)} required /><button type="button" className="input-action" onClick={() => setShowPassword(v => !v)} aria-label="Mostrar ou ocultar senha">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></div>
         <div className="login-options"><label className="remember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Lembrar-me <small>(opcional)</small></label><button type="button" onClick={openRecovery}>Esqueci minha senha</button></div>
         <button className="primary-button login-button" type="submit">Fazer Login</button>
         <div className="or-divider"><span />OU<span /></div>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Activity, ChevronRight, CircleAlert, ClipboardList, Clock3, FileText, ListFilter, LoaderCircle, Monitor, Search, Settings, SlidersHorizontal, TriangleAlert, UserRound, X } from 'lucide-react'
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
+import { formatCpf } from '../../shared/cpf.js'
 import { ConnectedOrderDetails } from './ConnectedOrderDetails.jsx'
 import { orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
 import { approveUser, rejectUser, saveUsersInBatch, getMtbf, getMttr, getTotals, listAssignedOrders, listOrders, listPendingUsers, listUsers, registerUser } from '../../features/admin/api.js'
@@ -364,6 +365,7 @@ function Users() {
 function Registration() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
+  const [cpf, setCpf] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const submit = async event => {
@@ -377,13 +379,13 @@ function Registration() {
     setBusy(true); setMessage('')
     try {
       await registerUser({ nome: String(data.get('nome')).trim(), cpf: String(data.get('cpf')).trim(), email: String(data.get('email')).trim(), setor: String(data.get('setor')).trim(), senha: password, perfil: 'PENDENT', status: 'Aguardando análise', ehAdmin: false, versaoToken: 1 })
-      form.reset(); setPassword(''); setConfirmPassword(''); setMessage('Cadastro enviado. A conta precisa ser aprovada na lista de solicitações.')
+      form.reset(); setCpf(''); setPassword(''); setConfirmPassword(''); setMessage('Cadastro enviado. A conta precisa ser aprovada na lista de solicitações.')
     } catch (error) { setMessage('Não foi possível cadastrar o usuário: ' + error.message) }
     finally { setBusy(false) }
   }
   return <AdminPanel title="Cadastro de usuário"><form className="connected-form" onSubmit={submit}>
     <FormRequirementsNote />
-    <label>Nome completo <em>*</em><input name="nome" required /></label><label>CPF <em>*</em><input name="cpf" type="text" inputMode="numeric" maxLength="11" pattern="[0-9]{11}" title="Digite os 11 números do CPF." required /></label><label>E-mail <em>*</em><input name="email" type="email" required /></label><label>Setor <em>*</em><input name="setor" required /></label>
+    <label>Nome completo <em>*</em><input name="nome" required /></label><label>CPF <em>*</em><input name="cpf" type="text" inputMode="numeric" value={cpf} onChange={e => { setCpf(formatCpf(e.target.value)); setMessage('') }} pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="Digite os 11 números do CPF." placeholder="000.000.000-00" required /></label><label>E-mail <em>*</em><input name="email" type="email" required /></label><label>Setor <em>*</em><input name="setor" required /></label>
     <label>Senha inicial <em>*</em><input name="senha" type="password" autoComplete="new-password" value={password} onChange={e => { setPassword(e.target.value); setMessage('') }} required /></label>
     <PasswordRequirements value={password} />
     <label>Confirmar senha inicial <em>*</em><input name="confirmarSenha" type="password" autoComplete="new-password" aria-invalid={Boolean(confirmPassword && confirmPassword !== password)} value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setMessage('') }} required /></label>
