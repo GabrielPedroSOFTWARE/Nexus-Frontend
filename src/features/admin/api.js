@@ -28,7 +28,7 @@ export async function listPendingUsers() {
 }
 export const approveUser = (cpf, perfil) => apiRequest('/adm/aceitar-solicitacao', { method: 'PUT', body: { cpf, perfil } })
 export const rejectUser = cpf => apiRequest('/adm/negar-solicitacao-usuario', { method: 'DELETE', body: cpf, rawBody: true })
-export const updateUser = (user, changes) => apiRequest('/adm/salvar-alteracoes-usuarios', { method: 'PUT', body: [{ cpf: user.cpf, perfil: user.perfil, ehAdmin: user.ehAdmin, status: user.status, ...changes }] })
+export const saveUsersInBatch = alteracoes => apiRequest('/adm/salvar-alteracoes-usuarios', { method: 'PUT', body: alteracoes })
 export const changeOrderStatus = (id, values) => apiRequest('/backoffice/alterar-status-pedido/' + idPath(id), { method: 'PATCH', body: values })
 export const assignTechnician = (id, technicianCpf) => apiRequest('/backoffice/atribuir-tecnico/' + idPath(id), { method: 'PATCH', body: technicianCpf, rawBody: true })
 

@@ -4,7 +4,7 @@ import { Activity, ChevronRight, CircleAlert, ClipboardList, Clock3, FileText, L
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
 import { ConnectedOrderDetails } from './ConnectedOrderDetails.jsx'
 import { orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
-import { approveUser, rejectUser, updateUser, getMtbf, getMttr, getTotals, listAssignedOrders, listOrders, listPendingUsers, listUsers, registerUser } from '../../features/admin/api.js'
+import { approveUser, rejectUser, saveUsersInBatch, getMtbf, getMttr, getTotals, listAssignedOrders, listOrders, listPendingUsers, listUsers, registerUser } from '../../features/admin/api.js'
 import { buildDashboardMetrics, isOverdueOrder } from '../../features/admin/dashboardMetrics.js'
 import { PasswordRequirements } from '../../features/auth/PasswordRequirements.jsx'
 import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
@@ -289,27 +289,77 @@ function Pending() {
 }
 function Users() {
   const state = useRemote(listUsers)
-  const [busy, setBusy] = useState('')
+  const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [query, setQuery] = useState('')
-  const action = async (user, task, label) => {
-    if (!window.confirm(label + ' para ' + (user.nome || user.cpfExibicao) + '?')) return
-    setBusy(user.id); setMessage('')
-    try { await task(); setMessage('Alteração salva.'); await state.refresh() }
-    catch { setMessage('Não foi possível salvar a alteração. Tente novamente.') }
-    finally { setBusy('') }
+  const [pendingChanges, setPendingChanges] = useState({})
+  const userKey = user => String(user.cpf ?? user.id ?? '')
+  const editedUser = user => ({ ...user, ...pendingChanges[userKey(user)] })
+  const stageChanges = (user, changes) => {
+    setPendingChanges(current => ({
+      ...current,
+      [userKey(user)]: { ...current[userKey(user)], ...changes },
+    }))
+    setMessage('')
   }
+  const changedUsers = (state.data || []).filter(user => {
+    const edited = editedUser(user)
+    return user.perfil !== edited.perfil
+      || Boolean(user.ehAdmin) !== Boolean(edited.ehAdmin)
+      || user.status !== edited.status
+  })
   const filteredUsers = (state.data || []).filter(user => `${user.nome || ''} ${user.cpfExibicao || ''}`.toLowerCase().includes(query.trim().toLowerCase()))
+  const cancelChanges = () => {
+    setPendingChanges({})
+    setMessage('Alterações descartadas.')
+  }
+  const saveChanges = async () => {
+    if (!changedUsers.length || saving) return
+    const alteracoes = changedUsers.map(user => {
+      const edited = editedUser(user)
+      return {
+        cpf: user.cpf,
+        perfil: edited.perfil,
+        ehAdmin: Boolean(edited.ehAdmin),
+        status: edited.status,
+      }
+    })
+    setSaving(true)
+    setMessage('')
+    try {
+      await saveUsersInBatch(alteracoes)
+      setPendingChanges({})
+      setMessage('Alterações salvas com sucesso.')
+      await state.refresh()
+    } catch {
+      setMessage('Não foi possível salvar as alterações. Tente novamente.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return <section className="panel users-panel"><RemoteState state={state} empty="Nenhum outro usuário encontrado.">
     <div className="users-toolbar"><label className="users-search"><Search size={19} /><input aria-label="Pesquisar usuário por nome ou CPF" placeholder="Pesquisar usuário por nome ou CPF" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label></div>
     <div className="table-scroll users-table-scroll"><table className="users-table"><thead><tr><th>NOME</th><th>CPF</th><th>TIPO DE ACESSO</th><th>PERMISSÃO ADM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>
-      {filteredUsers.map(user => <tr key={user.id}><td><b className="user-name-cell">{display(user.nome)}</b></td><td>{display(user.cpfExibicao)}</td><td><select aria-label={`Perfil de ${user.nome || user.cpfExibicao}`} value={user.perfil || 'PENDENT'} disabled={!!busy} onChange={e => action(user, () => updateUser(user, { perfil: e.target.value }), 'Alterar perfil')}>
-        {Object.entries(roles).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></td>
-        <td><button className={`permission-toggle ${user.ehAdmin ? 'is-enabled' : ''}`} role="switch" aria-checked={!!user.ehAdmin} aria-label={`Permissão administrativa de ${user.nome || user.cpfExibicao}`} disabled={!!busy} onClick={() => action(user, () => updateUser(user, { ehAdmin: !user.ehAdmin }), 'Alterar permissão administrativa')}><span /></button><span className="permission-label">{user.ehAdmin ? 'Sim' : 'Não'}</span></td>
-        <td><span className={`user-status ${user.status === 'Ativo' ? 'active' : user.status === 'Inativo' ? 'inactive' : ''}`}>{display(user.status)}</span></td>
-        <td><button className={`user-action-button ${user.status === 'Ativo' ? 'deactivate' : 'activate'}`} disabled={!!busy || !['Ativo', 'Inativo'].includes(user.status)} onClick={() => action(user, () => updateUser(user, { status: user.status === 'Ativo' ? 'Inativo' : 'Ativo' }), 'Alterar status da conta')}>{user.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button></td></tr>)}
+      {filteredUsers.map(user => {
+        const edited = editedUser(user)
+        const label = user.nome || user.cpfExibicao
+        return <tr key={userKey(user)}><td><b className="user-name-cell">{display(user.nome)}</b></td><td>{display(user.cpfExibicao)}</td><td><select aria-label={`Perfil de ${label}`} value={edited.perfil || 'PENDENT'} disabled={saving} onChange={e => stageChanges(user, { perfil: e.target.value, ...(e.target.value === 'USER' ? { ehAdmin: false } : {}) })}>
+          {Object.entries(roles).map(([value, roleLabel]) => <option value={value} key={value}>{roleLabel}</option>)}</select></td>
+          <td><button className={`permission-toggle ${edited.ehAdmin ? 'is-enabled' : ''}`} role="switch" aria-checked={Boolean(edited.ehAdmin)} aria-label={`Permissão administrativa de ${label}`} disabled={saving || (edited.perfil === 'USER' && !edited.ehAdmin)} onClick={() => stageChanges(user, { ehAdmin: !edited.ehAdmin })}><span /></button><span className="permission-label">{edited.ehAdmin ? 'Sim' : 'Não'}</span></td>
+          <td><span className={`user-status ${edited.status === 'Ativo' ? 'active' : edited.status === 'Inativo' ? 'inactive' : ''}`}>{display(edited.status)}</span></td>
+          <td><button className={`user-action-button ${edited.status === 'Ativo' ? 'deactivate' : 'activate'}`} disabled={saving || !['Ativo', 'Inativo'].includes(edited.status)} onClick={() => stageChanges(user, { status: edited.status === 'Ativo' ? 'Inativo' : 'Ativo' })}>{edited.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button></td></tr>
+      })}
       {!filteredUsers.length && <tr><td className="users-empty" colSpan="6">Nenhum usuário encontrado.</td></tr>}
-    </tbody></table></div></RemoteState>{message && <p role="status">{message}</p>}</section>
+    </tbody></table></div>
+    <div className="users-batch-actions">
+      <p className="users-pending-count" aria-live="polite">{changedUsers.length === 1 ? '1 usuário com alteração pendente.' : changedUsers.length ? `${changedUsers.length} usuários com alterações pendentes.` : 'Nenhuma alteração pendente.'}</p>
+      <div className="users-batch-buttons">
+        <button className="outline-button" type="button" disabled={!changedUsers.length || saving} onClick={cancelChanges}>Cancelar</button>
+        <button className="primary-button" type="button" disabled={!changedUsers.length || saving} onClick={saveChanges}>{saving ? 'Salvando...' : 'Salvar alterações'}</button>
+      </div>
+    </div>
+  </RemoteState>{message && <p className="users-save-message" role="status">{message}</p>}</section>
 }
 function Registration() {
   const [busy, setBusy] = useState(false)
