@@ -16,10 +16,10 @@
 .input-with-icon input { width: 100%; height: 100%; border: 0; outline: none; background: transparent; color: #34445f; font-size: 19px; }
 .input-with-icon input::placeholder { color: #a6abb3; }
 .input-action { padding: 6px; display: flex; border: 0; background: transparent; color: #68778f; }
-.login-options { display: flex; justify-content: space-between; align-items: center; margin: 5px 0 39px; font-size: 15px; }
+.login-options { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 12px 0 22px; font-size: 15px; }
 .remember { display: inline-flex; align-items: center; gap: 5px; }
 .remember input { width: 16px; height: 16px; margin: 0; accent-color: #33435f; }
-.login-options button { padding: 0; border: 0; background: transparent; color: #34445f; font-size: 15px; }
+.login-options button { padding: 2px 0; border: 0; background: transparent; color: #34445f; font-size: 15px; text-align: left; }
 .login-options button:hover, .auth-secondary-button:hover { text-decoration: underline; }
 .login-button { width: 100%; min-height: 64px; }
 .recovery-card { min-height: 0; }

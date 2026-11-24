@@ -1,5 +1,5 @@
 /* Atualizações das telas administrativas e do login v2 do Figma */
-.login-options { justify-content: flex-start; margin: 12px 0 22px; }
+.login-options { flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; margin: 12px 0 22px; }
 .auth-card > label em { color: #ef4148; font-style: normal; }
 .access-request-button { width: 100%; min-height: 58px; margin-top: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid #c4cad4; border-radius: 12px; color: #34445f; background: #fff; font-size: 17px; font-weight: 700; transition: background .15s, border-color .15s; }
 .access-request-button:hover { border-color: #7186a7; background: #f6f8fb; }
