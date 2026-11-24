@@ -5,7 +5,7 @@ export function mapBackendEquipment(item) {
     nickname: model,
     status: 'Em uso',
     statusType: 'inUse',
-    lastMaintenance: '—',
+    lastMaintenance: '-----',
     warranty: item.garantia || '—',
     model,
     ehNotebook: item.ehNotebook === true,

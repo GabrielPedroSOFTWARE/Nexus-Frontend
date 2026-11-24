@@ -126,6 +126,27 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
   const demoOrder = { id: '0001', status: 2 }
   const demoNotification = { 'descrição': 'Adição de 8GB de memória RAM iniciada às 14:30.\nPendente: Substituição do SSD.' }
 
+  const handleNewMaintenance = () => {
+    if (!hasLocalApi) {
+      openRequest()
+      return
+    }
+    if (equipmentStatus === 'error') {
+      onToast('Não foi possível verificar seus equipamentos.')
+      return
+    }
+    if (equipmentStatus !== 'ready') {
+      onToast('Aguarde o carregamento dos equipamentos.')
+      return
+    }
+    if (!registeredEquipment?.length) {
+      onToast('Cadastre um computador para solicitar manutenção.')
+      navigate('/meus-pcs')
+      return
+    }
+    openRequest()
+  }
+
   return <PageFrame mode="user" active="home" onToast={onToast} profileName={profileName}>
     <main className="page-content user-home-content">
       <h1 className="page-title">Olá, {hasLocalApi ? profileName : 'usuário'}! Bem-vindo ao NEXUS.</h1>
@@ -154,7 +175,7 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
           </article>
           <h2 className="subsection-heading">AÇÕES RÁPIDAS</h2>
           <div className="quick-actions">
-            <button onClick={openRequest}><Plus /><b>NOVA MANUTENÇÃO</b></button>
+            <button onClick={handleNewMaintenance}><Plus /><b>NOVA MANUTENÇÃO</b></button>
             <button onClick={() => navigate('/historico')}><Clock3 /><b>VER HISTÓRICO</b></button>
             {hasLocalApi
               ? <>

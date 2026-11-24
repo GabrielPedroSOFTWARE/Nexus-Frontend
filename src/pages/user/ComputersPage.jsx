@@ -2,7 +2,7 @@ import { PageFrame } from '../../shared/layout/PageFrame.jsx'
 import { StatusPill } from '../../shared/ui/StatusPill.jsx'
 import { DeviceCard } from '../../features/equipment/DeviceCard.jsx'
 import { mapBackendEquipment } from '../../features/equipment/mapBackendEquipment.js'
-import { equipmentStatusFromOrders } from '../../features/equipment/equipmentStatus.js'
+import { equipmentStatusFromOrders, lastMaintenanceFromOrders } from '../../features/equipment/equipmentStatus.js'
 import { demoComputerInventory } from '../../features/equipment/demoData.js'
 import { listUserOrders } from '../../features/service-requests/api.js'
 import { hasLocalApi } from '../../shared/api/httpClient.js'
@@ -10,8 +10,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Barcode, RefreshCw, Trash2 } from 'lucide-react'
 
-const CHECKING_STATUS = { status: 'Verificando...', statusType: 'active' }
-const UNKNOWN_STATUS = { status: 'Indisponível', statusType: 'active' }
+const CHECKING_META = { status: 'Verificando...', statusType: 'active', lastMaintenance: 'Verificando...' }
+const UNKNOWN_META = { status: 'Indisponível', statusType: 'active', lastMaintenance: 'Indisponível' }
 
 export function MyComputers({ onToast, equipmentStatus, refreshEquipment, removeEquipment, onScan, macbookAdded, registeredEquipment, profileName }) {
   const navigate = useNavigate()
@@ -46,8 +46,15 @@ export function MyComputers({ onToast, equipmentStatus, refreshEquipment, remove
   const devices = hasLocalApi
     ? (registeredEquipment || []).map(item => {
       const device = mapBackendEquipment(item)
-      const status = ordersError ? UNKNOWN_STATUS : orders === null ? CHECKING_STATUS : equipmentStatusFromOrders(item.id, orders)
-      return { ...device, ...status }
+      const orderMeta = (equipmentStatus === 'error' || ordersError)
+        ? UNKNOWN_META
+        : orders === null
+          ? CHECKING_META
+          : {
+            ...equipmentStatusFromOrders(item.id, orders),
+            lastMaintenance: lastMaintenanceFromOrders(item.id, orders),
+          }
+      return { ...device, ...orderMeta }
     })
     : [demoComputerInventory.desktop, ...(macbookAdded ? [demoComputerInventory.macbook] : [])]
   return <PageFrame mode="user" active="computers" onToast={onToast} profileName={profileName}>
@@ -56,7 +63,7 @@ export function MyComputers({ onToast, equipmentStatus, refreshEquipment, remove
       <div className="table-scroll computers-table-scroll">
         <div className="computers-table" role="table" aria-label="Computadores cadastrados">
           <div className="computers-table-head" role="row">
-            {['PC ID', 'APELIDO', 'STATUS', 'ULTIMA MANUTENÇÃO', 'GARANTIA', 'AÇÕES'].map(label => <span role="columnheader" key={label}>{label}</span>)}
+            {['PC ID', 'APELIDO', 'STATUS', 'ULTIMA MANUTENÇÃO', 'AÇÕES'].map(label => <span role="columnheader" key={label}>{label}</span>)}
           </div>
           <div className="computers-table-body" role="rowgroup">
             {devices.map(device => <div className="computers-table-row" role="row" key={device.id}>
@@ -64,7 +71,6 @@ export function MyComputers({ onToast, equipmentStatus, refreshEquipment, remove
               <span role="cell">{device.nickname}</span>
               <span role="cell"><StatusPill type={device.statusType}>{device.status}</StatusPill></span>
               <span role="cell">{device.lastMaintenance}</span>
-              <span role="cell">{device.warranty}</span>
               <span role="cell" className="action-cell"><button aria-label={`Atualizar lista de ${device.nickname}`} onClick={() => { if (hasLocalApi) { refreshEquipment(); onToast('Atualizando lista de equipamentos') } else onToast('Demonstração: dados de exemplo') }}><RefreshCw size={20} /></button><button aria-label={`Excluir ${device.nickname}`} onClick={() => removeEquipment(device.id)}><Trash2 size={20} /></button></span>
             </div>)}
           </div>

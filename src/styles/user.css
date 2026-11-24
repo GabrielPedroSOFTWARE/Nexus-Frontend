@@ -82,7 +82,7 @@
 .data-table thead th { padding: 12px 12px; color: #33435f; font-weight: 700; text-align: left; white-space: nowrap; }
 .data-table tbody td { padding: 11px 12px; border-top: 1px solid #d1d5db; text-align: left; white-space: nowrap; }
 .computers-table-scroll { width: min(1250px, calc(100% + 8px)); margin-top: 77px; margin-left: -8px; }
-.computers-table { --computer-columns: 117px 267px 255px 288px 166px 157px; width: 1250px; color: #28354a; }
+.computers-table { --computer-columns: 125px 330px 285px 330px 180px; width: 1250px; color: #28354a; }
 .computers-table-head, .computers-table-row { display: grid; grid-template-columns: var(--computer-columns); align-items: center; }
 .computers-table-head { height: 33px; color: #33435f; font-size: 15px; font-weight: 700; white-space: nowrap; }
 .computers-table-head > span, .computers-table-row > span { min-width: 0; padding-left: 28px; }
