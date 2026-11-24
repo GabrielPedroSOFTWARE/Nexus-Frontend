@@ -8,7 +8,7 @@ export function mapBackendEquipment(item) {
     lastMaintenance: '—',
     warranty: item.garantia || '—',
     model,
-    kind: /macbook|notebook|laptop/i.test(model) ? 'laptop' : 'desktop',
+    ehNotebook: item.ehNotebook === true,
     cpu: item.processador || 'Não identificado',
     ram: (item.ram || 0) + 'GB',
     gpu: (item.placasDeVideo || []).join(', ') || 'Não identificada',
