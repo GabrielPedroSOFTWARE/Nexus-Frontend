@@ -51,11 +51,17 @@
   .progress-step b { max-width: 72px; font-size: 10px; }
   .service-notice { font-size: 16px; }
   .quick-actions button { min-height: 96px; }
-  .history-summary { gap: 7px; padding: 10px; }
-  .history-summary > div { min-width: 0; flex: 1; grid-template-columns: 1fr; }
-  .history-summary svg { display: none; }
-  .history-row { grid-template-columns: 1fr 1fr; }
-  .history-row span:nth-child(3), .history-row span:nth-child(4) { display: none; }
+  .history-summary { gap: 8px; padding: 10px; }
+  .history-summary-title { gap: 8px; font-size: 14px; }
+  .history-summary-metrics { gap: 6px; }
+  .history-summary-card { grid-template-columns: 22px 26px minmax(0, 1fr); padding: 6px; }
+  .history-summary-card svg { width: 19px; height: 19px; }
+  .history-summary-card b { font-size: 19px; }
+  .history-summary-card span { font-size: 9px; }
+  .history-card { gap: 5px; padding: 7px 8px; }
+  .history-field-label { font-size: 9px; }
+  .history-field-value { font-size: 10px; }
+  .history-field-value > .status-pill { font-size: 9px; }
   .device-card { max-width: 100%; }
   .scan-modal { min-height: 0; padding: 20px; border-radius: 24px; }
   .scan-title h2 { font-size: 22px; }
@@ -70,6 +76,15 @@
   .maintenance-summary > button span { font-size: 10px; }
   .notifications-panel { top: 100%; right: 10px; width: min(350px, calc(100vw - 20px)); }
 }
+@media (max-width: 640px) {
+  .history-title.page-title-icon { gap: 9px; }
+  .history-title.page-title-icon > svg { width: 29px; height: 29px; flex-basis: 29px; }
+  .history-title .page-title { font-size: clamp(21px, 5vw, 28px); }
+  .history-summary { grid-template-columns: 1fr; }
+  .history-summary-title { padding: 3px 5px; }
+  .history-card { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; padding: 10px; }
+}
+
 @media (max-width: 520px) {
   .main-nav { justify-content: space-around; }
   .nav-link { font-size: 9px; padding: 0 4px; }
@@ -89,7 +104,8 @@
   .chart-legend i { flex: 0 0 12px; width: 12px; height: 12px; }
   .orders-status-panel { min-height: 0; }
   .orders-donut-row { min-height: 190px; }
-  .history-row { font-size: 12px; padding: 10px; }
+  .history-card { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .history-problem-field { align-items: center; text-align: center; }
   .service-modal { padding: 14px; }
   .detail-grid, .spec-grid { grid-template-columns: 1fr 1fr; }
   .radio-grid { grid-template-columns: 1fr; }

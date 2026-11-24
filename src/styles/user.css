@@ -107,17 +107,29 @@
 .device-details p { margin: 5px 0; }
 .device-card > button { width: 100%; min-height: 38px; margin-top: auto; display: flex; align-items: center; justify-content: flex-start; gap: 4px; padding: 2px; border: 0; background: transparent; font-size: 12px; font-weight: 700; }
 .history-content { padding-top: 44px; }
-.history-content > .page-title { margin-bottom: 26px; padding-bottom: 16px; border-bottom: 1px solid #c8cbd0; }
-.history-summary { min-height: 116px; margin-bottom: 24px; padding: 15px 25px; display: flex; align-items: center; justify-content: flex-start; gap: 18px; border-radius: 15px; background: #d7e0f2; }
-.history-summary > div { min-width: 175px; min-height: 81px; display: grid; grid-template-columns: 44px 1fr; grid-template-rows: 1fr 1fr; align-items: center; padding: 10px 15px; border-radius: 12px; background: #fff; text-align: center; }
-.history-summary svg { grid-row: span 2; width: 41px; height: 41px; color: #4fba59; }
-.history-summary > div:nth-child(2) svg { color: #54b85b; }
-.history-summary > div:nth-child(3) svg { color: #ffad5f; }
-.history-summary b { font-size: 28px; }
-.history-summary span { font-size: 13px; }
-.history-list { display: flex; flex-direction: column; gap: 16px; }
-.history-row { display: grid; grid-template-columns: 1.15fr 1.1fr 1.3fr 1fr .85fr; align-items: center; gap: 12px; min-height: 76px; padding: 13px 20px; border: 1px solid #aeb6c3; border-radius: 13px; box-shadow: 0 2px 3px rgba(33,46,66,.18); font-size: 15px; }
-.history-order { font-weight: 500; }
+.history-title.page-title-icon { gap: 12px; padding-bottom: 15px; margin-bottom: 22px; }
+.history-title.page-title-icon > svg { width: 33px; height: 33px; flex: 0 0 33px; color: #34445f; stroke-width: 2; }
+.history-title .page-title { margin: 0; padding: 0; border: 0; font-size: clamp(24px, 2.6vw, 32px); letter-spacing: -.35px; }
+.history-summary { min-height: 88px; margin-bottom: 22px; padding: 10px 12px; display: grid; grid-template-columns: minmax(205px, 1fr) minmax(330px, 1.55fr); align-items: center; gap: 12px; border-radius: 14px; background: #d7e0f2; }
+.history-summary-title { display: flex; align-items: center; gap: 12px; padding: 8px; color: #34445f; font-size: 16px; }
+.history-summary-title svg { width: 31px; height: 31px; flex: 0 0 31px; stroke-width: 1.6; }
+.history-summary-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.history-summary-card { min-width: 0; min-height: 62px; display: grid; grid-template-columns: 27px 30px minmax(0, 1fr); grid-template-rows: 1fr 1fr; align-items: center; padding: 7px 9px; border-radius: 10px; background: #fff; text-align: center; }
+.history-summary-card svg { grid-row: span 2; width: 23px; height: 23px; color: #778398; }
+.history-summary-card.completed svg { color: #54b85b; }
+.history-summary-card.in-progress svg { color: #ffad5f; }
+.history-summary-card b { font-size: 22px; line-height: 1; }
+.history-summary-card span { grid-column: 2 / 4; color: #34445f; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.history-empty { margin: 20px 0; color: #68768d; text-align: center; }
+.history-list { display: flex; flex-direction: column; gap: 14px; }
+.history-card { display: grid; grid-template-columns: minmax(55px, .7fr) minmax(82px, 1.1fr) minmax(85px, 1.05fr) minmax(100px, 1.35fr) minmax(72px, .9fr) minmax(82px, .95fr); align-items: center; gap: 8px; min-height: 61px; padding: 7px 12px; border: 1px solid #aeb6c3; border-radius: 7px; background: #fff; box-shadow: 0 2px 3px rgba(33,46,66,.16); }
+.history-field { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; }
+.history-field-label { color: #34445f; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.history-field-value { max-width: 100%; color: #303b4d; font-size: 11px; line-height: 1.25; overflow-wrap: anywhere; }
+.history-field-value > .status-pill { min-width: 0; max-width: 100%; padding: 3px 7px; font-size: 9px; white-space: normal; }
+.history-problem-field { align-items: flex-start; text-align: left; }
+.history-problem-field .history-field-value { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+
 
 /* Scanner and scan result */
 .scan-backdrop { background: rgba(49,64,88,.57); }

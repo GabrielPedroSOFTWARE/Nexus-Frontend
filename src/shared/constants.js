@@ -4,6 +4,8 @@ export const STATUS = {
   waiting: { text: 'Aguardando peças', color: '#ffe4c7', ink: '#825a35' },
   late: { text: 'Atrasada', color: '#ff888b', ink: '#7e282b' },
   done: { text: 'Concluída', color: '#71f166', ink: '#174b1b' },
+  ready: { text: 'Pronto para retirada', color: '#dff2df', ink: '#315f3d' },
+  cancelled: { text: 'Cancelada', color: '#ffd9dc', ink: '#7e282b' },
   inUse: { text: 'Em uso', color: '#58ba58', ink: '#174b1b' },
   maintenance: { text: 'Em Manutenção', color: '#ffe0bf', ink: '#825b35' },
   active: { text: 'Em andamento', color: '#d7e2ff', ink: '#334a78' },
