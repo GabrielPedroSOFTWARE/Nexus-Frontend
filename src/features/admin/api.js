@@ -15,6 +15,11 @@ export async function listAssignedOrders() {
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar ordens atribuídas.')
   return data.map(({ id, idPC, idUsuario, cpfUsuario, cpfUsuarioDescriptografado, telefoneUsuario, nomeUsuario, apelido, status, prioridade, problema, frequencia, dataHoraAbertura, dataHoraAtribuicaoTecnico, dataHoraInicioDiagnostico, dataHoraProntaRetirada, dataHoraConclusao, dataInicioManutencao, dataFinalManutencao, estahAtrasada, idTecnico, cpfTecnico, cpfTecnicoDescriptografado, tecnico, descricao, observacoesTecnico, foto, nomeArquivoFoto, tipoArquivoFoto }) => ({ id, idPC, idUsuario: idUsuario ?? cpfUsuarioDescriptografado ?? cpfUsuario, cpfUsuario, cpfUsuarioDescriptografado, telefoneUsuario, nomeUsuario, apelido, status, prioridade, problema, frequencia, dataHoraAbertura, dataHoraAtribuicaoTecnico, dataHoraInicioDiagnostico, dataHoraProntaRetirada, dataHoraConclusao, dataInicioManutencao, dataFinalManutencao, estahAtrasada, idTecnico: idTecnico ?? cpfTecnicoDescriptografado ?? cpfTecnico, cpfTecnico, cpfTecnicoDescriptografado, tecnico, descricao, observacoesTecnico, foto, nomeArquivoFoto, tipoArquivoFoto }))
 }
+export async function getOrderDetails(id) {
+  const data = await apiRequest(`/backoffice/pedidos/${idPath(id)}/detalhes`)
+  if (!data || typeof data !== 'object') throw new Error('Resposta inválida ao consultar os detalhes da O.S.')
+  return { solicitante: data.solicitante ?? null, equipamento: data.equipamento ?? null }
+}
 export const getTotals = () => apiRequest('/backoffice/totalUsuarios')
 export async function listUsers() {
   const data = await apiRequest('/adm/retornar-todos-menos-atual')
