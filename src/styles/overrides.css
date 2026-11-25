@@ -136,6 +136,8 @@
 .assign-technician-button:hover { border-color: #718ab0; background: #f0f4fa; }
 .service-modal-heading .assign-technician-button { width: 310px; min-height: 46px; flex: 0 1 310px; margin: 0 0 0 auto; border: 0; border-radius: 6px; color: #fff; background: #33435f; font-size: 11px; font-weight: 700; }
 .service-modal-heading .assign-technician-button:hover { background: #263650; }
+.service-modal-heading .return-queue-button { min-height: 46px; flex: 0 1 154px; padding: 0 12px; border: 1px solid #c4cfdf; border-radius: 6px; color: #34445f; background: #f7f9fc; font-size: 11px; font-weight: 700; }
+.service-modal-heading .return-queue-button:hover { border-color: #718ab0; background: #f0f4fa; }
 .service-modal-heading > button:last-child { margin-left: 48px; }
 .assign-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 20px; background: rgba(24, 35, 53, .48); backdrop-filter: blur(2px); }
 .assign-dialog { width: min(554px, 100%); padding: 40px 40px 31px 33px; border: 1px solid #d7dde6; border-radius: 11px; color: #34445f; background: #fff; box-shadow: 0 15px 42px rgba(13, 25, 44, .3); transform: translateY(-13px); }
@@ -144,6 +146,7 @@
 .assign-dialog-heading > button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 50%; color: #738097; background: transparent; }
 .assign-dialog-heading > button:hover { background: #f0f3f7; }
 .assign-dialog h2 { margin: 0; font-size: 23px; }
+.assign-dialog textarea { width: 100%; min-height: 104px; margin-top: 8px; padding: 10px 12px; border: 1px solid #aab6c8; border-radius: 7px; color: #34445f; background: #fff; font: inherit; resize: vertical; }
 .assign-order-info { margin: 9px 0 34px; color: #8792a3; font-size: 11px; }
 .assign-order-summary { display: grid; gap: 3px; padding: 12px 13px; border: 1px solid #e0e5ec; border-radius: 9px; background: #f8f9fb; }
 .assign-order-summary b { color: #34445f; font-size: 12px; }

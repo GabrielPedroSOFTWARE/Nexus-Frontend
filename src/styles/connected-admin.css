@@ -136,9 +136,9 @@
 .connected-order-filter-wrap { position: relative; flex: 0 0 auto; }
 .connected-order-filter-button { display: flex; min-height: 36px; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid #aeb5c0; border-radius: 7px; background: #fff; color: #34445f; font-size: 12px; font-weight: 600; }
 .connected-order-filter-button.is-open { border-color: #4263eb; }
-.connected-order-filter-menu { position: absolute; z-index: 8; top: calc(100% + 7px); right: 0; width: 225px; padding: 12px; border: 1px solid #c6c9ce; border-radius: 9px; background: #fff; box-shadow: 0 8px 24px rgba(30, 43, 66, .16); }
+.connected-order-filter-menu { position: absolute; z-index: 8; top: calc(100% + 7px); right: 0; display: grid; width: min(270px, calc(100vw - 32px)); gap: 10px; padding: 12px; border: 1px solid #c6c9ce; border-radius: 9px; background: #fff; box-shadow: 0 8px 24px rgba(30, 43, 66, .16); }
 .connected-order-filter-menu label { display: flex; flex-direction: column; gap: 6px; color: #536177; font-size: 12px; }
-.connected-order-filter-menu select { min-height: 36px; padding: 5px 8px; border: 1px solid #aeb5c0; border-radius: 6px; color: #34445f; background: #fff; }
+.connected-order-filter-menu select, .connected-order-filter-menu input[type="date"] { width: 100%; min-height: 36px; padding: 5px 8px; border: 1px solid #aeb5c0; border-radius: 6px; color: #34445f; background: #fff; font: inherit; }
 .connected-order-filter-menu > button { margin-top: 10px; padding: 0; border: 0; color: #315d9e; background: transparent; font-size: 12px; text-decoration: underline; }
 .connected-order-table-scroll { width: 100%; }
 .connected-order-table { min-width: 790px; font-size: 12px; }

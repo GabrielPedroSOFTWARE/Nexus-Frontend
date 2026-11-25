@@ -7,7 +7,7 @@ import { formatBrazilianPhone } from '../../shared/phone.js'
 import { ConnectedOrderDetails } from './ConnectedOrderDetails.jsx'
 import { orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
 import { approveUser, rejectUser, saveUsersInBatch, getMtbf, getMttr, getTotals, listAssignedOrders, listOrders, listPendingUsers, listUsers, registerUser } from '../../features/admin/api.js'
-import { buildDashboardMetrics, isOverdueOrder } from '../../features/admin/dashboardMetrics.js'
+import { buildDashboardMetrics, isOverdueOrder, isWithinDeadlineRange } from '../../features/admin/dashboardMetrics.js'
 import { PasswordRequirements } from '../../features/auth/PasswordRequirements.jsx'
 import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
 import { isPasswordValid, PASSWORD_POLICY_MESSAGE } from '../../features/auth/passwordPolicy.js'
@@ -39,15 +39,17 @@ function RemoteState({ state, empty, children }) {
 function AdminPanel({ title, children }) {
   return <section className="panel connected-panel"><h2>{title}</h2>{children}</section>
 }
-function OrderTable({ orders, onSelect }) {
-  return <div className="table-scroll"><table className="data-table"><thead><tr><th>ORDEM</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th><th>PRIORIDADE</th><th>TÉCNICO</th></tr></thead><tbody>{orders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => onSelect(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{display(order.idUsuario)}</td><td>{orderStatusLabel(order.status)}</td><td>{order.prioridade == null ? '—' : `Código ${order.prioridade}`}</td><td>{display(order.idTecnico || order.tecnico)}</td></tr>)}</tbody></table></div>
+function OrderTable({ orders, onSelect, usersByCpf }) {
+  return <div className="table-scroll"><table className="data-table"><thead><tr><th>ORDEM</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th><th>PRIORIDADE</th><th>TÉCNICO</th></tr></thead><tbody>{orders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => onSelect(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{requesterLabel(order, usersByCpf)}</td><td>{orderStatusLabel(order.status)}</td><td>{order.prioridade == null ? '—' : `Código ${order.prioridade}`}</td><td>{display(order.idTecnico || order.tecnico)}</td></tr>)}</tbody></table></div>
 }
 function OrdersTable({ state, compact = false, activeOnly = false, isAdmin = false, title }) {
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState('')
-  const visible = (state.data || []).filter(order => (!activeOnly || (order.status != null && ![5, 6].includes(Number(order.status)))) && `${order.id} ${order.idUsuario} ${order.idPC}`.toLowerCase().includes(query.toLowerCase().trim()))
+  const users = useRemote(isAdmin ? listUsers : noPendingUsers)
+  const usersByCpf = userNamesByCpf(users.data)
+  const visible = (state.data || []).filter(order => (!activeOnly || (order.status != null && ![5, 6].includes(Number(order.status)))) && `${order.id} ${order.idUsuario} ${order.idPC} ${requesterLabel(order, usersByCpf)}`.toLowerCase().includes(query.toLowerCase().trim()))
   return <AdminPanel title={title || (compact ? 'Ordens de serviço' : activeOnly ? 'Manutenções ativas' : 'Ordens de serviço cadastradas')}><RemoteState state={state} empty="Nenhuma ordem encontrada.">
-    <label className="connected-search">Pesquisar ordem, usuário ou equipamento<input value={query} onChange={e => setQuery(e.target.value)} /></label><OrderTable orders={compact ? visible.slice(0, 5) : visible} onSelect={setSelected} />{!visible.length && <p>Nenhuma ordem corresponde à pesquisa.</p>}
+    <label className="connected-search">Pesquisar ordem, usuário ou equipamento<input value={query} onChange={e => setQuery(e.target.value)} /></label><OrderTable orders={compact ? visible.slice(0, 5) : visible} onSelect={setSelected} usersByCpf={usersByCpf} />{!visible.length && <p>Nenhuma ordem corresponde à pesquisa.</p>}
   </RemoteState>{selected && <ConnectedOrderDetails order={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onSaved={async () => { await state.refresh(); setSelected(null) }} />}</AdminPanel>
 }
 function Orders({ compact = false, activeOnly = false, isAdmin = false, loader = listOrders, title }) {
@@ -69,17 +71,17 @@ function DashboardStat({ icon: Icon, label, value, onClick }) {
       </button>
     : <div className="stat-row">{content}</div>
 }
-function DashboardActiveOrders({ state, isAdmin, isTechnician, onOpenOrders }) {
+function DashboardActiveOrders({ state, isAdmin, isTechnician, onOpenOrders, usersByCpf }) {
   const [selected, setSelected] = useState(null)
   const activeOrders = (state.data || []).filter(order => {
     const status = Number(order.status)
     return Number.isInteger(status) && status >= 0 && status <= 4
-  }).slice(0, 3)
+  })
   return <section className="panel admin-active-list dashboard-active-orders">
     <div className="section-title-row"><h2>MANUTENÇÕES ATIVAS</h2><button className="admin-assigned-orders" onClick={onOpenOrders}>{isTechnician ? 'Ver O.S. atribuídas a mim' : 'Ver todas as O.S.'}</button></div>
     <RemoteState state={state}>
       <div className="table-scroll"><table className="data-table compact-table"><thead><tr><th>OS</th><th>EQUIPAMENTO</th><th>USUÁRIO</th><th>STATUS</th></tr></thead><tbody>
-        {activeOrders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => setSelected(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{display(order.nomeUsuario || order.usuario || 'Solicitante')}</td><td>{orderStatusLabel(order.status)}</td></tr>)}
+        {activeOrders.map(order => <tr key={order.id}><td><button className="link-button" onClick={() => setSelected(order)}>{display(order.id)}</button></td><td>{display(order.apelido || order.idPC)}</td><td>{requesterLabel(order, usersByCpf)}</td><td>{orderStatusLabel(order.status)}</td></tr>)}
         {!activeOrders.length && <tr><td colSpan="4">Nenhuma manutenção ativa.</td></tr>}
       </tbody></table></div>
     </RemoteState>
@@ -101,16 +103,18 @@ function DashboardAlerts({ orders, pending, isAdmin }) {
 }
 function Dashboard({ isAdmin, profile }) {
   const isTechnician = !isAdmin
-  const orders = useRemote(isTechnician ? listAssignedOrders : listOrders)
+  const orders = useRemote(listOrders)
+  const users = useRemote(isAdmin ? listUsers : noPendingUsers)
   const totals = useRemote(getTotals)
   const pending = useRemote(isAdmin ? listPendingUsers : noPendingUsers)
   const mtbf = useRemote(getMtbf)
   const mttr = useRemote(getMttr)
   const navigate = useNavigate()
   const metrics = buildDashboardMetrics(orders.data)
+  const usersByCpf = userNamesByCpf(users.data)
   const percent = value => metrics.total ? Math.round(value / metrics.total * 100) : 0
   const roleLabel = isAdmin ? 'Administrador' : 'Técnico / Gestor'
-  const refresh = () => { orders.refresh(); totals.refresh(); pending.refresh(); mtbf.refresh(); mttr.refresh() }
+  const refresh = () => { orders.refresh(); users.refresh(); totals.refresh(); pending.refresh(); mtbf.refresh(); mttr.refresh() }
   const openOrderList = () => navigate(isTechnician ? '/admin/minhas-ordens' : '/admin/ordens')
   return <>
     <h1 className="page-title connected-dashboard-greeting">Olá, {roleLabel}! Bem-vindo ao NEXUS.</h1>
@@ -125,7 +129,7 @@ function Dashboard({ isAdmin, profile }) {
             <DashboardMetric icon={CircleAlert} value={metrics.overdue} title="Atrasadas" percentage={percent(metrics.overdue)} tone="red" onClick={openOrderList} />
           </div></RemoteState>
         </article>
-        <DashboardActiveOrders state={orders} isAdmin={isAdmin} isTechnician={isTechnician} onOpenOrders={openOrderList} />
+        <DashboardActiveOrders state={orders} isAdmin={isAdmin} isTechnician={isTechnician} onOpenOrders={openOrderList} usersByCpf={usersByCpf} />
         <DashboardAlerts orders={orders} pending={pending} isAdmin={isAdmin} />
       </section>
       <aside className="admin-side-column connected-dashboard-side">
@@ -186,16 +190,19 @@ function ConnectedOrdersPage({ isAdmin }) {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [filterOpen, setFilterOpen] = useState(false)
+  const [deadlineFrom, setDeadlineFrom] = useState('')
+  const [deadlineTo, setDeadlineTo] = useState('')
   const [selected, setSelected] = useState(null)
   const usersByCpf = userNamesByCpf(users.data)
   const updatePeriod = (field, value) => setPeriod(current => ({ ...current, [field]: value }))
   const visibleOrders = (orders.data || []).filter(order => {
     const matchesQuery = `${order.id || ''} ${equipmentLabel(order)} ${requesterLabel(order, usersByCpf)}`.toLowerCase().includes(query.trim().toLowerCase())
     const status = orderStatusCode(order.status)
-    const matchesFilter = filter === 'all' || (filter === 'overdue' && isOverdueOrder(order)) || (filter === 'active' && status != null && status >= 0 && status <= 4) || (filter.startsWith('status:') && status === Number(filter.slice(7)))
-    return matchesQuery && matchesFilter
+    const matchesStatus = filter === 'all' || (filter === 'overdue' && isOverdueOrder(order)) || (filter === 'active' && status != null && status >= 0 && status <= 4) || (filter.startsWith('status:') && status === Number(filter.slice(7)))
+    return matchesQuery && matchesStatus && isWithinDeadlineRange(order, deadlineFrom, deadlineTo)
   })
   const filterLabel = filter === 'all' ? 'Todas as ordens' : filter === 'overdue' ? 'Atrasadas' : filter === 'active' ? 'Em andamento' : visibleStatus({ status: Number(filter.slice(7)) })
+  const filterSummary = [filter !== 'all' ? `Status: ${filterLabel}` : '', deadlineFrom ? `Prazo desde ${formatDate(deadlineFrom)}` : '', deadlineTo ? `Prazo até ${formatDate(deadlineTo)}` : ''].filter(Boolean).join(' · ')
   return <>
     <h1 className="page-title page-title-icon connected-orders-title"><ClipboardList aria-hidden="true" />Ordens de Serviço</h1>
     <ConnectedOrdersOverview orders={orders.data || []} ordersState={orders} mtbf={mtbf} mttr={mttr} period={period} onPeriodChange={updatePeriod} />
@@ -203,7 +210,7 @@ function ConnectedOrdersPage({ isAdmin }) {
       <div className="connected-order-table-heading"><h2>Ordens de serviço</h2><div className="connected-order-controls">
         <label className="connected-order-search"><Search size={18} aria-hidden="true" /><input aria-label="Buscar ordem de serviço" placeholder="Buscar por nº da O.S., equipamento ou usuário" value={query} onChange={event => setQuery(event.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label>
         <div className="connected-order-filter-wrap"><button className={`connected-order-filter-button ${filterOpen ? 'is-open' : ''}`} type="button" onClick={() => setFilterOpen(value => !value)} aria-expanded={filterOpen}><SlidersHorizontal size={17} />Filtros</button>
-          {filterOpen && <div className="connected-order-filter-menu"><label>Status da ordem<select value={filter} onChange={event => setFilter(event.target.value)}><option value="all">Todas as ordens</option><option value="active">Em andamento</option><option value="overdue">Atrasadas</option>{['Recebida', 'Em diagnóstico', 'Em manutenção', 'Aguardando peças', 'Pronto para retirada', 'Concluída', 'Cancelada'].map((label, status) => <option key={status} value={`status:${status}`}>{label}</option>)}</select></label><button type="button" onClick={() => { setQuery(''); setFilter('all') }}>Limpar filtros</button></div>}
+          {filterOpen && <div className="connected-order-filter-menu"><label>Status da ordem<select value={filter} onChange={event => setFilter(event.target.value)}><option value="all">Todas as ordens</option><option value="active">Em andamento</option><option value="overdue">Atrasadas</option>{['Recebida', 'Em diagnóstico', 'Em manutenção', 'Aguardando peças', 'Pronto para retirada', 'Concluída', 'Cancelada'].map((label, status) => <option key={status} value={`status:${status}`}>{label}</option>)}</select></label><label>Prazo a partir de<input type="date" value={deadlineFrom} max={deadlineTo || undefined} onChange={event => setDeadlineFrom(event.target.value)} /></label><label>Prazo até<input type="date" value={deadlineTo} min={deadlineFrom || undefined} onChange={event => setDeadlineTo(event.target.value)} /></label><button type="button" onClick={() => { setQuery(''); setFilter('all'); setDeadlineFrom(''); setDeadlineTo('') }}>Limpar filtros</button></div>}
         </div>
       </div></div>
       <RemoteState state={orders} empty="Nenhuma ordem de serviço cadastrada.">
@@ -212,7 +219,7 @@ function ConnectedOrdersPage({ isAdmin }) {
           {!visibleOrders.length && <tr><td className="connected-order-empty" colSpan="6">Nenhuma ordem corresponde aos filtros selecionados.</td></tr>}
         </tbody></table></div>
       </RemoteState>
-      {filter !== 'all' && <p className="connected-filter-summary">Filtro atual: {filterLabel}</p>}
+      {filterSummary && <p className="connected-filter-summary">Filtros atuais: {filterSummary}</p>}
       {selected && <ConnectedOrderDetails order={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onSaved={async () => { await Promise.all([orders.refresh(), mtbf.refresh(), mttr.refresh()]); setSelected(null) }} />}
     </section>
   </>

@@ -11,17 +11,29 @@ export function equipmentLabel(order) {
 
 export function userNamesByCpf(users) {
   const names = new Map()
+  const ambiguousMasks = new Set()
   for (const user of Array.isArray(users) ? users : []) {
-    const cpf = String(user?.cpfExibicao || user?.cpf || '').replace(/\D/g, '')
-    if (cpf.length === 11 && user?.nome) names.set(cpf, String(user.nome))
+    const cpf = String(user?.cpfExibicao || user?.cpf || '').trim()
+    const digits = cpf.replace(/\D/g, '')
+    if (digits.length === 11 && user?.nome) {
+      names.set(digits, String(user.nome))
+      continue
+    }
+    if (/\*/.test(cpf) && user?.nome) {
+      if (names.has(cpf) && names.get(cpf) !== String(user.nome)) ambiguousMasks.add(cpf)
+      else names.set(cpf, String(user.nome))
+    }
   }
+  for (const cpf of ambiguousMasks) names.delete(cpf)
   return names
 }
 
 export function requesterLabel(order, namesByCpf) {
+  const requesterName = String(order?.nomeUsuario || '').trim()
+  if (requesterName) return requesterName
   const cpf = String(order?.cpfUsuarioDescriptografado || order?.cpfUsuario || order?.idUsuario || '')
   const digits = cpf.replace(/\D/g, '')
-  const name = digits.length === 11 ? namesByCpf?.get(digits) : ''
+  const name = digits.length === 11 ? namesByCpf?.get(digits) : namesByCpf?.get(cpf.trim())
   if (name) return name
   return digits.length === 11 ? `***.***.***-${digits.slice(-2)}` : cpf || '—'
 }

@@ -26,11 +26,22 @@ function parseLocalDate(value) {
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null
 }
 
+export function isWithinDeadlineRange(order, from, to) {
+  if (!from && !to) return true
+  const deadline = parseLocalDate(order?.dataFinalManutencao)
+  if (!deadline) return false
+  const start = from ? parseLocalDate(from) : null
+  const end = to ? parseLocalDate(to) : null
+  return (!from || (start && deadline >= start)) && (!to || (end && deadline <= end))
+}
+
 export function isOverdueOrder(order, now = new Date()) {
   const status = normalizedStatus(order?.status)
+  if (!Number.isInteger(status) || status < 0 || status > 4) return false
+  if (typeof order?.estahAtrasada === 'boolean') return order.estahAtrasada
   const deadline = parseLocalDate(order?.dataFinalManutencao)
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return Number.isInteger(status) && status >= 0 && status <= 4 && deadline != null && deadline < today
+  return deadline != null && deadline < today
 }
 
 export function buildDashboardMetrics(orders, now = new Date()) {
