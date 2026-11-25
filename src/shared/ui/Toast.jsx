@@ -1,6 +1,8 @@
-import { CheckCircle2, X } from 'lucide-react'
+import { CheckCircle2, CircleX, X } from 'lucide-react'
 
-export function Toast({ message, onClose }) {
+export function Toast({ message, type = 'success', onClose }) {
   if (!message) return null
-  return <div className="toast" role="status"><CheckCircle2 size={20} />{message}<button onClick={onClose} aria-label="Fechar aviso"><X size={16} /></button></div>
+  const isError = type === 'error'
+  const Icon = isError ? CircleX : CheckCircle2
+  return <div className={`toast ${isError ? 'toast-error' : 'toast-success'}`} role={isError ? 'alert' : 'status'}><Icon aria-hidden="true" size={20} />{message}<button onClick={onClose} aria-label="Fechar aviso"><X size={16} /></button></div>
 }

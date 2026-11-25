@@ -32,7 +32,7 @@ export function useAuth(navigate, showToast) {
       setSession(nextSession)
       navigate(isBackoffice ? '/admin' : '/home')
     } catch (error) {
-      showToast(error.message || 'Não foi possível entrar no sistema.')
+      showToast(error.message || 'Não foi possível entrar no sistema.', 'error')
     }
   }
 

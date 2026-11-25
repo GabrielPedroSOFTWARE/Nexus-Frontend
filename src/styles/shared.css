@@ -22,7 +22,7 @@
 .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 24px; }
 .bell-button, .profile-trigger { border: 0; color: #fff; background: transparent; display: flex; align-items: center; position: relative; }
 .bell-button { padding: 12px; }
-.bell-button i { position: absolute; top: 0; right: -1px; width: 18px; height: 18px; border-radius: 50%; background: #ee332b; color: #fff; font-size: 12px; font-style: normal; font-weight: 700; display: grid; place-items: center; }
+.bell-unread-dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; border: 2px solid #33435f; border-radius: 50%; background: #ee332b; }
 .profile-trigger { gap: 12px; font-size: 20px; font-weight: 700; white-space: nowrap; padding: 8px 0 8px 6px; }
 .avatar { width: 54px; height: 54px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #eee9ff; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }

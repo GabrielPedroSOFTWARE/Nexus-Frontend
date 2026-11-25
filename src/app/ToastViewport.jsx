@@ -7,5 +7,7 @@ export function ToastViewport({ toast, onClose }) {
     const timer = window.setTimeout(onClose, 3600)
     return () => window.clearTimeout(timer)
   }, [toast, onClose])
-  return <Toast message={toast} onClose={onClose} />
+  const message = typeof toast === 'string' ? toast : toast?.message
+  const type = typeof toast === 'string' ? 'success' : toast?.type
+  return <Toast message={message} type={type} onClose={onClose} />
 }

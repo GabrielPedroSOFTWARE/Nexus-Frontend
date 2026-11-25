@@ -1,11 +1,11 @@
 import { Avatar } from '../ui/Avatar.jsx'
 import { BrandMark } from '../ui/BrandMark.jsx'
-import { clearSession, hasLocalApi, loadSession } from '../api/httpClient.js'
+import { clearSession, loadSession } from '../api/httpClient.js'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, ChevronDown } from 'lucide-react'
 
-export function AppHeader({ mode, active, onNotifications, onToast, profileName, canManageUsers }) {
+export function AppHeader({ mode, active, onNotifications, onToast, profileName, canManageUsers, hasUnread = false }) {
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
   const isBackofficeArea = mode === 'admin'
@@ -36,7 +36,7 @@ export function AppHeader({ mode, active, onNotifications, onToast, profileName,
         ))}
       </nav>
       <div className="topbar-actions">
-        <button className="bell-button" onClick={onNotifications} aria-label="Notificações"><Bell size={27} />{isBackofficeArea && !hasLocalApi && <i>3</i>}</button>
+        <button className="bell-button" onClick={onNotifications} aria-label={hasUnread ? 'Notificações não lidas' : 'Notificações'}><Bell size={27} />{hasUnread && <span className="bell-unread-dot" aria-hidden="true" />}</button>
         <button className="profile-trigger" onClick={() => setProfileOpen(v => !v)} aria-expanded={profileOpen}>
           <Avatar admin={isBackofficeArea} />
           <span>Olá, {greetingName}!</span>

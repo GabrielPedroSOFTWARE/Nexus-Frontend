@@ -1,4 +1,10 @@
 /* Small feedback */
-.toast { position: fixed; right: 26px; bottom: 25px; z-index: 100; max-width: min(480px, calc(100vw - 32px)); min-height: 56px; padding: 13px 15px; display: flex; align-items: center; gap: 10px; border-radius: 12px; background: #33435f; box-shadow: 0 5px 18px rgba(20,31,49,.25); color: #fff; font-size: 14px; }
-.toast svg { flex: 0 0 auto; color: #7af084; }
-.toast button { margin-left: auto; padding: 4px; display: flex; border: 0; color: #fff; background: transparent; }
+.toast { position: fixed; right: 26px; bottom: 25px; z-index: 100; max-width: min(480px, calc(100vw - 32px)); min-height: 56px; padding: 13px 15px; display: flex; align-items: center; gap: 10px; border-radius: 12px; box-shadow: 0 5px 18px rgba(20,31,49,.25); font-size: 14px; }
+.toast-success { background: #33435f; color: #fff; }
+.toast-error { background: #fff0f0; border: 1px solid #ef9999; color: #8f2020; }
+.toast svg { flex: 0 0 auto; }
+.toast-success > svg { color: #7af084; }
+.toast-error > svg { color: #d92f35; }
+.toast button { margin-left: auto; padding: 4px; display: flex; border: 0; background: transparent; }
+.toast-success button { color: #fff; }
+.toast-error button { color: #8f2020; }

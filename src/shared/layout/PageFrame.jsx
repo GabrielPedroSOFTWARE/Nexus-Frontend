@@ -6,13 +6,14 @@ import { useNavigate } from 'react-router-dom'
 
 export function PageFrame({ mode, active, children, onToast, onOpenService, onOpenAccess, profileName, canManageUsers }) {
   const [notices, setNotices] = useState(false)
+  const [hasUnread, setHasUnread] = useState(false)
   const navigate = useNavigate()
   const toast = onToast
   const openNotification = () => setNotices(value => !value)
   return <div className="app-page">
-    <AppHeader mode={mode} active={active} onNotifications={openNotification} onToast={toast} profileName={profileName} canManageUsers={canManageUsers} />
+    <AppHeader mode={mode} active={active} onNotifications={openNotification} onToast={toast} profileName={profileName} canManageUsers={canManageUsers} hasUnread={hasUnread} />
     {!hasLocalApi && <div role="status" style={{ textAlign: 'center', background: '#fff3cd', padding: '8px', color: '#5c4700' }}>Modo demonstração: dados e ações são simulados.</div>}
-    <NotificationsPanel demo={!hasLocalApi} mode={mode} open={notices} onClose={() => setNotices(false)} onSelect={() => { setNotices(false); if (hasLocalApi) navigate(mode === 'admin' ? '/admin/ordens' : '/historico'); else (onOpenAccess || onOpenService)?.() }} />
+    <NotificationsPanel demo={!hasLocalApi} mode={mode} open={notices} onUnreadChange={setHasUnread} onClose={() => setNotices(false)} onSelect={() => { setNotices(false); if (hasLocalApi) navigate(mode === 'admin' ? '/admin/ordens' : '/historico'); else (onOpenAccess || onOpenService)?.() }} />
     {children}
   </div>
 }

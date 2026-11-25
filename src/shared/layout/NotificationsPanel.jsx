@@ -3,32 +3,44 @@ import { apiRequest } from '../api/httpClient.js'
 import { orderStatusLabel } from '../orderStatus.js'
 import { ChevronRight, X } from 'lucide-react'
 
-export function NotificationsPanel({ demo, mode, open, onClose, onSelect }) {
+export function NotificationsPanel({ demo, mode, open, onUnreadChange = () => {}, onClose, onSelect }) {
   const [items, setItems] = useState(null)
   const [error, setError] = useState('')
   useEffect(() => {
-    if (!open || demo) return undefined
+    if (demo) {
+      onUnreadChange(true)
+      return undefined
+    }
     let active = true
     setItems(null); setError('')
     const isUser = mode === 'user'
     const endpoint = isUser ? '/user/retornar-notificacoes-usuario' : '/backoffice/retornar-notificacoes-backoffice'
     apiRequest(endpoint).then(data => {
       if (!Array.isArray(data)) throw new Error('Resposta inválida do backend.')
-      if (active) setItems(data.map(item => ({
-        id: item.id,
-        resumo: isUser ? (item['descrição'] ?? item.descricao ?? item.resumo) : item.mensagem,
-        pedidoId: item.idPedido,
-        prazo: item.prazo,
-        dataCriacao: item.dataHoraCriacao ?? item.dataCriacao,
-        status: item.status,
-        lida: item.lida,
-      })))
+      if (active) {
+        const mappedItems = data.map(item => ({
+          id: item.id,
+          resumo: isUser ? (item['descrição'] ?? item.descricao ?? item.resumo) : item.mensagem,
+          pedidoId: item.idPedido,
+          prazo: item.prazo,
+          dataCriacao: item.dataHoraCriacao ?? item.dataCriacao,
+          status: item.status,
+          lida: item.lida,
+        }))
+        setItems(mappedItems)
+        onUnreadChange(mappedItems.some(item => !item.lida))
+      }
     }).catch(() => { if (active) setError('Não foi possível carregar as notificações. Tente novamente.') })
     return () => { active = false }
-  }, [open, demo, mode])
+  }, [open, demo, mode, onUnreadChange])
   const selectNotification = async item => {
     try {
-      if (mode === 'user' && !item.lida) await apiRequest('/user/marcar-notificacao-usuario/' + encodeURIComponent(item.id), { method: 'PATCH' })
+      if (mode === 'user' && !item.lida) {
+        await apiRequest('/user/marcar-notificacao-usuario/' + encodeURIComponent(item.id), { method: 'PATCH' })
+        const updatedItems = items.map(current => current.id === item.id ? { ...current, lida: true } : current)
+        setItems(updatedItems)
+        onUnreadChange(updatedItems.some(current => !current.lida))
+      }
       onSelect(item)
     } catch { setError('Não foi possível atualizar a notificação. Tente novamente.') }
   }

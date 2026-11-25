@@ -132,15 +132,15 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
       return
     }
     if (equipmentStatus === 'error') {
-      onToast('Não foi possível verificar seus equipamentos.')
+      onToast('Não foi possível verificar seus equipamentos.', 'error')
       return
     }
     if (equipmentStatus !== 'ready') {
-      onToast('Aguarde o carregamento dos equipamentos.')
+      onToast('Aguarde o carregamento dos equipamentos.', 'error')
       return
     }
     if (!registeredEquipment?.length) {
-      onToast('Cadastre um computador para solicitar manutenção.')
+      onToast('Cadastre um computador para solicitar manutenção.', 'error')
       navigate('/meus-pcs')
       return
     }

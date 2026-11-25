@@ -19,7 +19,7 @@ export function useEquipment(session, showToast) {
     setEquipmentStatus('loading')
     listUserEquipment()
       .then(items => { if (active) { if (!Array.isArray(items)) throw new Error('Resposta inválida do backend.'); setRegisteredEquipment(items); setEquipmentStatus('ready') } })
-      .catch(error => { if (active) { setEquipmentStatus('error'); showToast(error.message) } })
+      .catch(error => { if (active) { setEquipmentStatus('error'); showToast(error.message, 'error') } })
     return () => { active = false }
   }, [session?.token, inventoryVersion])
 
@@ -33,7 +33,7 @@ export function useEquipment(session, showToast) {
       setScannerState('complete')
     } catch (error) {
       setScannerState('')
-      showToast(error.message || 'Não foi possível ler este computador.')
+      showToast(error.message || 'Não foi possível ler este computador.', 'error')
     }
   }
 
@@ -49,7 +49,7 @@ export function useEquipment(session, showToast) {
       setInventoryVersion(value => value + 1)
       showToast('Equipamento salvo no banco de dados')
     } catch (error) {
-      showToast(error.message || 'Não foi possível salvar o equipamento.')
+      showToast(error.message || 'Não foi possível salvar o equipamento.', 'error')
     }
     setScannerState('')
   }
@@ -66,7 +66,7 @@ export function useEquipment(session, showToast) {
       setRegisteredEquipment(items => items.filter(item => item.id !== id))
       showToast('Equipamento excluído.')
     } catch (error) {
-      showToast(error.message || 'Não foi possível excluir o equipamento.')
+      showToast(error.message || 'Não foi possível excluir o equipamento.', 'error')
     }
   }
 

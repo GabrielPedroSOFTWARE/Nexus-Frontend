@@ -15,7 +15,7 @@ export function useServiceRequest(showToast) {
       setRequestOpen(false)
       showToast('Solicitação enviada com sucesso')
     } catch (error) {
-      showToast(error.message || 'Não foi possível enviar a solicitação.')
+      showToast(error.message || 'Não foi possível enviar a solicitação.', 'error')
     }
   }
 

@@ -43,7 +43,7 @@ export function ServiceModal({ service, onClose, onToast }) {
       <div className="assign-dropdown"><button type="button" className="assign-select-trigger" aria-expanded={techOptionsOpen} onClick={() => setTechOptionsOpen(value => !value)}>{assignedTech || 'Selecione um técnico'}<ChevronDown size={17} className={techOptionsOpen ? 'is-expanded' : ''} /></button>
         {techOptionsOpen && <div className="assign-tech-options">{technicians.map((technician, index) => <button type="button" className={index === 0 && !assignedTech ? 'is-highlighted' : ''} key={technician} onClick={() => { setAssignedTech(technician); setTechOptionsOpen(false) }}>{technician}</button>)}</div>}
       </div>
-      <div className="assign-dialog-actions"><button type="button" className="outline-button" onClick={() => setAssignOpen(false)}>Cancelar</button><button type="button" className="primary-button" onClick={() => { if (!assignedTech) { onToast('Selecione um técnico para continuar'); setTechOptionsOpen(true); return } setAssignOpen(false); onToast(`Ordem atribuída a ${assignedTech}`) }}>Confirmar</button></div>
+      <div className="assign-dialog-actions"><button type="button" className="outline-button" onClick={() => setAssignOpen(false)}>Cancelar</button><button type="button" className="primary-button" onClick={() => { if (!assignedTech) { onToast('Selecione um técnico para continuar', 'error'); setTechOptionsOpen(true); return } setAssignOpen(false); onToast(`Ordem atribuída a ${assignedTech}`) }}>Confirmar</button></div>
     </section></div>}
   </div>
 }
