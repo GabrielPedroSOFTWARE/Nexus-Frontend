@@ -26,6 +26,11 @@ export async function listUsers() {
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar usuários.')
   return data.map(publicUser)
 }
+export async function listActiveTechnicians() {
+  const data = await apiRequest('/backoffice/tecnicos-ativos')
+  if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar técnicos.')
+  return data.map(({ cpf, nome }) => ({ id: cpf, nome }))
+}
 export async function listPendingUsers() {
   const data = await apiRequest('/adm/usuarios-pendentes')
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar solicitações.')

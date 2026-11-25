@@ -3,7 +3,7 @@ import { Check, ChevronDown, ClipboardList, History, Paperclip, RefreshCw, X } f
 import { apiRequest } from '../../shared/api/httpClient.js'
 import { getRequestDetails } from '../../features/service-requests/frequency.js'
 import { ORDER_STATUS_STEPS, orderStatusCode, orderStatusLabel } from '../../shared/orderStatus.js'
-import { assignTechnician, cancelOrder, changeOrderStatus, getOrderDetails, listOrders, listUsers, returnOrderToQueue } from '../../features/admin/api.js'
+import { assignTechnician, cancelOrder, changeOrderStatus, getOrderDetails, listActiveTechnicians, listOrders, listUsers, returnOrderToQueue } from '../../features/admin/api.js'
 import { isOverdueOrder } from '../../features/admin/dashboardMetrics.js'
 import { FormRequirementsNote } from '../../shared/ui/FormRequirementsNote.jsx'
 import { formatBrazilianPhone } from '../../shared/phone.js'
@@ -28,6 +28,8 @@ const localTodayInput = () => {
 export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false }) {
   const details = getRequestDetails(order)
   const [users, setUsers] = useState([])
+  const [technicians, setTechnicians] = useState([])
+  const [techniciansLoading, setTechniciansLoading] = useState(true)
   const [orderDetails, setOrderDetails] = useState(null)
   const [detailsLoading, setDetailsLoading] = useState(true)
   const [detailsError, setDetailsError] = useState('')
@@ -58,10 +60,16 @@ export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false
     setOrderDetails(null)
     setDetailsLoading(true)
     setDetailsError('')
+    setTechnicians([])
+    setTechniciansLoading(true)
     getOrderDetails(order.id)
       .then(data => { if (active) setOrderDetails(data) })
       .catch(() => { if (active) setDetailsError('Não foi possível carregar os dados complementares desta O.S.') })
       .finally(() => { if (active) setDetailsLoading(false) })
+    listActiveTechnicians()
+      .then(data => { if (active) setTechnicians(data) })
+      .catch(() => { if (active) setMessage('Não foi possível carregar a lista de técnicos.') })
+      .finally(() => { if (active) setTechniciansLoading(false) })
     if (isAdmin) {
       listUsers().then(data => { if (active) setUsers(data) }).catch(() => { if (active) setMessage('Não foi possível carregar os usuários e técnicos.') })
     } else {
@@ -78,7 +86,6 @@ export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false
     : order.idPC)
   const detailValue = value => detailsLoading ? 'Carregando...' : display(value)
   const listValue = values => Array.isArray(values) && values.length ? values.join(', ') : null
-  const technicians = users.filter(user => user.perfil === 'SUPPORT_MANAGER' && user.status === 'Ativo')
   const orderedEquipmentHistory = equipmentHistory?.slice().sort((a, b) => orderOpenedAt(b) - orderOpenedAt(a))
   const selectedStatus = orderStatusCode(order.status)
   const nextStatus = status === '' ? null : Number(status)
@@ -171,7 +178,7 @@ export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false
   }
   return <div className="modal-backdrop service-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
     <section className="service-modal" role="dialog" aria-modal="true" aria-label="Detalhes da ordem">
-      <div className="service-modal-heading"><span className="modal-icon"><ClipboardList size={26} /></span><div className="service-title-group"><small>ORDEM DE SERVIÇO</small><h2>{display(order.id)}</h2></div><span className="frequency-chip">Prioridade · {order.prioridade == null ? 'Não informada' : `Código ${order.prioridade}`}</span><span className="date-chip">Início &nbsp; {date(order.dataInicioManutencao)}</span><span className="date-chip">Prazo &nbsp; {date(order.dataFinalManutencao)}</span>{isAdmin && <button className="assign-technician-button" onClick={() => setAssignOpen(true)}>Atribuir técnico</button>}{canReturnToQueue && <button type="button" className="return-queue-button" onClick={() => setReturnOpen(true)}>Devolver à fila</button>}<button type="button" onClick={onClose} aria-label="Fechar"><X /></button></div>
+      <div className="service-modal-heading"><span className="modal-icon"><ClipboardList size={26} /></span><div className="service-title-group"><small>ORDEM DE SERVIÇO</small><h2>{display(order.id)}</h2></div><span className="frequency-chip">Prioridade · {order.prioridade == null ? 'Não informada' : `Código ${order.prioridade}`}</span><span className="date-chip">Início &nbsp; {date(order.dataInicioManutencao)}</span><span className="date-chip">Prazo &nbsp; {date(order.dataFinalManutencao)}</span><button className="assign-technician-button" onClick={() => setAssignOpen(true)}>Atribuir técnico</button>{canReturnToQueue && <button type="button" className="return-queue-button" onClick={() => setReturnOpen(true)}>Devolver à fila</button>}<button type="button" onClick={onClose} aria-label="Fechar"><X /></button></div>
       <div className="service-modal-body"><div className="service-detail-column">
         <article className="detail-card client-card"><h3>CLIENTE</h3><div className="detail-grid"><p><small>NOME</small><b>{detailValue(client?.nome)}</b></p><p><small>SETOR</small><b>{detailValue(client?.setor)}</b></p><p><small>TELEFONE</small><b>{detailValue(phone)}</b></p><p><small>CPF</small><b>{detailValue(client?.cpfExibicao || order.cpfUsuarioDescriptografado)}</b></p></div>{detailsError && <p role="status">{detailsError}</p>}</article>
         <article className="detail-card specs-card"><h3>ESPECIFICAÇÕES DA MÁQUINA</h3><div className="detail-grid spec-grid"><p><small>MODELO</small><b>{detailValue(equipmentModel || null)}</b></p><p><small>PATRIMÔNIO</small><b>{detailValue(equipment?.numeroSerie)}</b></p><p><small>SISTEMA OPERACIONAL</small><b>{detailValue(equipment?.sistemaOperacional)}</b></p><p><small>ARMAZENAMENTO</small><b>{detailValue(listValue(equipment?.discos))}</b></p><p><small>EQUIPAMENTO</small><b>{detailValue(equipmentType)}</b></p><p><small>CPU</small><b>{detailValue(equipment?.processador)}</b></p><p><small>MEMÓRIA RAM</small><b>{detailValue(equipment?.ram == null ? null : `${equipment.ram} GB`)}</b></p><p><small>GPU</small><b>{detailValue(listValue(equipment?.placasDeVideo))}</b></p></div><button type="button" className="equipment-history-link" disabled={order.idPC == null} aria-expanded={equipmentHistoryOpen} aria-controls="equipment-history" onClick={loadEquipmentHistory}><History size={16} />Consultar Histórico de Manutenções</button></article>
@@ -186,7 +193,7 @@ export function ConnectedOrderDetails({ order, onClose, onSaved, isAdmin = false
         {cancelOpen && canCancel && <form onSubmit={saveCancellation} className="connected-form cancel-order-form"><label>Justificativa do cancelamento <em>*</em><textarea required rows="4" value={cancelJustification} onChange={e => setCancelJustification(e.target.value)} placeholder="Explique por que esta ordem será cancelada." /></label><div className="cancel-order-actions"><button type="button" className="outline-button" disabled={busy} onClick={() => setCancelOpen(false)}>Voltar</button><button type="submit" className="cancel-order-confirm-button" disabled={busy || !cancelJustification.trim()}>{busy ? 'Cancelando...' : 'Confirmar cancelamento'}</button></div></form>}
         <div className="change-history"><button type="button" className="change-history-link" aria-expanded={historyOpen} aria-controls="change-history-content" onClick={loadChangeHistory}>HISTÓRICO DE ALTERAÇÕES</button>{historyOpen && <div id="change-history-content">{historyLoading ? <p>Carregando...</p> : historyError ? <p role="alert">{historyError}</p> : history?.length ? history.map(item => <p key={item.id}><i />{display(item.alteracao)}<small>{display(item.dataHora)}</small></p>) : <p>Nenhuma alteração registrada.</p>}</div>}</div>
       </aside></div>{message && <p role="alert">{message}</p>}
-    {assignOpen && isAdmin && <div className="assign-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setAssignOpen(false) }}><form className="assign-dialog" role="dialog" aria-modal="true" aria-label="Atribuir técnico" onSubmit={saveTechnician}><h2>Atribuir técnico</h2><FormRequirementsNote /><p className="assign-order-info">{display(order.id)} · {display(order.apelido || order.idPC)}</p><label className="assign-technician-select">Técnico <em>*</em><select required value={technician} onChange={e => setTechnician(e.target.value)}><option value="">Selecione um técnico</option>{technicians.map(user => <option key={user.id} value={user.id}>{user.nome || user.cpf}</option>)}</select></label>{!technicians.length && <p>Nenhum técnico ativo disponível.</p>}<div className="assign-dialog-actions"><button type="button" className="outline-button" onClick={() => setAssignOpen(false)}>Cancelar</button><button className="primary-button" disabled={busy || !technicians.length}>Confirmar</button></div></form></div>}
+    {assignOpen && <div className="assign-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setAssignOpen(false) }}><form className="assign-dialog" role="dialog" aria-modal="true" aria-label="Atribuir técnico" onSubmit={saveTechnician}><h2>Atribuir técnico</h2><FormRequirementsNote /><p className="assign-order-info">{display(order.id)} · {display(order.apelido || order.idPC)}</p><label className="assign-technician-select">Técnico <em>*</em><select required value={technician} onChange={e => setTechnician(e.target.value)} disabled={techniciansLoading}><option value="">{techniciansLoading ? 'Carregando técnicos...' : 'Selecione um técnico'}</option>{technicians.map(user => <option key={user.id} value={user.id}>{user.nome || 'Técnico'}</option>)}</select></label>{!techniciansLoading && !technicians.length && <p>Nenhum técnico ativo disponível.</p>}<div className="assign-dialog-actions"><button type="button" className="outline-button" onClick={() => setAssignOpen(false)}>Cancelar</button><button className="primary-button" disabled={busy || techniciansLoading || !technicians.length}>Confirmar</button></div></form></div>}
     {returnOpen && canReturnToQueue && <div className="assign-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setReturnOpen(false) }}><form className="assign-dialog return-queue-dialog" role="dialog" aria-modal="true" aria-label="Devolver O.S. à fila" onSubmit={saveReturnToQueue}><h2>Devolver O.S. à fila</h2><FormRequirementsNote /><p className="assign-order-info">{display(order.id)} · {display(order.apelido || order.idPC)}</p><label>Justificativa <em>*</em><textarea required maxLength={500} rows="4" value={returnJustification} onChange={e => setReturnJustification(e.target.value)} placeholder="Explique por que esta O.S. deve voltar à fila." /></label><div className="assign-dialog-actions"><button type="button" className="outline-button" disabled={busy} onClick={() => setReturnOpen(false)}>Cancelar</button><button className="primary-button" disabled={busy || !returnJustification.trim()}>{busy ? 'Devolvendo...' : 'Devolver à fila'}</button></div></form></div>}
     </section>
   </div>
