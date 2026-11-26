@@ -12,7 +12,7 @@ export function mapBackendEquipment(item) {
     cpu: item.processador || 'Não identificado',
     ram: (item.ram || 0) + 'GB',
     gpu: (item.placasDeVideo || []).join(', ') || 'Não identificada',
-    operatingSystem: 'Não informado',
-    details: [['Discos', (item.discos || []).join(', ') || 'Não informado'], ['Garantia', item.garantia || 'Não informada']],
+    operatingSystem: item.sistemaOperacional || 'Não informado',
+    details: [['Discos', (item.discos || []).join(', ') || 'Não informado']],
   }
 }

@@ -37,7 +37,7 @@ function toHistoryCard(order, index) {
   return {
     key: order.id || `${order.idPC || 'pc'}-${index}`,
     equipmentId: formatEquipmentId(order.idPC),
-    nickname: order.apelido || '—',
+    nickname:  `PC-${order.idPC}` || '—',
     status: orderStatusLabel(order.status),
     statusType: historyStatusType(order.status),
     problem: details.problem,

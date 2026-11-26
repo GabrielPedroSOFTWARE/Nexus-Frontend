@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: env.NEXUS_PROXY_URL || `http://127.0.0.1:${env.NEXUS_PROXY_PORT || '8081'}`,
+          target: env.NEXUS_PROXY_URL || `http://127.0.0.1:${env.NEXUS_PROXY_PORT || '8080'}`,
           changeOrigin: true,
           configure: proxy => {
             proxy.on('proxyReq', proxyRequest => proxyRequest.removeHeader('origin'))

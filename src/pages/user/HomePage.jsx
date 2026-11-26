@@ -7,7 +7,7 @@ import { orderStatusCode } from '../../shared/orderStatus.js'
 import { hasLocalApi } from '../../shared/api/httpClient.js'
 import { mapBackendEquipment } from '../../features/equipment/mapBackendEquipment.js'
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
-import { ComputerGraphic } from '../../shared/ui/ComputerGraphic.jsx'
+import { GENERIC_DESKTOP_IMAGE, GENERIC_NOTEBOOK_IMAGE } from '../../features/equipment/assets.js'
 import { StatusPill } from '../../shared/ui/StatusPill.jsx'
 
 const USER_MAINTENANCE_STEPS = ['Recebida', 'Em diagnóstico', 'Em preparo', 'Pronto para retirada']
@@ -98,6 +98,7 @@ function MaintenanceStatusCard({ order, notification, loading, ordersError, noti
 export function UserHome({ onToast, openRequest, profileName, registeredEquipment, equipmentStatus, refreshEquipment }) {
   const navigate = useNavigate()
   const device = registeredEquipment?.[0] && mapBackendEquipment(registeredEquipment[0])
+  const isNotebook = device?.ehNotebook === true
   const [orders, setOrders] = useState(null)
   const [ordersError, setOrdersError] = useState(false)
   const [notifications, setNotifications] = useState(null)
@@ -169,7 +170,14 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
               ? equipmentStatus === 'error'
                 ? <p>Não foi possível carregar os equipamentos.</p>
                 : device
-                  ? <div className="equipment-summary-body"><ComputerGraphic /><div><p><b>Modelo:</b> {device.model}</p><p><b>CPU:</b> {device.cpu}</p><p><b>RAM:</b> {device.ram}</p><p><b>GPU:</b> {device.gpu}</p></div></div>
+                  ? <div className="equipment-summary-body"><img
+                        className={`device-type-image ${isNotebook ? 'is-notebook' : 'is-desktop'}`}
+                        src={isNotebook ? GENERIC_NOTEBOOK_IMAGE : GENERIC_DESKTOP_IMAGE}
+                        alt={isNotebook ? 'Imagem genérica de notebook' : 'Imagem genérica de desktop'}
+                        style={isNotebook
+                        ? { width: '120px', height: '120px', objectFit: 'contain', flexShrink: 0 }
+                        : { width: '100px', height: '140px', objectFit: 'cover', flexShrink: 0 }}
+                      /><div><p><b>Modelo:</b> {device.model}</p><p><b>CPU:</b> {device.cpu}</p><p><b>RAM:</b> {device.ram}</p><p><b>GPU:</b> {device.gpu}</p></div></div>
                   : <p>{equipmentStatus === 'ready' ? 'Nenhum equipamento cadastrado.' : 'Carregando equipamentos...'}</p>
               : <div className="equipment-summary-body"><ComputerGraphic /><div><p><b>CPU:</b> Intel core i5 10500F</p><p><b>RAM:</b> 8GB</p><p><b>GPU:</b> Intel graphics</p><p><b>S.O:</b> Windows 11 PRO</p></div></div>}
           </article>
