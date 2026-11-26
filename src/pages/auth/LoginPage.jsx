@@ -1,4 +1,4 @@
-import { hasLocalApi } from '../../shared/api/httpClient.js'
+import { hasLocalApi, isPagesConnection } from '../../shared/api/httpClient.js'
 import { BRAND_ASSET } from '../../shared/assets.js'
 import { formatCpf, formatCpfOrDemo, normalizeCpf } from '../../shared/cpf.js'
 import { checkPasswordRecovery, requestPasswordReset, resetPassword } from '../../features/auth/api.js'
@@ -146,6 +146,7 @@ export function LoginPage({ onAccessRequest, onLogin }) {
       {authView !== 'login' ? recoveryContent : <form className="auth-card" onSubmit={login}>
         <h1>Acessar Sistema</h1>
         <p className="auth-subtitle">Faça login para continuar</p>
+        {isPagesConnection && <p className="local-connection-note">O NEXUS se conecta ao backend e ao relay iniciados neste computador. No primeiro acesso, permita a conexão local quando o navegador solicitar.</p>}
         <FormRequirementsNote includeOptional />
         {!hasLocalApi && <p role="status">Modo demonstração: a autenticação é simulada. Digite “admin” para abrir o painel.</p>}
         {recoveryFeedback}

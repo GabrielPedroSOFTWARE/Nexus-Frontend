@@ -26,6 +26,22 @@ export async function listUsers() {
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar usuários.')
   return data.map(publicUser)
 }
+export async function listEquipmentByUser(cpf) {
+  // O relay local transforma a query em corpo para o contrato GET do backend.
+  const query = new URLSearchParams({ cpfUsuario: String(cpf || '') })
+  const data = await apiRequest(`/adm/equipamentos-por-usuario?${query}`)
+  if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar os ativos do usuário.')
+  return data
+}
+export function unlinkEquipmentForAdmin(id, reason = '') {
+  const trimmedReason = String(reason || '').trim()
+  const options = { method: 'DELETE' }
+  if (trimmedReason) {
+    options.body = trimmedReason
+    options.rawBody = true
+  }
+  return apiRequest(`/user/remover-equipamento/${idPath(id)}`, options)
+}
 export async function listActiveTechnicians() {
   const data = await apiRequest('/backoffice/tecnicos-ativos')
   if (!Array.isArray(data)) throw new Error('Resposta inválida ao consultar técnicos.')

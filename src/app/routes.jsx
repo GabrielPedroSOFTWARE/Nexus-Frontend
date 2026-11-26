@@ -12,10 +12,11 @@ import { AccessRequestReview } from '../pages/admin/AccessRequestsPage.jsx'
 import { UserManagement } from '../pages/admin/UsersPage.jsx'
 import { UserRegistration } from '../pages/admin/UserRegistrationPage.jsx'
 import { AdminEquipmentManagement } from '../pages/admin/EquipmentManagementPage.jsx'
+import { UnlinkActivePage } from '../pages/admin/UnlinkActivePage.jsx'
 
 export function AppRoutes({ pathname, session, equipmentStatus, refreshEquipment, removeEquipment, onToast, openRequest, profileName, onScan, macbookAdded, registeredEquipment, openService, onLogin, onAccessRequest }) {
   const isBackofficeRoute = pathname === '/admin' || pathname.startsWith('/admin/')
-  const isAdminOnlyRoute = ['/admin/usuarios', '/admin/solicitacoes', '/admin/cadastro-usuario', '/admin/equipamentos'].includes(pathname)
+  const isAdminOnlyRoute = ['/admin/usuarios', '/admin/solicitacoes', '/admin/cadastro-usuario', '/admin/equipamentos', '/admin/desvincular-ativo'].includes(pathname)
   const isUserRoute = ['/home', '/meus-pcs', '/historico'].includes(pathname)
   const perfil = String(session?.perfil || '').toUpperCase()
   const isAdmin = Boolean(session?.isAdmin || String(session?.admin).toLowerCase() === 'true')
@@ -25,6 +26,7 @@ export function AppRoutes({ pathname, session, equipmentStatus, refreshEquipment
   if (isAdminOnlyRoute && !isAdmin) return <Navigate to={isBackoffice ? '/admin' : '/home'} replace />
   if (isBackofficeRoute && !isBackoffice) return <Navigate to="/home" replace />
   if (isUserRoute && !isUser) return <Navigate to={isBackoffice ? '/admin' : '/'} replace />
+  if (pathname === '/admin/desvincular-ativo') return <UnlinkActivePage onToast={onToast} profileName={profileName} />
   if (isBackofficeRoute && hasLocalApi) return <ConnectedAdmin pathname={pathname} profileName={profileName} profile={perfil} isAdmin={isAdmin} onToast={onToast} />
   switch (pathname) {
     case '/home':

@@ -45,7 +45,7 @@ export async function apiRequest(path, options = {}) {
     })
   } catch {
     throw new Error(isPagesConnection
-      ? 'Não foi possível conectar ao backend. Confira se ele está iniciado neste computador e se permite o acesso do site e autorize o acesso local no navegador.'
+      ? 'Não foi possível conectar ao serviço local. Confira se o backend e o relay do frontend estão iniciados e autorize o acesso local no navegador.'
       : 'Não foi possível conectar ao backend local. Confira se ele está iniciado em localhost:8080.')
   }
 

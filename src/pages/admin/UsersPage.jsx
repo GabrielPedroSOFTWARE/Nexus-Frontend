@@ -35,7 +35,7 @@ export function UserManagement({ onToast }) {
     <main className="page-content user-management-content">
       <h1 className="page-title user-management-title">Gestão de Usuários</h1>
       <section className="panel users-panel">
-        <div className="users-toolbar"><label className="users-search"><Search size={19} /><input aria-label="Pesquisar usuário por nome ou CPF" placeholder="Pesquisar usuário por nome ou CPF" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label></div>
+        <div className="users-toolbar"><label className="users-search"><Search size={19} /><input aria-label="Pesquisar usuário por nome ou CPF" placeholder="Pesquisar usuário por nome ou CPF" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label><button type="button" className="users-unlink-button" onClick={() => navigate('/admin/desvincular-ativo')}>Desvincular ativo</button></div>
         <div className="table-scroll users-table-scroll"><table className="users-table"><thead><tr><th>NOME</th><th>CPF</th><th>TIPO DE ACESSO</th><th>PERMISSÃO ADM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>
           {filteredUsers.map(user => {
             const edited = editedUser(user)

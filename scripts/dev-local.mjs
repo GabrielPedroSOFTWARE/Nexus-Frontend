@@ -48,6 +48,11 @@ const backend = spawn(gradleCommand, gradleArgs, {
   shell: process.platform === 'win32',
   stdio: 'inherit',
 })
+const relay = spawn(process.execPath, [path.join(projectRoot, 'scripts/api-relay.mjs')], {
+  cwd: projectRoot,
+  env,
+  stdio: 'inherit',
+})
 const vite = spawn(process.execPath, [path.join(projectRoot, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1'], {
   cwd: projectRoot,
   env,
@@ -56,13 +61,15 @@ const vite = spawn(process.execPath, [path.join(projectRoot, 'node_modules/vite/
 
 console.log('Frontend: http://localhost:5173')
 console.log('Backend:  http://localhost:8080')
-console.log('Pare os dois serviços com Ctrl+C.')
+console.log('Relay:    http://127.0.0.1:8081')
+console.log('Pare os processos com Ctrl+C.')
 
 let stopping = false
 function stop(code = 0) {
   if (stopping) return
   stopping = true
   backend.kill('SIGTERM')
+  relay.kill('SIGTERM')
   vite.kill('SIGTERM')
   process.exitCode = code
 }
@@ -72,6 +79,10 @@ backend.on('error', error => {
   console.error('Não foi possível iniciar o backend:', error.message)
   stop(1)
 })
+relay.on('error', error => {
+  console.error('Não foi possível iniciar o relay local:', error.message)
+  stop(1)
+})
 vite.on('error', error => {
   console.error('Não foi possível iniciar o frontend:', error.message)
   stop(1)
@@ -79,6 +90,12 @@ vite.on('error', error => {
 backend.on('exit', code => {
   if (!stopping && code !== 0) {
     console.error('O backend encerrou com erro.')
+    stop(code || 1)
+  }
+})
+relay.on('exit', code => {
+  if (!stopping && code !== 0) {
+    console.error('O relay local encerrou com erro.')
     stop(code || 1)
   }
 })

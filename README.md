@@ -26,7 +26,7 @@
 
 O NEXUS é uma aplicação web para acompanhar solicitações e manutenções de equipamentos de TI. Esta versão apresenta, em uma interface responsiva, os fluxos de quem solicita atendimento e da equipe administrativa.
 
-Este repositório contém a interface do sistema. O GitHub Pages pode tentar acessar o backend local no computador do usuário e oferece uma opção de demonstração com dados simulados. Localmente, é possível conectar as funções disponíveis à API do backend.
+Este repositório contém a interface do sistema. O GitHub Pages pode acessar o backend local por meio de um relay iniciado no computador do usuário e oferece uma opção de demonstração com dados simulados. Localmente, é possível conectar as funções disponíveis à API do backend.
 
 ## Captura de tela
 
@@ -85,6 +85,7 @@ Depois, abra o endereço exibido no terminal. Por padrão, o Vite inicia em <htt
 | Comando | O que faz |
 | --- | --- |
 | `npm run dev` | Inicia o servidor de desenvolvimento. |
+| `npm run proxy:local` | Inicia o relay local entre o frontend e o backend. |
 | `npm run build` | Gera a versão de produção na pasta `dist/`. |
 | `npm run preview` | Abre localmente uma prévia da versão compilada. |
 
@@ -118,6 +119,10 @@ Para configurar uma cópia do projeto, selecione **Configurações → Pages →
 ├── .github/workflows/              # Publicação no GitHub Pages
 ├── docs/imagens/                   # Imagens usadas nesta documentação
 ├── public/                         # Imagens e identidade visual da aplicação
+├── scripts/                        # Scripts de apoio à execução local
+│   ├── api-relay.mjs               # Relay local entre o navegador e o backend
+│   ├── dev-local.mjs               # Inicialização integrada no macOS
+│   └── setup-local.mjs             # Preparação do ambiente local no macOS
 ├── src/
 │   ├── app/                        # Composição da aplicação e seleção de rotas
 │   ├── assets/fonts/               # Fontes locais
@@ -158,19 +163,32 @@ Registre dúvidas, sugestões ou problemas na [área de problemas do repositóri
 
 ## Execução integrada local
 
-Com o backend já iniciado na porta 8080 pelo responsável, configure o frontend:
+Com o backend iniciado pelo responsável, configure o frontend:
 
 ```bash
 cp .env.local.example .env.local
 npm ci
-npm run dev
 ```
 
-No Windows, copie `.env.local.example` para `.env.local` pelo VS Code. Abra o endereço informado pelo Vite. O frontend encaminha as chamadas `/api` para `http://127.0.0.1:8080`; se necessário, ajuste `NEXUS_BACKEND_URL` no `.env.local` e reinicie o Vite. O arquivo `.env.local` não deve ser enviado ao Git.
+No Windows, copie `.env.local.example` para `.env.local` pelo VS Code ou pelo PowerShell:
+
+```powershell
+Copy-Item .env.local.example .env.local
+```
+
+Abra dois terminais na pasta do frontend. No primeiro, inicie o relay com `npm run proxy:local`; no segundo, inicie a interface com `npm run dev`. O Vite encaminha `/api` ao relay, que envia as chamadas ao backend configurado em `NEXUS_BACKEND_URL` (por padrão, `http://127.0.0.1:8080`). Se necessário, ajuste essa variável no `.env.local`. O relay também adapta a consulta de equipamentos para o contrato `GET` com corpo. Mantenha os dois terminais abertos e não envie `.env.local` ao Git.
 
 O login, a leitura e o cadastro de equipamentos, os pedidos e o histórico dependem dos contratos da versão do backend em execução. A área administrativa usa os contratos da versão do backend `fd13cbb` ou compatível. A solicitação de acesso pela tela de login usa o endpoint de cadastro; a negação de solicitações permanece indisponível. Os status de 0 a 5 seguem provisoriamente a ordem do protótipo (Recebida, Em diagnóstico, Em manutenção, Aguardando peças, Pronta para retirada e Concluída). O código 6 permanece não identificado, e a correspondência e as transições devem ser confirmadas com a equipe do backend. As incompatibilidades entre versões e a segurança da API devem ser avaliadas pelo responsável pelo backend.
 
-No GitHub Pages, o endereço da API é `http://127.0.0.1:8080` no próprio computador que abriu o site. O backend deve permitir a origem `https://gabrielpedrosoftware.github.io` por CORS, inclusive as requisições de verificação e os cabeçalhos necessários, e o navegador pode exigir permissão para acesso local. Na versão `fd13cbb` o CORS permite a origem do Pages, mas não permite `PATCH`; assim, as alterações que usam esse método dependem de ajuste pelo responsável pelo backend. A opção “Abrir demonstração” usa dados simulados. O proxy do Vite funciona apenas durante a execução local, não na hospedagem estática.
+No GitHub Pages, a API aponta para o relay local em `http://127.0.0.1:8081`. Para usar o sistema, o backend e o relay precisam estar ativos no computador que abriu o site. Em uma segunda janela do terminal, dentro da pasta do frontend, inicie o relay:
+
+```bash
+npm run proxy:local
+```
+
+O relay encaminha as requisições ao backend configurado em `NEXUS_BACKEND_URL` (por padrão, `http://127.0.0.1:8080`) e converte somente a consulta de equipamentos por usuário para o formato `GET` com corpo que o backend espera. Ele escuta apenas em `127.0.0.1:8081` e aceita chamadas do GitHub Pages e dos endereços locais do Vite por uma lista restrita de origens. No primeiro login, o navegador pode pedir autorização para o site acessar o serviço local. No Windows, use `npm run proxy:local` no terminal do VS Code e mantenha a janela aberta.
+
+Se o GitHub Pages for aberto em outro computador, esse computador também precisa executar o relay e alcançar o backend pela rede. `127.0.0.1` sempre aponta para o próprio computador que abriu o site; em redes diferentes, será necessário disponibilizar o backend por um endereço acessível ou túnel. O relay aceita apenas origens configuradas e não deve ser exposto publicamente. A opção “Abrir demonstração” continua usando dados simulados.
 
 ### Limitações atuais da integração
 

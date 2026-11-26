@@ -296,7 +296,7 @@ function Pending() {
     </section><section className="panel access-decision-panel"><h2 className="figma-panel-title">DEFINIR ACESSO</h2><span className="access-type-label">TIPO DE ACESSO</span><div className="access-choice-list">{[['USER','Usuário solicitante'],['SUPPORT_MANAGER','Técnico / Gestor']].map(([value,label]) => <label className={`access-choice ${(profiles[selected.id] || 'USER') === value ? 'selected' : ''}`} key={value}><input type="radio" name="perfil" value={value} checked={(profiles[selected.id] || 'USER') === value} onChange={() => setProfiles({ ...profiles, [selected.id]: value })} /><span>{label}</span></label>)}</div><small className="access-hint">Defina o tipo de acesso antes de liberar.</small><div className="access-decision-actions"><button className="approve-access-button" disabled={!!busy} onClick={() => approve(selected)}>Liberar acesso</button><button className="deny-access-button" disabled={!!busy} onClick={() => reject(selected)}>Negar acesso</button></div>{message && <p role="status">{message}</p>}</section>
   </div>}</RemoteState>
 }
-function Users() {
+function Users({ onUnlinkActive }) {
   const state = useRemote(listUsers)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -348,7 +348,7 @@ function Users() {
   }
 
   return <section className="panel users-panel"><RemoteState state={state} empty="Nenhum outro usuário encontrado.">
-    <div className="users-toolbar"><label className="users-search"><Search size={19} /><input aria-label="Pesquisar usuário por nome ou CPF" placeholder="Pesquisar usuário por nome ou CPF" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label></div>
+    <div className="users-toolbar"><label className="users-search"><Search size={19} /><input aria-label="Pesquisar usuário por nome ou CPF" placeholder="Pesquisar usuário por nome ou CPF" value={query} onChange={e => setQuery(e.target.value)} />{query && <button type="button" aria-label="Limpar busca" onClick={() => setQuery('')}><X size={16} /></button>}</label><button type="button" className="users-unlink-button" onClick={onUnlinkActive}>Desvincular ativo</button></div>
     <div className="table-scroll users-table-scroll"><table className="users-table"><thead><tr><th>NOME</th><th>CPF</th><th>TIPO DE ACESSO</th><th>PERMISSÃO ADM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>
       {filteredUsers.map(user => {
         const edited = editedUser(user)
@@ -407,7 +407,7 @@ export function ConnectedAdmin({ pathname, onToast, profileName, profile = '', i
   const pageTitle = pathname === '/admin/usuarios' ? 'Gestão de Usuários' : pathname === '/admin/solicitacoes' ? 'Solicitações de acesso' : pathname === '/admin/cadastro-usuario' ? 'Cadastrar usuário' : pathname === '/admin/equipamentos' ? 'Equipamentos' : pathname === '/admin/minhas-ordens' ? 'Ordens atribuídas a mim' : pathname === '/admin/manutencoes' ? 'Manutenções ativas' : 'Ordens de serviço'
   return <PageFrame mode="admin" active={active} onToast={onToast} profileName={profileName} canManageUsers={isAdmin} onOpenAccess={isAdmin ? () => navigate('/admin/solicitacoes') : undefined}><main className={`page-content connected-admin ${pathname === '/admin' ? 'admin-home-content connected-admin-home' : ''}`}>
     {pathname === '/admin' ? <Dashboard isAdmin={isAdmin} profile={profile} /> : pathname === '/admin/ordens' ? <ConnectedOrdersPage isAdmin={isAdmin} /> : pathname === '/admin/manutencoes' ? <ConnectedMaintenancePage isAdmin={isAdmin} /> : <><h1 className="page-title">{pageTitle}</h1>
-      {pathname === '/admin/usuarios' ? <Users /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : pathname === '/admin/equipamentos' ? <EquipmentManagement /> : <Orders isAdmin={isAdmin} loader={pathname === '/admin/minhas-ordens' || !isAdmin ? listAssignedOrders : listOrders} title={pathname === '/admin/minhas-ordens' ? 'Ordens atribuídas a mim' : undefined} />}
+      {pathname === '/admin/usuarios' ? <Users onUnlinkActive={() => navigate('/admin/desvincular-ativo')} /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : pathname === '/admin/equipamentos' ? <EquipmentManagement /> : <Orders isAdmin={isAdmin} loader={pathname === '/admin/minhas-ordens' || !isAdmin ? listAssignedOrders : listOrders} title={pathname === '/admin/minhas-ordens' ? 'Ordens atribuídas a mim' : undefined} />}
     </>}
   </main></PageFrame>
 }
