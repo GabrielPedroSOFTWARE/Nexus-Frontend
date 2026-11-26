@@ -1,0 +1,87 @@
+/* Aumenta a leitura da análise de solicitações sem alterar as outras telas. */
+.connected-admin .request-details-panel .figma-panel-title,
+.connected-admin .access-decision-panel .figma-panel-title {
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.connected-admin .request-data-grid > div {
+  min-height: 84px;
+  padding: 14px;
+}
+
+.connected-admin .request-data-grid small {
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0.45px;
+}
+
+.connected-admin .request-data-grid b {
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.connected-admin .request-status {
+  padding: 5px 9px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.connected-admin .request-details-panel > label {
+  font-size: 14px;
+}
+
+.connected-admin .request-details-panel select {
+  min-height: 44px;
+  font-size: 15px;
+}
+
+.connected-admin .access-type-label {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.connected-admin .access-choice {
+  min-height: 60px;
+  padding: 11px 13px;
+}
+
+.connected-admin .access-choice input {
+  width: 18px;
+  height: 18px;
+}
+
+.connected-admin .access-choice > span {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.connected-admin .access-hint {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.connected-admin .access-decision-actions button {
+  min-height: 58px;
+  font-size: 15px;
+}
+
+@media (max-width: 520px) {
+  .connected-admin .request-data-grid > div {
+    min-height: 76px;
+    padding: 12px;
+  }
+
+  .connected-admin .request-data-grid small {
+    font-size: 11px;
+  }
+
+  .connected-admin .request-data-grid b {
+    font-size: 15px;
+  }
+
+  .connected-admin .access-choice > span {
+    font-size: 14px;
+  }
+}
