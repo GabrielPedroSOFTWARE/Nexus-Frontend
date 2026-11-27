@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Activity, ChevronRight, CircleAlert, ClipboardList, Clock3, FileText, ListFilter, LoaderCircle, Monitor, Search, Settings, SlidersHorizontal, TriangleAlert, UserRound, X } from 'lucide-react'
 import { PageFrame } from '../../shared/layout/PageFrame.jsx'
 import { formatCpf } from '../../shared/cpf.js'
@@ -116,6 +116,7 @@ function Dashboard({ isAdmin, profile }) {
   const roleLabel = isAdmin ? 'Administrador' : 'Técnico / Gestor'
   const refresh = () => { orders.refresh(); users.refresh(); totals.refresh(); pending.refresh(); mtbf.refresh(); mttr.refresh() }
   const openOrderList = () => navigate('/admin/ordens')
+  const openMaintenance = filter => navigate(filter === 'all' ? '/admin/manutencoes' : `/admin/manutencoes?filtro=${filter}`)
   return <>
     <h1 className="page-title connected-dashboard-greeting">Olá, {roleLabel}! Bem-vindo ao NEXUS.</h1>
     <div className="connected-dashboard-toolbar"><span>Dados da sessão atual.</span><button className="outline-button" onClick={refresh}>Atualizar dados</button></div>
@@ -124,9 +125,9 @@ function Dashboard({ isAdmin, profile }) {
         <article className="panel general-summary connected-summary-panel"><div className="section-title-row"><h2>RESUMO GERAL</h2><span className="updated-chip">Dados atuais</span></div>
           <RemoteState state={orders}><div className="metric-grid">
             <DashboardMetric icon={FileText} value={metrics.total} title="Ordens de serviço no total" percentage={metrics.total ? 100 : 0} tone="blue" onClick={openOrderList} />
-            <DashboardMetric icon={Settings} value={metrics.active} title="Manutenções ativas" percentage={percent(metrics.active)} tone="cyan" onClick={openOrderList} />
-            <DashboardMetric icon={Clock3} value={metrics.waitingForParts} title="Aguardando peças" percentage={percent(metrics.waitingForParts)} tone="orange" onClick={openOrderList} />
-            <DashboardMetric icon={CircleAlert} value={metrics.overdue} title="Atrasadas" percentage={percent(metrics.overdue)} tone="red" onClick={openOrderList} />
+            <DashboardMetric icon={Settings} value={metrics.active} title="Manutenções ativas" percentage={percent(metrics.active)} tone="cyan" onClick={() => openMaintenance('all')} />
+            <DashboardMetric icon={Clock3} value={metrics.waitingForParts} title="Aguardando peças" percentage={percent(metrics.waitingForParts)} tone="orange" onClick={() => openMaintenance('waiting')} />
+            <DashboardMetric icon={CircleAlert} value={metrics.overdue} title="Atrasadas" percentage={percent(metrics.overdue)} tone="red" onClick={() => openMaintenance('overdue')} />
           </div></RemoteState>
         </article>
         <DashboardActiveOrders state={orders} isAdmin={isAdmin} isTechnician={isTechnician} onOpenOrders={() => navigate(isTechnician ? '/admin/minhas-ordens' : '/admin/ordens')} usersByCpf={usersByCpf} />
@@ -225,10 +226,14 @@ function ConnectedOrdersPage({ isAdmin }) {
   </>
 }
 
+const VALID_MAINTENANCE_FILTERS = ['all', 'overdue', 'diagnosis', 'waiting']
 function ConnectedMaintenancePage({ isAdmin }) {
   const orders = useRemote(listOrders)
   const users = useRemote(isAdmin ? listUsers : noPendingUsers)
-  const [filter, setFilter] = useState('all')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const paramFilter = searchParams.get('filtro')
+  const filter = VALID_MAINTENANCE_FILTERS.includes(paramFilter) ? paramFilter : 'all'
+  const setFilter = nextFilter => setSearchParams(nextFilter === 'all' ? {} : { filtro: nextFilter }, { replace: true })
   const [selected, setSelected] = useState(null)
   const safeOrders = orders.data || []
   const usersByCpf = userNamesByCpf(users.data)
