@@ -192,9 +192,4 @@ Se o GitHub Pages for aberto em outro computador, esse computador também precis
 
 ### Limitações atuais da integração
 
-- A versão do backend `fd13cbb` não possui campo próprio para frequência. O frontend inclui a informação no texto do problema e também envia o campo `frequencia`, para compatibilidade com versões que o aceitem. Nas telas, uma frequência reconhecida é mostrada separadamente. Sem campo próprio no backend, não há consulta ou filtro independente por frequência.
-- O backend retorna o anexo sem nome nem tipo original. O frontend o disponibiliza como `anexo.bin`.
 - A leitura automática descreve a máquina onde o backend está rodando.
-- As notificações são consultadas, mas o backend não oferece uma rota para marcá-las como lidas.
-- Os indicadores de prazo, estoque e desempenho precisam de dados ou regras adicionais do backend. A correspondência provisória dos status precisa de confirmação com a equipe do backend.
-- O responsável pelo backend deve revisar as permissões e os dados devolvidos pela API antes do uso com informações reais.
