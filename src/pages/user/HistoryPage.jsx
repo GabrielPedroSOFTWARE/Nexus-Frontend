@@ -74,7 +74,7 @@ function HistoryCard({ item }) {
     <div className="history-field"><span className="history-field-label">PC ID</span><span className="history-field-value">{item.equipmentId}</span></div>
     <div className="history-field"><span className="history-field-label">Apelido</span><span className="history-field-value">{item.nickname}</span></div>
     <div className="history-field"><span className="history-field-label">Status</span><span className="history-field-value"><StatusPill type={item.statusType}>{item.status}</StatusPill></span></div>
-    <div className="history-field history-problem-field"><span className="history-field-label">Problema</span><span className="history-field-value">{item.problem}</span></div>
+    <div className="history-field"><span className="history-field-label">Problema</span><span className="history-field-value">{item.problem}</span></div>
     <div className="history-field"><span className="history-field-label">Data</span><span className="history-field-value">{item.date}</span></div>
     <div className="history-field"><span className="history-field-label">Técnico</span><span className="history-field-value">{item.technician}</span></div>
   </article>

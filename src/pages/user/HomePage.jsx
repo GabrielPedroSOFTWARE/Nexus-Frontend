@@ -95,9 +95,24 @@ function MaintenanceStatusCard({ order, notification, loading, ordersError, noti
   </article>
 }
 
+function equipmentKey(item, index) {
+  return String(item?.id ?? item?.idEquipamento ?? `${item?.model || 'pc'}-${index}`)
+}
+
 export function UserHome({ onToast, openRequest, profileName, registeredEquipment, equipmentStatus, refreshEquipment }) {
   const navigate = useNavigate()
-  const device = registeredEquipment?.[0] && mapBackendEquipment(registeredEquipment[0])
+  const devices = Array.isArray(registeredEquipment)
+    ? registeredEquipment.map(mapBackendEquipment)
+    : []
+
+  const [selectedKey, setSelectedKey] = useState('')
+
+  const selectedIndex = Math.max(
+    0,
+    devices.findIndex((item, index) => equipmentKey(item, index) === selectedKey)
+  )
+  const device = devices[selectedIndex] || null
+  const currentKey = device ? equipmentKey(device, selectedIndex) : ''
   const isNotebook = device?.ehNotebook === true
   const [orders, setOrders] = useState(null)
   const [ordersError, setOrdersError] = useState(false)
@@ -164,6 +179,27 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
           />
         </section>
         <aside className="user-side-column">
+          {hasLocalApi && equipmentStatus === 'ready' && devices.length > 0 && (
+    <div className="equipment-selector">
+      <label htmlFor="home-equipment-select">EQUIPAMENTO</label>
+      <select
+        id="home-equipment-select"
+        value={currentKey}
+        onChange={event => setSelectedKey(event.target.value)}
+      >
+        {devices.map((item, index) => {
+          const key = equipmentKey(item, index)
+          const tipo = item.ehNotebook ? 'Notebook' : 'Desktop'
+          const nome = item.model || `Equipamento ${index + 1}`
+          return (
+            <option key={key} value={key}>
+              {tipo} — {nome}
+            </option>
+          )
+        })}
+      </select>
+    </div>
+  )}
           <article className="panel equipment-summary">
             <h3>RESUMO DO EQUIPAMENTO</h3>
             {hasLocalApi

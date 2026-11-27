@@ -115,7 +115,7 @@ function Dashboard({ isAdmin, profile }) {
   const percent = value => metrics.total ? Math.round(value / metrics.total * 100) : 0
   const roleLabel = isAdmin ? 'Administrador' : 'Técnico / Gestor'
   const refresh = () => { orders.refresh(); users.refresh(); totals.refresh(); pending.refresh(); mtbf.refresh(); mttr.refresh() }
-  const openOrderList = () => navigate(isTechnician ? '/admin/minhas-ordens' : '/admin/ordens')
+  const openOrderList = () => navigate('/admin/ordens')
   return <>
     <h1 className="page-title connected-dashboard-greeting">Olá, {roleLabel}! Bem-vindo ao NEXUS.</h1>
     <div className="connected-dashboard-toolbar"><span>Dados da sessão atual.</span><button className="outline-button" onClick={refresh}>Atualizar dados</button></div>
@@ -129,7 +129,7 @@ function Dashboard({ isAdmin, profile }) {
             <DashboardMetric icon={CircleAlert} value={metrics.overdue} title="Atrasadas" percentage={percent(metrics.overdue)} tone="red" onClick={openOrderList} />
           </div></RemoteState>
         </article>
-        <DashboardActiveOrders state={orders} isAdmin={isAdmin} isTechnician={isTechnician} onOpenOrders={openOrderList} usersByCpf={usersByCpf} />
+        <DashboardActiveOrders state={orders} isAdmin={isAdmin} isTechnician={isTechnician} onOpenOrders={() => navigate(isTechnician ? '/admin/minhas-ordens' : '/admin/ordens')} usersByCpf={usersByCpf} />
         <DashboardAlerts orders={orders} pending={pending} isAdmin={isAdmin} />
       </section>
       <aside className="admin-side-column connected-dashboard-side">
@@ -177,7 +177,7 @@ function EquipmentManagement() {
   </>
 }
 function ConnectedOrdersPage({ isAdmin }) {
-  const orders = useRemote(isAdmin ? listOrders : listAssignedOrders)
+  const orders = useRemote(listOrders)
   const [period, setPeriod] = useState(() => {
     const now = new Date()
     return { ano: now.getFullYear(), mes: now.getMonth() + 1 }
@@ -226,7 +226,7 @@ function ConnectedOrdersPage({ isAdmin }) {
 }
 
 function ConnectedMaintenancePage({ isAdmin }) {
-  const orders = useRemote(isAdmin ? listOrders : listAssignedOrders)
+  const orders = useRemote(listOrders)
   const users = useRemote(isAdmin ? listUsers : noPendingUsers)
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
@@ -407,7 +407,7 @@ export function ConnectedAdmin({ pathname, onToast, profileName, profile = '', i
   const pageTitle = pathname === '/admin/usuarios' ? 'Gestão de Usuários' : pathname === '/admin/solicitacoes' ? 'Solicitações de acesso' : pathname === '/admin/cadastro-usuario' ? 'Cadastrar usuário' : pathname === '/admin/equipamentos' ? 'Equipamentos' : pathname === '/admin/minhas-ordens' ? 'Ordens atribuídas a mim' : pathname === '/admin/manutencoes' ? 'Manutenções ativas' : 'Ordens de serviço'
   return <PageFrame mode="admin" active={active} onToast={onToast} profileName={profileName} canManageUsers={isAdmin} onOpenAccess={isAdmin ? () => navigate('/admin/solicitacoes') : undefined}><main className={`page-content connected-admin ${pathname === '/admin' ? 'admin-home-content connected-admin-home' : ''}`}>
     {pathname === '/admin' ? <Dashboard isAdmin={isAdmin} profile={profile} /> : pathname === '/admin/ordens' ? <ConnectedOrdersPage isAdmin={isAdmin} /> : pathname === '/admin/manutencoes' ? <ConnectedMaintenancePage isAdmin={isAdmin} /> : <><h1 className="page-title">{pageTitle}</h1>
-      {pathname === '/admin/usuarios' ? <Users onUnlinkActive={() => navigate('/admin/desvincular-ativo')} /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : pathname === '/admin/equipamentos' ? <EquipmentManagement /> : <Orders isAdmin={isAdmin} loader={pathname === '/admin/minhas-ordens' || !isAdmin ? listAssignedOrders : listOrders} title={pathname === '/admin/minhas-ordens' ? 'Ordens atribuídas a mim' : undefined} />}
+      {pathname === '/admin/usuarios' ? <Users onUnlinkActive={() => navigate('/admin/desvincular-ativo')} /> : pathname === '/admin/solicitacoes' ? <Pending /> : pathname === '/admin/cadastro-usuario' ? <Registration /> : pathname === '/admin/equipamentos' ? <EquipmentManagement /> : <Orders isAdmin={isAdmin} loader={pathname === '/admin/minhas-ordens' ? listAssignedOrders : listOrders} title={pathname === '/admin/minhas-ordens' ? 'Ordens atribuídas a mim' : undefined} />}
     </>}
   </main></PageFrame>
 }

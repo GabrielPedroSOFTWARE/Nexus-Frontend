@@ -159,3 +159,36 @@
 .scan-complete-actions button { min-width: 145px; min-height: 46px; display: inline-flex; justify-content: center; align-items: center; gap: 8px; border: 0; border-radius: 9px; color: #fff; font-weight: 700; }
 .accept-button { background: #47c967; }
 .cancel-button { background: #ef5555; }
+
+
+.equipment-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.equipment-selector label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #2c4356;
+}
+
+.equipment-selector select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #8a9bb0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  color: #1f3347;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+.equipment-selector select:focus {
+  outline: none;
+  border-color: #2b4560;
+}
