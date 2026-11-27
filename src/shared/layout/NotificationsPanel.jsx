@@ -35,8 +35,11 @@ export function NotificationsPanel({ demo, mode, open, onUnreadChange = () => {}
   }, [open, demo, mode, onUnreadChange])
   const selectNotification = async item => {
     try {
-      if (mode === 'user' && !item.lida) {
-        await apiRequest('/user/marcar-notificacao-usuario/' + encodeURIComponent(item.id), { method: 'PATCH' })
+      if (!item.lida) {
+        const markEndpoint = mode === 'user'
+          ? '/user/marcar-notificacao-usuario/'
+          : '/backoffice/marcar-notificacao-backoffice/'
+        await apiRequest(markEndpoint + encodeURIComponent(item.id), { method: 'PATCH' })
         const updatedItems = items.map(current => current.id === item.id ? { ...current, lida: true } : current)
         setItems(updatedItems)
         onUnreadChange(updatedItems.some(current => !current.lida))
