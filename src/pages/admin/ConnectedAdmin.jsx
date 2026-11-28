@@ -157,6 +157,9 @@ function equipmentRowsFromOrders(orders) {
   }
   return [...equipment.values()]
 }
+
+
+// Tela do resumo de equipamentos
 function EquipmentManagement() {
   const totals = useRemote(getTotals)
   const orders = useRemote(listOrders)
@@ -177,6 +180,8 @@ function EquipmentManagement() {
     </section>
   </>
 }
+
+// Tela Ordens de Serviço
 function ConnectedOrdersPage({ isAdmin }) {
   const orders = useRemote(listOrders)
   const [period, setPeriod] = useState(() => {
@@ -226,6 +231,7 @@ function ConnectedOrdersPage({ isAdmin }) {
   </>
 }
 
+// Tela de manutenções ativas
 const VALID_MAINTENANCE_FILTERS = ['all', 'overdue', 'diagnosis', 'waiting']
 function ConnectedMaintenancePage({ isAdmin }) {
   const orders = useRemote(listOrders)
@@ -301,6 +307,8 @@ function Pending() {
     </section><section className="panel access-decision-panel"><h2 className="figma-panel-title">DEFINIR ACESSO</h2><span className="access-type-label">TIPO DE ACESSO</span><div className="access-choice-list">{[['USER','Usuário solicitante'],['SUPPORT_MANAGER','Técnico / Gestor']].map(([value,label]) => <label className={`access-choice ${(profiles[selected.id] || 'USER') === value ? 'selected' : ''}`} key={value}><input type="radio" name="perfil" value={value} checked={(profiles[selected.id] || 'USER') === value} onChange={() => setProfiles({ ...profiles, [selected.id]: value })} /><span>{label}</span></label>)}</div><small className="access-hint">Defina o tipo de acesso antes de liberar.</small><div className="access-decision-actions"><button className="approve-access-button" disabled={!!busy} onClick={() => approve(selected)}>Liberar acesso</button><button className="deny-access-button" disabled={!!busy} onClick={() => reject(selected)}>Negar acesso</button></div>{message && <p role="status">{message}</p>}</section>
   </div>}</RemoteState>
 }
+
+// Tela de gestão de usuários
 function Users({ onUnlinkActive }) {
   const state = useRemote(listUsers)
   const [saving, setSaving] = useState(false)
