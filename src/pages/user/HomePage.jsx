@@ -20,8 +20,76 @@ function userProgressIndex(status) {
   return code
 }
 
-function latestUserNotification(notifications) {
-  return Array.isArray(notifications) ? notifications[0] || null : null
+function notificationStatus(notification) {
+  return notification?.status ?? notification?.statusPedido ?? notification?.statusManutencao ?? notification?.novoStatus ?? notification?.etapa
+}
+
+function isFinishedNotification(notification) {
+  const rawStatus = notificationStatus(notification)
+  const code = orderStatusCode(rawStatus)
+  if (code === 5 || code === 6) return true
+  const text = String(rawStatus ?? '').toLowerCase()
+  return text.includes('conclu') || text.includes('cancel')
+}
+
+function isReturnToQueueNotification(notification) {
+  if (!notification || isFinishedNotification(notification)) return false
+  const rawStatus = notificationStatus(notification)
+  const text = String(rawStatus ?? '').toLowerCase()
+  const description = notificationDescription(notification).toLowerCase()
+  return orderStatusCode(rawStatus) === 0 || text.includes('recebida') || description.includes('volta à fila') || description.includes('devolvid')
+}
+
+function hasAssignedTechnician(order) {
+  return Boolean(
+    (order?.cpfTecnico && String(order.cpfTecnico).trim()) ||
+    (order?.cpfTecnicoDescriptografado && String(order.cpfTecnicoDescriptografado).trim())
+  )
+}
+
+function notificationsForActiveOrder(order, notifications) {
+  if (!order || !Array.isArray(notifications) || notifications.length === 0) return []
+
+  const assigned = hasAssignedTechnician(order)
+  const orderId = order?.id != null ? String(order.id) : ''
+  const hasOrderIdField = notifications.some(item =>
+    (item?.idPedido ?? item?.pedidoId ?? item?.codigoPedido ?? item?.idOrdem ?? item?.pedido?.id) != null
+  )
+
+  if (hasOrderIdField && orderId) {
+    const orderNotifications = notifications.filter(item => {
+      const itemOrderId = item?.idPedido ?? item?.pedidoId ?? item?.codigoPedido ?? item?.idOrdem ?? item?.pedido?.id
+      return itemOrderId != null && String(itemOrderId) === orderId
+    })
+    if (assigned && isReturnToQueueNotification(orderNotifications[0])) return []
+    return orderNotifications
+  }
+
+  const first = notifications[0]
+  if (!first || isFinishedNotification(first)) return []
+
+  if (orderStatusCode(order.status) === 0) {
+    return !assigned && isReturnToQueueNotification(first) ? [first] : []
+  }
+
+  const currentNotifications = []
+  for (const item of notifications) {
+    if (isFinishedNotification(item)) break
+    currentNotifications.push(item)
+  }
+  return currentNotifications
+}
+
+function latestOrderDeadline(order, orderNotifications) {
+  if (orderStatusCode(order?.status) === 0) return ''
+  if (order?.dataFinalManutencao) return order.dataFinalManutencao
+  if (order?.prazo) return order.prazo
+
+  for (const item of orderNotifications) {
+    if (isReturnToQueueNotification(item)) break
+    if (item?.prazo) return item.prazo
+  }
+  return ''
 }
 
 function notificationDescription(notification) {
@@ -64,10 +132,10 @@ export function ProgressSteps({ current }) {
   </div>
 }
 
-function MaintenanceStatusCard({ order, notification, loading, ordersError, notificationsLoading, notificationsError, onHistory }) {
+function MaintenanceStatusCard({ order, notification, deadlineValue, loading, ordersError, notificationsLoading, notificationsError, onHistory }) {
   const current = order ? userProgressIndex(order.status) : null
   const description = notificationDescription(notification)
-  const deadline = formatDeadline(notification?.prazo)
+  const deadline = formatDeadline(deadlineValue ?? notification?.prazo)
   const id = String(order?.id || '')
   const displayId = id.startsWith('OS') ? id : 'OS #' + id
 
@@ -138,7 +206,10 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
   }, [])
 
   const activeOrder = newestActiveOrder(orders)
-  const latestNotification = latestUserNotification(notifications)
+  console.log('OS ativa:', activeOrder)
+  const activeOrderNotifications = notificationsForActiveOrder(activeOrder, notifications)
+  const latestNotification = activeOrderNotifications[0] || null
+  const activeDeadline = latestOrderDeadline(activeOrder, activeOrderNotifications)
   const demoOrder = { id: '0001', status: 2 }
   const demoNotification = { 'descrição': 'Adição de 8GB de memória RAM iniciada às 14:30.\nPendente: Substituição do SSD.' }
 
@@ -171,6 +242,7 @@ export function UserHome({ onToast, openRequest, profileName, registeredEquipmen
           <MaintenanceStatusCard
             order={hasLocalApi ? activeOrder : demoOrder}
             notification={hasLocalApi ? latestNotification : demoNotification}
+            deadlineValue={hasLocalApi ? activeDeadline : ''}
             loading={hasLocalApi && orders === null && !ordersError}
             ordersError={hasLocalApi && ordersError}
             notificationsLoading={hasLocalApi && notifications === null && !notificationsError}
