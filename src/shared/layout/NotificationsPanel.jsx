@@ -44,7 +44,6 @@ export function NotificationsPanel({ demo, mode, open, onUnreadChange = () => {}
         setItems(updatedItems)
         onUnreadChange(updatedItems.some(current => !current.lida))
       }
-      onSelect(item)
     } catch { setError('Não foi possível atualizar a notificação. Tente novamente.') }
   }
   if (!open) return null

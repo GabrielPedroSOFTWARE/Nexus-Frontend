@@ -1,13 +1,11 @@
 import { Avatar } from '../ui/Avatar.jsx'
 import { BrandMark } from '../ui/BrandMark.jsx'
 import { clearSession, loadSession } from '../api/httpClient.js'
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, ChevronDown } from 'lucide-react'
 
-export function AppHeader({ mode, active, onNotifications, onToast, profileName, canManageUsers, hasUnread = false }) {
+export function AppHeader({ mode, active, onNotifications, onToast, profileName, canManageUsers, hasUnread = false, profileOpen = false, setProfileOpen = () => {} }) {
   const navigate = useNavigate()
-  const [profileOpen, setProfileOpen] = useState(false)
   const isBackofficeArea = mode === 'admin'
   const session = loadSession()
   const perfil = String(session?.perfil || '').toUpperCase()
