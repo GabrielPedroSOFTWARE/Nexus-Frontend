@@ -37,7 +37,7 @@ function MonthlyChart({ metrics }) {
 
   return <section className="panel connected-panel connected-chart-panel">
     <h2>Ordens abertas por mês</h2>
-    <p className="connected-chart-caption">Últimos seis meses, conforme a data de abertura da ordem.</p>
+    <p className="connected-chart-caption">Últimos 6 meses, por data de abertura.</p>
     {monthlyTotal === 0 ? <p className="connected-chart-empty">{emptyMessage}</p> : <div className="connected-monthly-chart">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={metrics.months} margin={{ top: 12, right: 12, bottom: 0, left: -16 }}>
@@ -76,7 +76,7 @@ function PerformanceChart({ title, state, unit, color, averageScale = 1, formatA
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 12, right: 12, bottom: 0, left: -16 }}>
           <CartesianGrid stroke="#e5e8ee" vertical={false} />
-          <XAxis dataKey="mes" tick={{ fontSize: 11, fill: '#68758a' }} axisLine={false} tickLine={false} />
+          <XAxis dataKey="mes" interval={0} tick={{ fontSize: 10, fill: '#68758a' }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 11, fill: '#68758a' }} axisLine={false} tickLine={false} />
           <Tooltip formatter={value => [`${Number(value).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} ${unit}`, 'Média']} />
           <Bar dataKey="media" name="Média" fill={color} radius={[5, 5, 0, 0]} maxBarSize={42} isAnimationActive={false} />

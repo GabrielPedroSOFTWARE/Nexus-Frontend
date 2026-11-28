@@ -119,7 +119,7 @@ function Dashboard({ isAdmin, profile }) {
   const openMaintenance = filter => navigate(filter === 'all' ? '/admin/manutencoes' : `/admin/manutencoes?filtro=${filter}`)
   return <>
     <h1 className="page-title connected-dashboard-greeting">Olá, {roleLabel}! Bem-vindo ao NEXUS.</h1>
-    <div className="connected-dashboard-toolbar"><span>Dados da sessão atual.</span><button className="outline-button" onClick={refresh}>Atualizar dados</button></div>
+    <div className="connected-dashboard-toolbar"><button className="outline-button" onClick={refresh}>Atualizar dados</button></div>
     <div className="admin-dashboard-grid connected-reference-grid">
       <section className="admin-main-column">
         <article className="panel general-summary connected-summary-panel"><div className="section-title-row"><h2>RESUMO GERAL</h2><span className="updated-chip">Dados atuais</span></div>
@@ -398,10 +398,10 @@ function Registration() {
   }
   return <AdminPanel title="Cadastro de usuário"><form className="connected-form" onSubmit={submit}>
     <FormRequirementsNote />
-    <label>Nome completo <em>*</em><input name="nome" required /></label><label>CPF <em>*</em><input name="cpf" type="text" inputMode="numeric" value={cpf} onChange={e => { setCpf(formatCpf(e.target.value)); setMessage('') }} pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="Digite os 11 números do CPF." placeholder="000.000.000-00" required /></label><label>E-mail <em>*</em><input name="email" type="email" required /></label><label>Setor <em>*</em><input name="setor" required /></label>
-    <label>Senha inicial <em>*</em><input name="senha" type="password" autoComplete="new-password" value={password} onChange={e => { setPassword(e.target.value); setMessage('') }} required /></label>
+    <label><span>Nome completo <em>*</em></span><input name="nome" required /></label><label><span>CPF <em>*</em></span><input name="cpf" type="text" inputMode="numeric" value={cpf} onChange={e => { setCpf(formatCpf(e.target.value)); setMessage('') }} pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="Digite os 11 números do CPF." placeholder="000.000.000-00" required /></label><label><span>E-mail <em>*</em></span><input name="email" type="email" required /></label><label><span>Setor <em>*</em></span><input name="setor" required /></label>
+    <label><span>Senha inicial <em>*</em></span><input name="senha" type="password" autoComplete="new-password" value={password} onChange={e => { setPassword(e.target.value); setMessage('') }} required /></label>
     <PasswordRequirements value={password} />
-    <label>Confirmar senha inicial <em>*</em><input name="confirmarSenha" type="password" autoComplete="new-password" aria-invalid={Boolean(confirmPassword && confirmPassword !== password)} value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setMessage('') }} required /></label>
+    <label><span>Confirmar senha inicial <em>*</em></span><input name="confirmarSenha" type="password" autoComplete="new-password" aria-invalid={Boolean(confirmPassword && confirmPassword !== password)} value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setMessage('') }} required /></label>
     {confirmPassword && confirmPassword !== password && <small className="password-match-warning" role="alert">As senhas não conferem.</small>}
     <button className="primary-button" disabled={busy}>Cadastrar usuário</button>
   </form>{message && <p role="status">{message}</p>}</AdminPanel>

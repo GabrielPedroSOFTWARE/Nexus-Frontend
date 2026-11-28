@@ -49,6 +49,14 @@ export async function apiRequest(path, options = {}) {
       : 'Não foi possível conectar ao backend local. Confira se ele está iniciado em localhost:8080.')
   }
 
+  if (response.status === 401 && options.requiresAuth !== false && loadSession()) {
+    clearSession()
+    window.dispatchEvent(new CustomEvent('nexus:logout', {
+      detail: { message: 'Sua sessão expirou. Faça login novamente.' },
+    }))
+    throw new Error('Sua sessão expirou. Faça login novamente.')
+  }
+
   const raw = await response.text()
   let result = raw
   try {

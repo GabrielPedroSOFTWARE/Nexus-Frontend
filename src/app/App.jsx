@@ -29,13 +29,18 @@ function NexusApp() {
     : session?.perfil === 'SUPPORT_MANAGER' ? 'Técnico / Gestor' : 'Usuário')
 
   useEffect(() => {
-    const logout = () => {
+    const logout = event => {
       setSession(null)
       setRegisteredEquipment([])
+      setService(null)
+      setRequestOpen(false)
+      setScannerState('')
+      navigate('/', { replace: true })
+      if (event?.detail?.message) setToast({ message: event.detail.message, type: 'error' })
     }
     window.addEventListener('nexus:logout', logout)
     return () => window.removeEventListener('nexus:logout', logout)
-  }, [])
+  }, [navigate])
 
   useEffect(() => {
     if (location.pathname === '/sair') navigate('/')
