@@ -37,7 +37,7 @@
   .connected-admin-home .connected-summary-panel .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* Gráficos do Dashboard */
+/* Gráficos do Dashboard da tela inicial do adm */
 .connected-summary-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
 .connected-summary-stats > div { display: flex; flex-direction: column; gap: 5px; padding: 12px; border: 1px solid #e2e7ef; border-radius: 12px; }
 .connected-summary-stats span { color: #667085; font-size: 12px; }
@@ -68,6 +68,8 @@
   .connected-donut-wrap { align-self: center; }
   .connected-chart-legend { width: 100%; }
 }
+
+/* Formulários, busca e modal padrão */
 .connected-search, .connected-form label { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
 .connected-search input, .connected-form input, .connected-form select, .connected-user select, .connected-admin select { min-height: 38px; padding: 6px 9px; border: 1px solid #aab4c3; border-radius: 7px; }
 .connected-form textarea { width: 100%; min-height: 84px; padding: 9px; border: 1px solid #aab4c3; border-radius: 7px; resize: vertical; }
@@ -78,6 +80,7 @@
 .connected-form h3 { margin: 0; }
 .connected-form .primary-button, .connected-user .primary-button { min-height: 36px; padding: 7px 16px; }
 
+/* Detalhes da O.S (Histórico do equipamento, técnico e cancelar O.S) */
 .equipment-history-link { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 15px; padding: 12px 0 0; border: 0; border-top: 1px solid #e0e4ea; color: #315d9e; background: transparent; font-size: 11px; text-decoration: underline; text-align: left; }
 .assign-technician-select select { display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #a9b4c4; border-radius: 6px; background: white; }
 .service-title-group h2 { overflow-wrap: anywhere; }
@@ -88,6 +91,7 @@
 .cancel-order-confirm-button { border: 1px solid #a52f36; color: #fff; background: #a52f36; font-weight: 700; }
 .cancel-order-confirm-button:disabled { opacity: .55; }
 
+/* Tela de desvincular equipamento */
 .unlink-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 2px; }
 .unlink-page-heading .page-title { margin: 0; font-size: 32px; }
 .unlink-back-button { min-height: 36px; padding: 0 14px; border-radius: 7px; font-size: 12px; }
@@ -138,8 +142,11 @@
   .users-unlink-button { align-self: flex-end; }
 }
 
+/* Histórico de alterações (link do modal) */
 .change-history-link { padding: 0; border: 0; background: transparent; color: #315d9e; font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .change-history-link:focus-visible, .equipment-history-link:focus-visible { outline: 2px solid #315d9e; outline-offset: 3px; }
+
+/* Topo das ordens de serviço até os gráficos */
 .connected-admin .connected-orders-title { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding-bottom: 13px; border-bottom: 1px solid #d7dbe2; }
 .connected-admin > .connected-orders-title { margin-bottom: 0; }
 .connected-orders-title > svg { width: 39px; height: 39px; flex: 0 0 auto; color: #53617a; stroke-width: 1.7; }
@@ -179,6 +186,8 @@
 .connected-order-legend span {font-size: 13px;}
 .connected-order-legend small { color: #68758a; font-size: 13px; white-space: nowrap; }
 .connected-order-status-panel .connected-chart-empty { min-height: 180px; margin: 0; }
+
+/* Tabela com todas as O.S. em ordens de serviço */
 .connected-order-table-panel { margin-top: 0; padding: 13px 16px 8px; }
 .connected-order-table-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 8px; }
 .connected-order-controls { display: flex; min-width: min(570px, 68%); align-items: center; justify-content: flex-end; gap: 10px; }
@@ -211,6 +220,8 @@
 .connected-order-badge.priority-unknown { background: #e9edf3; color: #536177; }
 .connected-order-empty { padding: 22px 10px !important; color: #68758a; text-align: center; }
 .connected-filter-summary { margin: 7px 0 0; color: #68758a; font-size: 11px; }
+
+/* Tela de manutenções ativas */
 .connected-maintenance-summary { display: flex; min-height: 111px; align-items: center; gap: 10px; padding: 12px 16px; border: 1px solid #c6c9ce; border-radius: 16px; background: #dbe4f5; }
 .connected-maintenance-summary-title { display: flex; min-width: 285px; flex: 1; align-items: center; gap: 10px; color: #34445f; font-size: 17px; }
 .connected-maintenance-summary-title svg { width: 31px; height: 31px; color: #53617a; }
@@ -227,6 +238,7 @@
 .connected-maintenance-table-panel .connected-maintenance-table tbody td { padding-top: 12px; padding-bottom: 12px; }
 .connected-maintenance-table { min-width: 740px; }
 
+/* Responsividade */
 @media (max-width: 900px) {
   .connected-orders-overview { grid-template-columns: minmax(0, 1fr); }
   .connected-order-status-content { min-height: 210px; }

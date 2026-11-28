@@ -82,7 +82,7 @@
 .orders-table-panel .data-table tbody td { padding: 8px 11px; }
 .orders-table-panel .status-pill { min-width: 112px; padding: 6px 8px; font-size: 11px; }
 
-/* Active maintenance */
+/* Manutenções ativas */
 .maintenance-title-glyph { width: 43px; height: 43px; flex: 0 0 43px; position: relative; color: #53617a; }
 .maintenance-title-glyph > svg:first-child { width: 43px; height: 43px; stroke-width: 1.8; }
 .maintenance-title-glyph > svg:last-child { width: 24px; height: 24px; position: absolute; right: -1px; bottom: 0; padding: 2px; border-radius: 50%; background: #fff; stroke-width: 2; }
@@ -102,7 +102,7 @@
 .maintenance-table tbody td { padding: 11px 9px; }
 .maintenance-table .status-pill { min-width: 130px; font-size: 11px; }
 
-/* Service order details */
+/* Detalhe da ordem de serviço */
 .service-backdrop { padding: 35px; }
 .service-modal { width: min(1280px, 100%); max-height: calc(100vh - 70px); overflow: auto; padding: 20px 22px 24px; border-radius: 26px; background: #f7f8fb; box-shadow: 0 8px 28px rgba(12, 23, 40, .28); transform: translateY(-5px); }
 .service-modal-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 15px; }
