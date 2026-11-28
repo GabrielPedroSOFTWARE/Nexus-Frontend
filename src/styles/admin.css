@@ -150,10 +150,10 @@
 .status-menu button:hover { background: #f1f4f9; }
 .change-history { padding-top: 15px; }
 .change-history h4 { margin: 0 0 11px; font-size: 10px; }
-.change-history p { position: relative; padding-left: 18px; margin: 9px 0; font-size: 10px; font-weight: 700; }
+.change-history p { position: relative; padding-left: 18px; margin: 9px 0; font-size: 12px; font-weight: 700; }
 .change-history p i { width: 8px; height: 8px; position: absolute; top: 3px; left: 2px; border-radius: 50%; background: #7d8da7; }
 .change-history p:first-of-type i { background: #4e7de2; }
-.change-history small { display: block; margin-top: 3px; color: #8591a2; font-size: 9px; font-weight: 400; }
+.change-history small { display: block; margin-top: 3px; color: #8591a2; font-size: 12px; font-weight: 400; }
 
 /* Registration screen */
 .registration-brand-panel { justify-content: center; }

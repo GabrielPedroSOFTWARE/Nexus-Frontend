@@ -1,3 +1,4 @@
+/* Tela inicial do ADMIN */
 .connected-admin { display: flex; flex-direction: column; gap: 18px; padding-top: 38px; }
 .connected-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
 .connected-panel { padding: 20px; }
@@ -35,6 +36,8 @@
 @media (min-width: 821px) and (max-width: 980px) {
   .connected-admin-home .connected-summary-panel .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Gráficos do Dashboard */
 .connected-summary-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
 .connected-summary-stats > div { display: flex; flex-direction: column; gap: 5px; padding: 12px; border: 1px solid #e2e7ef; border-radius: 12px; }
 .connected-summary-stats span { color: #667085; font-size: 12px; }
@@ -135,7 +138,7 @@
   .users-unlink-button { align-self: flex-end; }
 }
 
-.change-history-link { padding: 0; border: 0; background: transparent; color: #315d9e; font-size: 10px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.change-history-link { padding: 0; border: 0; background: transparent; color: #315d9e; font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .change-history-link:focus-visible, .equipment-history-link:focus-visible { outline: 2px solid #315d9e; outline-offset: 3px; }
 .connected-admin .connected-orders-title { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding-bottom: 13px; border-bottom: 1px solid #d7dbe2; }
 .connected-admin > .connected-orders-title { margin-bottom: 0; }
