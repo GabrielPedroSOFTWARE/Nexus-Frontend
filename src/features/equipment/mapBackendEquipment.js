@@ -6,7 +6,6 @@ export function mapBackendEquipment(item) {
     status: 'Em uso',
     statusType: 'inUse',
     lastMaintenance: '-----',
-    warranty: item.garantia || '—',
     model,
     ehNotebook: item.ehNotebook === true,
     cpu: item.processador || 'Não identificado',

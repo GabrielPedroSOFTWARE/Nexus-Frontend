@@ -56,7 +56,7 @@
 .form-section { margin: 20px 0 0; padding: 14px 14px; border: 1px solid #d9dee6; border-radius: 12px; }
 .form-section > label { display: block; color: #36455e; font-size: 12px; font-weight: 700; }
 .form-section label em, .registration-card em { color: #ff3e48; font-style: normal; }
-.form-section label small { display: block; margin-top: 4px; color: #8791a2; font-size: 11px; font-weight: 400; }
+.form-section label small { display: block; margin-top: 4px; color: #8791a2; font-size: 13px; font-weight: 400; }
 .form-section select, .form-section textarea { width: 100%; margin-top: 7px; padding: 10px 12px; border: 1px solid #c8ced8; border-radius: 8px; background: #fff; color: #36445c; font-size: 13px; }
 .form-section select { height: 42px; }
 .form-section textarea { min-height: 68px; resize: vertical; }

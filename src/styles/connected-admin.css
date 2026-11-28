@@ -137,7 +137,6 @@
 
 .change-history-link { padding: 0; border: 0; background: transparent; color: #315d9e; font-size: 10px; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .change-history-link:focus-visible, .equipment-history-link:focus-visible { outline: 2px solid #315d9e; outline-offset: 3px; }
-
 .connected-admin .connected-orders-title { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding-bottom: 13px; border-bottom: 1px solid #d7dbe2; }
 .connected-admin > .connected-orders-title { margin-bottom: 0; }
 .connected-orders-title > svg { width: 39px; height: 39px; flex: 0 0 auto; color: #53617a; stroke-width: 1.7; }

@@ -13,7 +13,7 @@ export function RequestModal({ onClose, onSubmit, equipment }) {
       <div className="form-section frequency-section"><label>COM QUE FREQUÊNCIA OCORRE O PROBLEMA? <em>*</em><small>Assim a equipe pode avaliar melhor a frequência com que o problema relatado ocorre</small></label><div className="radio-grid">
         {FREQUENCY_OPTIONS.map(item => <label key={item}><input type="radio" name="frequencia" value={item} required />{item}</label>)}
       </div></div>
-      <div className="form-section attach-section"><label>ANEXAR ARQUIVOS <small>(opcional)</small><small>Arquivos de vídeo ou prints podem ajudar na solução do problema!</small></label><label className="dropzone"><Paperclip size={24} /><span>Arraste arquivos aqui ou clique para selecionar<small>Vídeo, JPG, PNG, PDF, etc.</small></span><input type="file" name="arquivoImagem" /></label></div>
+      <div className="form-section attach-section"><label>ANEXAR ARQUIVOS <small>(opcional)</small><small>Arquivos de vídeo ou prints podem ajudar na solução do problema!</small></label><label className="dropzone"><Paperclip size={24} /><span>Arraste arquivos aqui ou clique para selecionar<small>Vídeo, JPG, PNG, etc.</small></span><input type="file" name="arquivoImagem" /></label></div>
       <button className="submit-request" type="submit">Enviar solicitação</button>
     </form>
   </div>
